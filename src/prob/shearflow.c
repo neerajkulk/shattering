@@ -849,6 +849,13 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 	dump_history_enroll(coldm1, "cold momentum");
 	dump_history_enroll(hotv1, "hot velocity");
 	dump_history_enroll(coldv1, "cold velocity");
+
+#ifdef VISCOSITY
+	reynolds  = par_getd_def("problem","reynolds",0.0);
+	v0  = par_getd_def("problem","v0",0.0);
+	nu_iso = lx * v0 / reynolds;  
+#endif // VISCOSITY
+	
       }
     }
   }
