@@ -35,6 +35,7 @@ static Real color(const GridS *pG, const int i, const int j, const int k);
 #endif  /* REPORT_NANS */
 
 
+extern Real nu_iso, nu_aniso;
 
 
 #ifdef MPI_PARALLEL
@@ -515,7 +516,8 @@ void problem(DomainS *pDomain)
   reynolds  = par_getd_def("problem","reynolds",0.0);
   
   
-  nu_iso = lx * v0 / reynolds;  
+  nu_iso = lx * v0 / reynolds;
+  nu_aniso = 0.0;
     
 #endif // VISCOSITY
 
@@ -831,12 +833,13 @@ void problem_read_restart(MeshS *pM, FILE *fp)
   Cons1DS U1d;
   Real reynolds;
 
-  
 
   for (nl=0; nl<=(pM->NLevels)-1; nl++) {
     for (nd=0; nd<=(pM->DomainsPerLevel[nl])-1; nd++) {
       if (pM->Domain[nl][nd].Grid != NULL) {
 
+	pDomain = &(pM->Domain[nl][nd]);
+	
 	pGrid = pM->Domain[nl][nd].Grid;
 	is = pGrid->is, ie = pGrid->ie;
 	js = pGrid->js, je = pGrid->je;
@@ -853,15 +856,13 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 #ifdef VISCOSITY
 	reynolds  = par_getd_def("problem","reynolds",0.0);
 	v0  = par_getd_def("problem","v0",0.0);
-	nu_iso = lx * v0 / reynolds;  
+	nu_iso = lx * v0 / reynolds;
+	nu_aniso = 0.0;
 #endif // VISCOSITY
 	
       }
     }
   }
-
-
-
 
 
   return;
