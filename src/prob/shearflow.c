@@ -1587,58 +1587,10 @@ static Real coldv1(const GridS *pG, const int i, const int j, const int k)
   return  (pG->U[k][j][i].s[0] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d * pG->U[k][j][i].d);
 }
 
-
-
 static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k)
 {
-  int is = pG->is, ie = pG->ie;
-  int js = pG->js, je = pG->je;
-  int ks = pG->ks, ke = pG->ke;
-
-  int ii;
-  int ji;
-  int ki;
-
-
-  Real totalmass;
-  
-  Real msum,prob,entropy,xvar;
-
-  msum = 0.0;
-  entropy = 0.0;
-
-
-  
-  for (ki=ks; ki<=ke; ki++) {
-    for (ji=js; ji<=je; ji++) {
-      for (ii=is; ii<=ie; ii++) {
-	
-	msum +=  pG->U[ki][ji][ii].d *pG->dx1 * pG->dx2 * pG->dx3;
-	
-      }
-    }
-  }
-  
-  
-  for (ki=ks; ki<=ke; ki++) {
-    for (ji=js; ji<=je; ji++) {
-      for (ii=is; ii<=ie; ii++) {
-
-        xvar = (pG->U[ki][ji][ii].d *pG->dx1 * pG->dx2 * pG->dx3)/msum;
-
-        entropy += -1.0*xvar*log(xvar);
-
-      }
-    }
-  }
-
-
-  if (entropy < 0.0)
-    entropy = 0.0;
-
+  Real entropy;
+  entropy = (-1.0)*(pG->U[k][j][i].d)*log(pG->U[k][j][i].d);
   return entropy;
 }
-
-
-
 
