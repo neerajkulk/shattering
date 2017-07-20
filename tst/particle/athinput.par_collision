@@ -1,0 +1,77 @@
+<comment>
+
+problem = particle-gas "collision" test
+author  = X.N. Bai & J.M. Stone
+journal = ApJS, 190, 297
+config  = --with-particles=feedback --with-gas=hydro --with-eos=isothermal --with-problem=par_collision 
+
+<job>
+
+problem_id    = collision  # problem ID: basename of output filenames
+maxout        = 2          # Output blocks number from 1 -> maxout
+num_domains   = 1          # number of Domains in Mesh
+
+<output1>
+out_fmt = phst              # particle history data dump
+dt      = 0.05              # time increment between outputs
+
+<output2>
+out_fmt = rst               # Restart data dump
+dt      = 0.05              # time increment between outputs
+
+<output3>
+out_fmt = lis               # particle list data dump (ONLY for particles)
+dt      = 0.5               # time step between output
+id      = ds
+
+<time>
+
+cour_no         = 0.8       # The Courant, Friedrichs, & Lewy (CFL) Number
+nlim            = 200000    # cycle limit
+tlim            = 10.0       # time limit
+
+<domain1>
+level           = 0
+Nx1             = 32        # Number of zones in X-direction
+x1min           = 0.0       # minimum value of X
+x1max           = 4.0       # maximum value of X
+bc_ix1          = 4         # inner-I (X) boundary flag (periodic)
+bc_ox1          = 4         # outer-I (X) boundary flag (periodic)
+NGrid_x1        = 2
+
+Nx2             = 32        # Number of zones in X2-direction
+x2min           = 0.0       # minimum value of X2
+x2max           = 4.0       # maximum value of X2
+bc_ix2          = 4         # inner-J (Y) boundary flag (periodic)
+bc_ox2          = 4         # outer-J (Y) boundary flag (periodic)
+NGrid_x2        = 2
+
+Nx3             = 1         # Number of zones in X3-direction
+x3min           = 0.0       # minimum value of X3
+x3max           = 0.0       # maximum value of X3
+bc_ix3          = 4         # inner-K (Z) boundary flag (outflow)
+bc_ox3          = 4         # outer-K (Z) boundary flag (outflow)
+NGrid_x3        = 1
+
+<particle>
+
+partypes        = 1         # number of types of particles
+parnumcell      = 1         # number of particles for each type
+
+integrator      = 2         # particle integrator (1: explicit; 2: semi-implicit; 3: fully-implicit)
+interp          = 2         # interpolation scheme (1: CIC; 2: TSC; 3: QP)
+tsmode          = 3         # stopping time calculation mode (1: General; 2: Epstein; 3: fixed);
+
+tshuf           = 100.0     # time interval to shuffle the particles
+
+<problem>
+
+rho             = 1.0       # fluid density (const)
+vdif_p          = 2.0       # velocity difference in the plane between gas and particles
+vdif_v          = 2.0       # velocity difference in the vertical direction between gas and particles
+iso_csound      = 1.0       # sound speed
+gamma = 1.6666666666666667  # gamma = C_p/C_v
+
+tstop           = 2.0       # stopping time
+mratio          = 1.0       # mass ratio of the particle to gas
+oblique         = 0.5       # the cosine of planar wave propagation direction to x axis

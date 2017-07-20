@@ -1,0 +1,26 @@
+# Ignore objects and archives
+*.o
+*.a
+
+# Other source repository archive directories (protects when importing)
+.hg
+.svn
+CVS
+
+# Ignore emacs backups and OSX stuff
+*~
+\#*
+.\#*
+.DS_Store
+
+# Ignore
+config.log
+config.status
+src/defs.h
+bin/*
+Makefile
+Makedepend
+Makeoptions
+src/problem.c
+autom4te.cache/*
+/src/config.h

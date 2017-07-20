@@ -1,0 +1,98 @@
+<comment>
+
+problem = Streaming instability in non-stratified disks
+author  = Youdin & Johansen
+journal = ApJ, 2007, 662, 613
+config  = --enable-shearing-box --enable-fargo --with-particles=feedback --with-gas=hydro --with-eos=isothermal --with-problem=streaming2d_single --with-order=3p
+
+<job>
+
+problem_id      = Streaming2d    # problem ID: basename of output filenames
+maxout          = 1              # Output blocks number from 1 -> maxout
+num_domains     = 1              # number of Domains in Mesh
+
+<output1>
+name    = amp                    # wave amplitude
+id      = amp
+dt      = 0.02                   # time step between output
+
+<output2>
+out_fmt = lis                    # particle list data dump (ONLY for particles)
+dt      = 0.1                    # time step between output
+id      = ds
+par_prop = downsamp              # user defined particle selection function
+
+<output3>
+out_fmt = ppm                    # ppm image
+dt      = 0.05                   # time step between output
+out     = difdpar
+id      = difdpar
+pargrid = 1
+usr_expr_flag = 1
+palette = jh_colors
+dmin    = -0.2                   # min value
+dmax    = 0.2                    # max value
+
+<output4>
+out_fmt = ppm                    # ppm image
+dt      = 0.05                   # time step between output
+out     = dVx
+id      = dVx
+usr_expr_flag = 1
+palette = jh_colors
+dmin    = -0.01                  # min value
+dmax    = 0.01                   # max value
+
+<time>
+
+cour_no         = 0.8            # The Courant, Friedrichs, & Lewy (CFL) Number
+nlim            = 100000         # cycle limit
+tlim            = 6              # time limit
+
+<domain1>
+level           = 0
+Nx1             = 64        # Number of zones in X-direction
+x1min           = -1.0      # minimum value of X
+x1max           = 1.0       # maximum value of X
+bc_ix1          = 4         # inner-I (X) boundary flag (periodic)
+bc_ox1          = 4         # outer-I (X) boundary flag (periodic)
+NGrid_x1        = 2
+
+Nx2             = 64        # Number of zones in X2-direction
+x2min           = -1.0      # minimum value of X2
+x2max           = 1.0       # maximum value of X2
+bc_ix2          = 4         # inner-J (Y) boundary flag (periodic)
+bc_ox2          = 4         # outer-J (Y) boundary flag (periodic)
+NGrid_x2        = 2
+
+Nx3             = 1         # Number of zones in X3-direction
+x3min           = 0.0       # minimum value of X3
+x3max           = 0.0       # maximum value of X3
+bc_ix3          = 4         # inner-K (Z) boundary flag (outflow)
+bc_ox3          = 4         # outer-K (Z) boundary flag (outflow)
+
+<particle>
+
+partypes        = 1         # number of types of particles
+parnumcell      = 1         # number of particles for each type
+
+integrator      = 2         # particle integrator (1: explicit; 2: semi-implicit; 3: fully-implicit)
+interp          = 2         # interpolation scheme (1: CIC; 2: TSC; 3: polynomial)
+tsmode          = 3         # stopping time calculation mode (1: General; 2: Epstein; 3: fixed);
+
+tshuf           = 100.0     # time interval to shuffle the particles
+
+<problem>
+
+omega           = 1.0       # angular velocity of rotation
+iso_csound      = 1.0       # sound speed (381.9718634 for ipert=1, 76.39437268 for ipert=2)
+
+tstop           = 1.0       # stopping time
+mratio          = 1.0       # mass ratio of the particle to gas
+etavk           = 0.05      # velocity shift due to pressure gradient
+
+amp             = 1.0e-6    # amplitude of perturbation
+nwave           = 1         # number of wavelengths across the box
+ipert           = 1         # perturbation mode (0: nsh; 1: linA; 2: linB; 3: white)
+
+downsamp        = 1         # down sampling in the particle list output

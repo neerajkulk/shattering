@@ -1,0 +1,106 @@
+<comment>
+
+problem = Streaming instability in non-stratified disks
+author  = Bai & Stone
+journal = ApJS, 190, 297
+config  = --enable-shearing-box --enable-fargo --with-particles=feedback --with-gas=hydro --with-eos=isothermal --with-problem=streaming2d_multi --with-order=3p
+make    = make all MACHINE=peyton-mpi
+run     = /usr/peyton/openmpi/bin/mpirun -np 4 athena -i ../tst/particle/athinput.streaming2d_multi
+
+<job>
+
+problem_id      = Streaming2d    # problem ID: basename of output filenames
+maxout          = 5              # Output blocks number from 1 -> maxout
+num_domains     = 1              # number of Domains in Mesh
+
+<output1>
+out_fmt = hst                # gas history dump
+dt      = 0.5                # time step between output
+
+<output2>
+out_fmt = phst               # particle history dump
+dt      = 0.5                # time step between output
+
+<output3>
+out_fmt = rst                # restart dump
+dt      = 200                # time step between output
+
+<output4>
+out_fmt = lis                # particle list data output
+dt      = 0.5                # time step between output
+id      = ds
+par_prop = limit             # user defined particle selection function
+
+<output5>
+out_fmt = lis                # tracer particle output
+time    = 500                # starting time of output
+dt      = 1.0                # time step between output
+id      = tracer
+par_prop = trace             # user defined particle selection function
+
+<output6>
+out_fmt = ppm                # ppm images of net particle density
+dt      = 0.5                # time step between output
+out     = difdpar
+id      = difdpar
+pargrid = 1
+usr_expr_flag = 1
+palette = jh_colors
+dmin    = -0.2              # min value
+dmax    = 0.2               # max value
+
+<time>
+
+cour_no         = 0.9       # The Courant, Friedrichs, & Lewy (CFL) Number
+nlim            = 100000    # cycle limit
+tlim            = 1000.0    # time limit
+
+<domain1>
+level           = 0
+Nx1             = 64        # Number of zones in X-direction
+x1min           = -1.0      # minimum value of X
+x1max           = 1.0       # maximum value of X
+bc_ix1          = 4         # inner-I (X) boundary flag (periodic)
+bc_ox1          = 4         # outer-I (X) boundary flag (periodic)
+NGrid_x1        = 2
+
+Nx2             = 64        # Number of zones in X2-direction
+x2min           = -1.0      # minimum value of X2
+x2max           = 1.0       # maximum value of X2
+bc_ix2          = 4         # inner-J (Y) boundary flag (periodic)
+bc_ox2          = 4         # outer-J (Y) boundary flag (periodic)
+NGrid_x2        = 2
+
+Nx3             = 1         # Number of zones in X3-direction
+x3min           = 0.0       # minimum value of X3
+x3max           = 0.0       # maximum value of X3
+bc_ix3          = 4         # inner-K (Z) boundary flag (periodic)
+bc_ox3          = 4         # outer-K (Z) boundary flag (periodic)
+
+<particle>
+
+partypes        = 2         # number of types of particles
+parnumcell      = 1         # number of particles for each type
+
+integrator      = 2         # particle integrator (1: explicit; 2: semi-implicit; 3: fully-implicit)
+interp          = 2         # interpolation scheme (1: CIC; 2: TSC; 3: polynomial)
+tsmode          = 3         # stopping time calculation mode (1: General; 2: Epstein; 3: fixed);
+
+tshuf           = 2000      # time interval to shuffle the particles
+
+<problem>
+
+omega           = 1.0       # angular velocity of rotation
+iso_csound      = 1.0       # sound speed
+
+tsmin           = 0.5       # stopping time for smallest particles
+tsmax           = 1.0       # stopping time for largest particles
+tscrit          = 1.0e-5    # critical stopping time below which implicit integrator is called
+mratio          = 0.2       # total particle to gas mass ratio
+pwind           = 0.0       # power law index of particle mass distribution
+etavk           = 0.05      # velocity shift due to pressure gradient
+
+ipert           = 2         # perturbation mode (0:nsh; 1:cell random; 2:grid random; 3: non-nsh)
+
+ntrack          = 64        # number of particles for tracking
+nlis            = 1024      # number of particles in the particle list output
