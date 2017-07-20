@@ -593,7 +593,7 @@ void Userwork_in_loop(MeshS *pM)
   Real deltaE;
   int gnx1, gnx2, gnx3;
   Real tsim;
-  Real stepcooling;
+  int stepcooling;
   Real counter, tshift, steps;
 #ifdef MPI_PARALLEL
   Real deltaE_global;
@@ -623,7 +623,7 @@ void Userwork_in_loop(MeshS *pM)
 	coolon = par_getd("problem", "coolon");
 	heaton = par_getd("problem", "heaton");
 	tsim = par_getd("time", "tlim");
-	stepcooling = par_getd("problem", "stepcooling");
+	stepcooling = par_geti("problem", "stepcooling");
 	steps = par_getd("problem", "steps");
 
 	counter = 1.0;
@@ -673,7 +673,7 @@ void Userwork_in_loop(MeshS *pM)
 	      }
 
 
-	      if (stepcooling ==1.0) {
+	      if (stepcooling ==1) {
 
 		if (pGrid->time > tshift) {
 		  FloorTemp = par_getd("problem", "Floor")*(steps - counter)/steps;
@@ -686,7 +686,7 @@ void Userwork_in_loop(MeshS *pM)
 
 	      
 
-	      if (stepcooling == 2.0) {
+	      if (stepcooling == 2) {
 
 		if (pGrid->time > tshift) {
 		  FloorTemp /= pow(4.0,(1.0/3.5));  /*cstcool drops by a factor of 4*/
