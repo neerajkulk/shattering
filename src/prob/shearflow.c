@@ -665,8 +665,7 @@ void Userwork_in_loop(MeshS *pM)
 		  tmpfloor = tmpfloor*(steps - counter)/steps;
 		  tshift += tsim/steps;
 		  counter += 1.0;
-		}
-		
+		}		
 	      }
 
 
@@ -833,6 +832,16 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 	lx = pDomain->RootMaxX[0] - pDomain->RootMinX[0];
 	ly = pDomain->RootMaxX[1] - pDomain->RootMinX[1];
 
+
+	FloorTemp = par_getd("problem", "Floor");
+	CeilingTemp = par_getd("problem", "Ceiling");
+	coolon = par_getd("problem", "coolon");
+	heaton = par_getd("problem", "heaton");
+	tsim = par_getd("time", "tlim");
+	stepcooling = par_geti("problem", "stepcooling");
+	steps = par_getd("problem", "steps");
+  
+	
 	dump_history_enroll(hst_Sdye, "dye entropy");
 	dump_history_enroll(hotm1, "hot momentum");
 	dump_history_enroll(coldm1, "cold momentum");
