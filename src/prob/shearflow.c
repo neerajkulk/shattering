@@ -22,8 +22,6 @@ static Real stepcool(Real time, Real tsim);
 
 static Real hotm1(const GridS *pG, const int i, const int j, const int k);
 static Real coldm1(const GridS *pG, const int i, const int j, const int k);
-static Real hotv1(const GridS *pG, const int i, const int j, const int k);
-static Real coldv1(const GridS *pG, const int i, const int j, const int k);
 static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k);
 static Real color(const GridS *pG, const int i, const int j, const int k);
 
@@ -1567,16 +1565,6 @@ static Real hotm1(const GridS *pG, const int i, const int j, const int k)
 static Real coldm1(const GridS *pG, const int i, const int j, const int k)
 {
   return  (pG->U[k][j][i].s[0] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d);
-}
-
-static Real hotv1(const GridS *pG, const int i, const int j, const int k)
-{
-  return  (pG->U[k][j][i].s[1] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d * pG->U[k][j][i].d);
-}
-
-static Real coldv1(const GridS *pG, const int i, const int j, const int k)
-{
-  return  (pG->U[k][j][i].s[0] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d * pG->U[k][j][i].d);
 }
 
 static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k)
