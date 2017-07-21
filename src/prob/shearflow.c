@@ -1,3 +1,4 @@
+
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
@@ -12,15 +13,13 @@
 
 #ifdef REPORT_NANS
 static int report_nans(MeshS *pM, DomainS *pDomain, int fix);
+static OutputS nan_dump;
+static int nan_dump_count;
+#endif  /* REPORT_NANS */
+
 static Real get_velocity_shift(MeshS *pM);
 static void boost_frame(DomainS *pDomain, Real dvx);
 static Real stepcool(Real time, Real tsim);
-static OutputS nan_dump;
-static int nan_dump_count;
-static Real netboost=0.0;
-static Real t_boostdump=0.0;
-
-
 
 static Real hotm1(const GridS *pG, const int i, const int j, const int k);
 static Real coldm1(const GridS *pG, const int i, const int j, const int k);
@@ -29,11 +28,8 @@ static Real coldv1(const GridS *pG, const int i, const int j, const int k);
 static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k);
 static Real color(const GridS *pG, const int i, const int j, const int k);
 
-
-
-
-#endif  /* REPORT_NANS */
-
+static Real netboost=0.0;
+static Real t_boostdump=0.0;
 
 extern Real nu_iso, nu_aniso;
 
