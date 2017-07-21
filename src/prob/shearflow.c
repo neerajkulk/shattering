@@ -443,8 +443,8 @@ void problem(DomainS *pDomain)
 
 	r = sqrt(x3*x3 + x2*x2);
 
-	intrfc = (dbig-dsmal)*exp(-pow((r/width),30.0))+dsmal;
-	vx = -v0*exp(-pow((r/width),30.0)) + v0;
+	intrfc = 0.5*(dbig-dsmal)*(tanh((-r+width)*a)+tanh((r+width)*a))+dsmal;
+	vx = v0 - 0.5*v0*(tanh((-r+width)*a)+tanh((r+width)*a));
 	
         
 	pGrid->U[k][j][i].d /= 2.0;
@@ -477,10 +477,12 @@ void problem(DomainS *pDomain)
 	
 #if (NSCALARS > 0)
 	/*cold gas dye*/
-	pGrid->U[k][j][i].s[0] = (1.0)*exp(-pow((r/width),30.0)) *  pGrid->U[k][j][i].d;
+	pGrid->U[k][j][i].s[0] =  0.5*(tanh((-r+width)*a)+tanh((r+width)*a))*pGrid->U[k][j][i].d;
 
 	/*hot gas dye*/
-	pGrid->U[k][j][i].s[1] = (1.0 - exp(-pow((r/width),30.0))) *  pGrid->U[k][j][i].d;
+	pGrid->U[k][j][i].s[1] = pGrid->U[k][j][i].d - pGrid->U[k][j][i].s[0] ;
+
+	/*gas is initialized by 2 dyes to be either hot or cold*/
 
 #endif
 	
