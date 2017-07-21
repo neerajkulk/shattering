@@ -1,4 +1,3 @@
-
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
@@ -27,6 +26,14 @@ static Real hotv1(const GridS *pG, const int i, const int j, const int k);
 static Real coldv1(const GridS *pG, const int i, const int j, const int k);
 static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k);
 static Real color(const GridS *pG, const int i, const int j, const int k);
+
+static Real FloorTemp;
+static Real CeilingTemp;
+static Real coolon;
+static Real heaton;
+static Real tsim;
+static int stepcooling;
+static Real steps;
 
 static Real netboost=0.0;
 static Real t_boostdump=0.0;
@@ -366,6 +373,16 @@ void problem(DomainS *pDomain)
   Real dsmal = par_getd("problem","dsmal");
   Real r; /*r in cylindrical coordinates*/
 
+  FloorTemp = par_getd("problem", "Floor");
+  CeilingTemp = par_getd("problem", "Ceiling");
+  coolon = par_getd("problem", "coolon");
+  heaton = par_getd("problem", "heaton");
+  tsim = par_getd("time", "tlim");
+  stepcooling = par_geti("problem", "stepcooling");
+  steps = par_getd("problem", "steps");
+
+  // ath_error("temp floor is %f\n", FloorTemp);
+  
                 
   Prim1DS W;
   Cons1DS U1d;
@@ -568,22 +585,17 @@ VOutFun_t get_usr_out_fun(const char *name)
 
 void Userwork_in_loop(MeshS *pM)
 {
-
- int nl, nd, ntot;
+  int nl, nd, ntot;
   GridS *pGrid;
   DomainS *pD;
   int is, ie, js, je, ks, ke;
   int i,j,k;
   Real KE,TE,ME,temp,dE;
-  Real FloorTemp;
-  Real CeilingTemp;
-  Real coolon, heaton;
   Real dvx;
   Real deltaE;
   int gnx1, gnx2, gnx3;
-  Real tsim;
-  int stepcooling;
-  Real counter, tshift, steps;
+  Real counter, tshift;
+  Real tmpfloor;
 #ifdef MPI_PARALLEL
   Real deltaE_global;
   int ierr;
@@ -605,16 +617,7 @@ void Userwork_in_loop(MeshS *pM)
 	js = pGrid->js; je = pGrid->je;
 	ks = pGrid->ks; ke = pGrid->ke;
 
-
-
-	FloorTemp = par_getd("problem", "Floor");
-        CeilingTemp = par_getd("problem", "Ceiling");
-	coolon = par_getd("problem", "coolon");
-	heaton = par_getd("problem", "heaton");
-	tsim = par_getd("time", "tlim");
-	stepcooling = par_geti("problem", "stepcooling");
-	steps = par_getd("problem", "steps");
-
+	tmpfloor = FloorTemp;
 	counter = 1.0;
 	tshift = tsim/steps;
 	
@@ -665,7 +668,7 @@ void Userwork_in_loop(MeshS *pM)
 	      if (stepcooling ==1) {
 
 		if (pGrid->time > tshift) {
-		  FloorTemp = par_getd("problem", "Floor")*(steps - counter)/steps;
+		  tmpfloor = tmpfloor*(steps - counter)/steps;
 		  tshift += tsim/steps;
 		  counter += 1.0;
 		}
@@ -678,7 +681,7 @@ void Userwork_in_loop(MeshS *pM)
 	      if (stepcooling == 2) {
 
 		if (pGrid->time > tshift) {
-		  FloorTemp /= pow(4.0,(1.0/3.5));  /*cstcool drops by a factor of 4*/
+		  tmpfloor /= pow(4.0,(1.0/3.5));  /*cstcool drops by a factor of 4*/
 		  tshift += tsim/steps;
 		  counter += 1.0;
 		}
@@ -687,8 +690,8 @@ void Userwork_in_loop(MeshS *pM)
 
 	      
 	      /* apply temperature floor and write to the grid */
-	      if (TE < 3.0*pGrid->U[k][j][i].d*FloorTemp/2.0){
-		TE = 3.0*pGrid->U[k][j][i].d*FloorTemp/2.0;
+	      if (TE < 3.0*pGrid->U[k][j][i].d*tmpfloor/2.0){
+		TE = 3.0*pGrid->U[k][j][i].d*tmpfloor/2.0;
 	      }
 	      
  
@@ -697,7 +700,7 @@ void Userwork_in_loop(MeshS *pM)
 		TE = 3.0*pGrid->U[k][j][i].d*CeilingTemp/2.0;
 	      }
 	      deltaE += pGrid->U[k][j][i].E - (KE + TE);
-	      
+	      // ath_pout(0, "temp floor is %f\n", FloorTemp);
               #ifdef MHD
 	      
 	      deltaE -= ME;
