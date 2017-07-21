@@ -18,7 +18,7 @@ static int nan_dump_count;
 
 static Real get_velocity_shift(MeshS *pM);
 static void boost_frame(DomainS *pDomain, Real dvx);
-static Real stepcool(Real time, Real tsim);
+
 
 static Real hotm1(const GridS *pG, const int i, const int j, const int k);
 static Real coldm1(const GridS *pG, const int i, const int j, const int k);
@@ -508,10 +508,7 @@ void problem(DomainS *pDomain)
   
   dump_history_enroll(hst_Sdye, "dye entropy");
   dump_history_enroll(hotm1, "hot momentum");
-  dump_history_enroll(coldm1, "cold momentum");
-  dump_history_enroll(hotv1, "hot velocity");
-  dump_history_enroll(coldv1, "cold velocity");
-      
+  dump_history_enroll(coldm1, "cold momentum");      
 
 #ifdef VISCOSITY
   
@@ -610,7 +607,6 @@ void Userwork_in_loop(MeshS *pM)
 	pGrid = pM->Domain[nl][nd].Grid;
 
 	deltaE = 0;
-
 	is = pGrid->is; ie = pGrid->ie;
 	js = pGrid->js; je = pGrid->je;
 	ks = pGrid->ks; ke = pGrid->ke;
@@ -840,9 +836,7 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 	dump_history_enroll(hst_Sdye, "dye entropy");
 	dump_history_enroll(hotm1, "hot momentum");
 	dump_history_enroll(coldm1, "cold momentum");
-	dump_history_enroll(hotv1, "hot velocity");
-	dump_history_enroll(coldv1, "cold velocity");
-
+	
 #ifdef VISCOSITY
 	reynolds  = par_getd_def("problem","reynolds",0.0);
 	v0  = par_getd_def("problem","v0",0.0);
@@ -1534,28 +1528,6 @@ static Real get_velocity_shift(MeshS *pM)
     return scal[0] / scal[1];
 }
 
-
-static Real stepcool(Real time, Real tsim){
-
-  Real out = 0.0;
-
-  if (time > 0.0 && time < tsim*(0.2))
-
-    out = 1.0;
-
-
-  if (time > tsim*(0.4) && time < tsim*(0.6))
-
-    out = 1.0;
-
-
-  if (time > tsim*(0.8) && time < tsim)
-
-    out =  1.0;
-
-  return out;
-
-}
 
 static Real hotm1(const GridS *pG, const int i, const int j, const int k)
 {
