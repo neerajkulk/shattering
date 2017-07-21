@@ -482,15 +482,6 @@ void problem(DomainS *pDomain)
 	/*hot gas dye*/
 	pGrid->U[k][j][i].s[1] = (1.0 - exp(-pow((r/width),30.0))) *  pGrid->U[k][j][i].d;
 
-	/*cold gas momentum*/
-	pGrid->U[k][j][i].s[2] = (pGrid->U[k][j][i].s[0] * pGrid->U[k][j][i].M1)/( pGrid->U[k][j][i].d);
-
-	/*hot gas momentum*/
-	pGrid->U[k][j][i].s[3] = (pGrid->U[k][j][i].s[1] * pGrid->U[k][j][i].M1)/( pGrid->U[k][j][i].d);
-
-	
-	
-	
 #endif
 	
 	/* s = ρc. c is the specific dye (roughly 0-1 specifying what fraction of the gas is cold) the volume integral of s is conserved. */
