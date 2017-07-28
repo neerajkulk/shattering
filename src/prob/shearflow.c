@@ -1,3 +1,4 @@
+
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
@@ -32,6 +33,7 @@ static Real heaton;
 static Real tsim;
 static int stepcooling;
 static Real steps;
+static Real coolinglaw;
 
 static Real netboost=0.0;
 static Real t_boostdump=0.0;
@@ -378,7 +380,7 @@ void problem(DomainS *pDomain)
   tsim = par_getd("time", "tlim");
   stepcooling = par_geti("problem", "stepcooling");
   steps = par_getd("problem", "steps");
-
+  coolinglaw = par_getd("problem", "coolinglaw");
   // ath_error("temp floor is %f\n", FloorTemp);
   
                 
@@ -652,7 +654,7 @@ void Userwork_in_loop(MeshS *pM)
 		ath_error("Floor temp at (%d,%d,%d), T = %f, KE = %f, E = %f, d = %f\n",k,j,i, temp, KE, pGrid->U[k][j][i].E,pGrid->U[k][j][i].d);
 	      }
 
-	      dE = SQR(pGrid->U[k][j][i].d)*(1/(temp))*pGrid->dt;
+	      dE = SQR(pGrid->U[k][j][i].d)*(pow(temp,coolinglaw))*pGrid->dt;
 
 	      if (coolon == 1.0) {
 		TE -= dE;
@@ -674,7 +676,7 @@ void Userwork_in_loop(MeshS *pM)
 	      if (stepcooling == 2) {
 
 		if (pGrid->time > tshift) {
-		  tmpfloor /= pow(4.0,(1.0/3.5));  /*cstcool drops by a factor of 4*/
+		  tmpfloor /= pow(4.0,(1.0/(2.5-coolinglaw)));  /*cstcool drops by a factor of 4*/
 		  tshift += tsim/steps;
 		  counter += 1.0;
 		}
@@ -840,7 +842,7 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 	tsim = par_getd("time", "tlim");
 	stepcooling = par_geti("problem", "stepcooling");
 	steps = par_getd("problem", "steps");
-  
+	coolinglaw = par_getd("problem", "coolinglaw");  
 	
 	dump_history_enroll(hst_Sdye, "dye entropy");
 	dump_history_enroll(hotm1, "hot momentum");
