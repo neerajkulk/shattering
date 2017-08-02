@@ -1,4 +1,3 @@
-
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
@@ -54,8 +53,8 @@ extern Real nu_iso, nu_aniso;
  * For OFST, i,j,k,nx2,nx3 reference the local grid */
 #define OFST(i, j, k) ((k) + nx3*((j) + nx2*(i)))
 /* KWVM: magnitude of wavenumber k in units of dkx */
-#define KWVM(i, j, k) (sqrt(SQR(KCOMP(i,gis-nghost,gnx1))+ \
-                            SQR(KCOMP(j,gjs-nghost,gnx2))+ \
+#define KWVM(i, j, k) (sqrt(SQR(KCOMP(i,gis-nghost,gnx1))+      \
+                            SQR(KCOMP(j,gjs-nghost,gnx2))+      \
                             SQR(KCOMP(k,gks-nghost,gnx3))))
 
 /* FFTW - Variables, Plan, etc. */
@@ -218,7 +217,7 @@ static inline void generate()
 
   khigh *= 2.0;
   expo = 0.0;
-    
+
   /* Generate new perturbations following appropriate power spectrum */
 
 
@@ -273,19 +272,19 @@ static void perturb(GridS *pGrid)
       }
     }
   }
-    
-    /*play with numbers here to flatten out high density areas and change size of perturbations */
+
+  /*play with numbers here to flatten out high density areas and change size of perturbations */
 
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
         pGrid->U[k][j][i].d *= exp(1.0 + dd[k][j][i]);
-          /*Flatten out high density stuff*/
-          if (pGrid->U[k][j][i].d > 1.0) {
-               pGrid->U[k][j][i].d = 1.0 + log(pGrid->U[k][j][i].d);
-          }
-          
-    
+        /*Flatten out high density stuff*/
+        if (pGrid->U[k][j][i].d > 1.0) {
+          pGrid->U[k][j][i].d = 1.0 + log(pGrid->U[k][j][i].d);
+        }
+
+
       }
     }
   }
@@ -301,11 +300,11 @@ static void initialize(GridS *pGrid, DomainS *pD)
   int k, ks=pGrid->ks, ke = pGrid->ke;
   int nbuf, mpierr, nx1gh, nx2gh, nx3gh;
 
-/* -----------------------------------------------------------
- * Variables within this block are stored globally, and used
- * within preprocessor macros.  Don't create variables with
- * these names within your function if you are going to use
- * OFST(), KCOMP(), or KWVM() within the function! */
+  /* -----------------------------------------------------------
+   * Variables within this block are stored globally, and used
+   * within preprocessor macros.  Don't create variables with
+   * these names within your function if you are going to use
+   * OFST(), KCOMP(), or KWVM() within the function! */
 
   /* Get local grid size */
   nx1 = (ie-is+1);
@@ -321,7 +320,7 @@ static void initialize(GridS *pGrid, DomainS *pD)
   gis=is+pGrid->Disp[0];  gie=ie+pGrid->Disp[0];
   gjs=js+pGrid->Disp[1];  gje=je+pGrid->Disp[1];
   gks=ks+pGrid->Disp[2];  gke=ke+pGrid->Disp[2];
-/* ----------------------------------------------------------- */
+  /* ----------------------------------------------------------- */
 
   /* Get size of arrays with ghost cells */
   nx1gh = nx1 + 2*nghost;
@@ -382,8 +381,8 @@ void problem(DomainS *pDomain)
   steps = par_getd("problem", "steps");
   coolinglaw = par_getd("problem", "coolinglaw");
   // ath_error("temp floor is %f\n", FloorTemp);
-  
-                
+
+
   Prim1DS W;
   Cons1DS U1d;
 
@@ -394,20 +393,20 @@ void problem(DomainS *pDomain)
 #endif
   initialize(pGrid, pDomain);
 
-//  init_cooling();
-    
-    Real P=1.0,vy=0.0;
+  //  init_cooling();
 
-  #ifdef MHD
+  Real P=1.0,vy=0.0;
+
+#ifdef MHD
   Real Bx = 0.01;
-  #endif
-  
-  
+#endif
+
+
   /* Initialize uniform density */
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-          cc_pos(pGrid,i,j,0,&x1,&x2,&x3);
+        cc_pos(pGrid,i,j,0,&x1,&x2,&x3);
 
         pGrid->U[k][j][i].d = 1.0;
         pGrid->U[k][j][i].M1 = 0.0;
@@ -415,23 +414,23 @@ void problem(DomainS *pDomain)
         pGrid->U[k][j][i].M3 = 0.0;
 
 #ifdef MHD
-	pGrid->U[k][j][i].B1c = 0.01;
-	pGrid->U[k][j][i].B2c = 0.0;
-	pGrid->U[k][j][i].B3c = 0.0;
+        pGrid->U[k][j][i].B1c = 0.01;
+        pGrid->U[k][j][i].B2c = 0.0;
+        pGrid->U[k][j][i].B3c = 0.0;
 
-	pGrid->B1i[k][j][i] = Bx;
-	pGrid->B2i[k][j][i] = 0.0;
-	pGrid->B3i[k][j][i] = 0.0;
+        pGrid->B1i[k][j][i] = Bx;
+        pGrid->B2i[k][j][i] = 0.0;
+        pGrid->B3i[k][j][i] = 0.0;
 
-	if (i == ie && ie > is) pGrid->B1i[k][j][i+1] = Bx;
+        if (i == ie && ie > is) pGrid->B1i[k][j][i+1] = Bx;
 #endif /*MHD*/
 
-          pGrid->U[k][j][i].E = P/Gamma_1 + (SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2) + SQR(pGrid->U[k][j][i].M3))/(2.0*pGrid->U[k][j][i].d);
+        pGrid->U[k][j][i].E = P/Gamma_1 + (SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2) + SQR(pGrid->U[k][j][i].M3))/(2.0*pGrid->U[k][j][i].d);
 
 #ifdef MHD
-	  pGrid->U[k][j][i].E += (SQR(pGrid->U[k][j][i].B1c)
-				  + SQR(pGrid->U[k][j][i].B2c)
-				  + SQR(pGrid->U[k][j][i].B3c))*0.5;
+        pGrid->U[k][j][i].E += (SQR(pGrid->U[k][j][i].B1c)
+                                + SQR(pGrid->U[k][j][i].B2c)
+                                + SQR(pGrid->U[k][j][i].B3c))*0.5;
 #endif
       }
     }
@@ -440,93 +439,93 @@ void problem(DomainS *pDomain)
   /* Set the initial perturbations.  Note that we're putting in too much
    * energy this time.  This is okay since we're only interested in the
    * saturated state. */
-    
+
   generate();
-  
+
   perturb(pGrid);
-  
- /* this results in a grid with an average density of 2 with flucions between 0~5*/
-    
- /* divide by 2 so avg density of cool side is 1 w/ density perturbations by a factor of 2.5 ... then add a smooth interface.*/
-  
+
+  /* this results in a grid with an average density of 2 with flucions between 0~5*/
+
+  /* divide by 2 so avg density of cool side is 1 w/ density perturbations by a factor of 2.5 ... then add a smooth interface.*/
+
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
 
-	r = sqrt(x3*x3 + x2*x2);
+        r = sqrt(x3*x3 + x2*x2);
 
-	intrfc = 0.5*(dbig-dsmal)*(tanh((-r+width)*a)+tanh((r+width)*a))+dsmal;
-	vx = v0 - 0.5*v0*(tanh((-r+width)*a)+tanh((r+width)*a));
-	
-        
-	pGrid->U[k][j][i].d /= 2.0;
-        
-	/* At this stage we have a density distribuiton with a mean value of 1 with a range of 0-2.5. rescale to given noise.*/
-        
-	pGrid->U[k][j][i].d /= 1.0/noise;
-        
-	pGrid->U[k][j][i].d += 1.0 - noise;
-        
-	/* add hot-cold interface */
-        
-	pGrid->U[k][j][i].d *= intrfc;
-        
-	/*shift stuff above the floor temp*/
-	
-	pGrid->U[k][j][i].d /= (1.0 + 1.8*noise) ;
-	
-	
-	pGrid->U[k][j][i].M1 = pGrid->U[k][j][i].d*vx;
-        
-	pGrid->U[k][j][i].E = P/Gamma_1 + (SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2))/(2.0*pGrid->U[k][j][i].d);
-        
-	
+        intrfc = 0.5*(dbig-dsmal)*(tanh((-r+width)*a)+tanh((r+width)*a))+dsmal;
+        vx = v0 - 0.5*v0*(tanh((-r+width)*a)+tanh((r+width)*a));
+
+
+        pGrid->U[k][j][i].d /= 2.0;
+
+        /* At this stage we have a density distribuiton with a mean value of 1 with a range of 0-2.5. rescale to given noise.*/
+
+        pGrid->U[k][j][i].d /= 1.0/noise;
+
+        pGrid->U[k][j][i].d += 1.0 - noise;
+
+        /* add hot-cold interface */
+
+        pGrid->U[k][j][i].d *= intrfc;
+
+        /*shift stuff above the floor temp*/
+
+        pGrid->U[k][j][i].d /= (1.0 + 1.8*noise) ;
+
+
+        pGrid->U[k][j][i].M1 = pGrid->U[k][j][i].d*vx;
+
+        pGrid->U[k][j][i].E = P/Gamma_1 + (SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2))/(2.0*pGrid->U[k][j][i].d);
+
+
 #ifdef MHD
-	pGrid->U[k][j][i].E += (SQR(pGrid->U[k][j][i].B1c)
-				+ SQR(pGrid->U[k][j][i].B2c)
-				+ SQR(pGrid->U[k][j][i].B3c))*0.5;
+        pGrid->U[k][j][i].E += (SQR(pGrid->U[k][j][i].B1c)
+                                + SQR(pGrid->U[k][j][i].B2c)
+                                + SQR(pGrid->U[k][j][i].B3c))*0.5;
 #endif
-	
+
 #if (NSCALARS > 0)
-	/*cold gas dye*/
-	pGrid->U[k][j][i].s[0] =  0.5*(tanh((-r+width)*a)+tanh((r+width)*a))*pGrid->U[k][j][i].d;
+        /*cold gas dye*/
+        pGrid->U[k][j][i].s[0] =  0.5*(tanh((-r+width)*a)+tanh((r+width)*a))*pGrid->U[k][j][i].d;
 
-	/*hot gas dye*/
-	pGrid->U[k][j][i].s[1] = pGrid->U[k][j][i].d - pGrid->U[k][j][i].s[0] ;
+        /*hot gas dye*/
+        pGrid->U[k][j][i].s[1] = pGrid->U[k][j][i].d - pGrid->U[k][j][i].s[0] ;
 
-	/*gas is initialized by 2 dyes to be either hot or cold*/
+        /*gas is initialized by 2 dyes to be either hot or cold*/
 
 #endif
-	
-	/* s = ρc. c is the specific dye (roughly 0-1 specifying what fraction of the gas is cold) the volume integral of s is conserved. */
-	
-	/*passively advected scalar with 1 in cold gas and 0 in hot gas*/
-	
+
+        /* s = ρc. c is the specific dye (roughly 0-1 specifying what fraction of the gas is cold) the volume integral of s is conserved. */
+
+        /*passively advected scalar with 1 in cold gas and 0 in hot gas*/
+
       }
     }
   }
-  
-  
+
+
   dump_history_enroll(hst_Sdye, "dye entropy");
   dump_history_enroll(hotm1, "hot momentum");
-  dump_history_enroll(coldm1, "cold momentum");      
+  dump_history_enroll(coldm1, "cold momentum");
 
 #ifdef VISCOSITY
-  
+
   Real reynolds;
-  
+
   reynolds  = par_getd_def("problem","reynolds",0.0);
-  
-  
+
+
   nu_iso = lx * v0 / reynolds;
   nu_aniso = 0.0;
-    
+
 #endif // VISCOSITY
 
 
 
-    
+
 
   ath_pout(0,"De-allocating driving memory.\n");
 
@@ -541,7 +540,7 @@ void problem(DomainS *pDomain)
 #ifdef REPORT_NANS
   nan_dump_count = 0;
 #endif
-  
+
   return;
 }
 
@@ -606,160 +605,160 @@ void Userwork_in_loop(MeshS *pM)
   for (nl=0; nl<=(pM->NLevels)-1; nl++) {
     for (nd=0; nd<=(pM->DomainsPerLevel[nl])-1; nd++) {
       if (pM->Domain[nl][nd].Grid != NULL) {
-	pGrid = pM->Domain[nl][nd].Grid;
+        pGrid = pM->Domain[nl][nd].Grid;
 
-	deltaE = 0;
-	is = pGrid->is; ie = pGrid->ie;
-	js = pGrid->js; je = pGrid->je;
-	ks = pGrid->ks; ke = pGrid->ke;
+        deltaE = 0;
+        is = pGrid->is; ie = pGrid->ie;
+        js = pGrid->js; je = pGrid->je;
+        ks = pGrid->ks; ke = pGrid->ke;
 
-	tmpfloor = FloorTemp;
-	counter = 1.0;
-	tshift = tsim/steps;
-	
-	for(k=ks; k<=ke; k++){
-	  for (j=js; j<=je; j++){
-	    for (i=is; i<=ie; i++){
+        tmpfloor = FloorTemp;
+        counter = 1.0;
+        tshift = tsim/steps;
 
-	      /* start cooling routine */
-	      if (pGrid->U[k][j][i].d != pGrid->U[k][j][i].d
-		  || pGrid->U[k][j][i].d <= 0.0){
-		ath_error("bad density of %f at cell (%d,%d,%d)\n",
-			  pGrid->U[k][j][i].d, k,j,i);
-	      }
+        for(k=ks; k<=ke; k++){
+          for (j=js; j<=je; j++){
+            for (i=is; i<=ie; i++){
 
-	      KE = (SQR(pGrid->U[k][j][i].M1)
-		    + SQR(pGrid->U[k][j][i].M2)
-		    + SQR(pGrid->U[k][j][i].M3)) / (2.0*pGrid->U[k][j][i].d);
+              /* start cooling routine */
+              if (pGrid->U[k][j][i].d != pGrid->U[k][j][i].d
+                  || pGrid->U[k][j][i].d <= 0.0){
+                ath_error("bad density of %f at cell (%d,%d,%d)\n",
+                          pGrid->U[k][j][i].d, k,j,i);
+              }
 
-	   
-              #ifdef MHD
-
-	      ME =  (SQR(pGrid->U[k][j][i].B1c)
-		     + SQR(pGrid->U[k][j][i].B2c)
-		     + SQR(pGrid->U[k][j][i].B3c))*0.5;
+              KE = (SQR(pGrid->U[k][j][i].M1)
+                    + SQR(pGrid->U[k][j][i].M2)
+                    + SQR(pGrid->U[k][j][i].M3)) / (2.0*pGrid->U[k][j][i].d);
 
 
-              #endif // MHD
-	      
-	      TE = pGrid->U[k][j][i].E - KE;
+#ifdef MHD
 
-	      #ifdef MHD
-	      TE -= ME;
-              #endif // MHD
-
-	      temp = ((2.0/3.0)*TE)/(pGrid->U[k][j][i].d);
-
-	      if (temp != temp || temp <= 0.0){
-		ath_error("Floor temp at (%d,%d,%d), T = %f, KE = %f, E = %f, d = %f\n",k,j,i, temp, KE, pGrid->U[k][j][i].E,pGrid->U[k][j][i].d);
-	      }
-
-	      dE = SQR(pGrid->U[k][j][i].d)*(pow(temp,coolinglaw))*pGrid->dt;
-
-	      if (coolon == 1.0) {
-		TE -= dE;
-	      }
+              ME =  (SQR(pGrid->U[k][j][i].B1c)
+                     + SQR(pGrid->U[k][j][i].B2c)
+                     + SQR(pGrid->U[k][j][i].B3c))*0.5;
 
 
-	      if (stepcooling ==1) {
+#endif // MHD
 
-		if (pGrid->time > tshift) {
-		  tmpfloor = tmpfloor*(steps - counter)/steps;
-		  tshift += tsim/steps;
-		  counter += 1.0;
-		}		
-	      }
+              TE = pGrid->U[k][j][i].E - KE;
+
+#ifdef MHD
+              TE -= ME;
+#endif // MHD
+
+              temp = ((2.0/3.0)*TE)/(pGrid->U[k][j][i].d);
+
+              if (temp != temp || temp <= 0.0){
+                ath_error("Floor temp at (%d,%d,%d), T = %f, KE = %f, E = %f, d = %f\n",k,j,i, temp, KE, pGrid->U[k][j][i].E,pGrid->U[k][j][i].d);
+              }
+
+              dE = SQR(pGrid->U[k][j][i].d)*(pow(temp,coolinglaw))*pGrid->dt;
+
+              if (coolon == 1.0) {
+                TE -= dE;
+              }
 
 
-	      
+              if (stepcooling ==1) {
 
-	      if (stepcooling == 2) {
-
-		if (pGrid->time > tshift) {
-		  tmpfloor /= pow(4.0,(1.0/(2.5-coolinglaw)));  /*cstcool drops by a factor of 4*/
-		  tshift += tsim/steps;
-		  counter += 1.0;
-		}
-		
-	      }
-
-	      
-	      /* apply temperature floor and write to the grid */
-	      if (TE < 3.0*pGrid->U[k][j][i].d*tmpfloor/2.0){
-		TE = 3.0*pGrid->U[k][j][i].d*tmpfloor/2.0;
-	      }
-	      
- 
-	      /* apply temperature ceiling and write to the grid */
-	      if (TE > 3.0*pGrid->U[k][j][i].d*CeilingTemp/2.0){
-		TE = 3.0*pGrid->U[k][j][i].d*CeilingTemp/2.0;
-	      }
-	      deltaE += pGrid->U[k][j][i].E - (KE + TE);
-	      // ath_pout(0, "temp floor is %f\n", FloorTemp);
-              #ifdef MHD
-	      
-	      deltaE -= ME;
-
-              #endif // MHD 
-	      
-	      pGrid->U[k][j][i].E = KE + TE;
+                if (pGrid->time > tshift) {
+                  tmpfloor = tmpfloor*(steps - counter)/steps;
+                  tshift += tsim/steps;
+                  counter += 1.0;
+                }
+              }
 
 
 
-              #ifdef MHD
-	   
-	      pGrid->U[k][j][i].E += ME;
 
-	      #endif // MHD
-	      
-	    }
-	  }
-	}
+              if (stepcooling == 2) {
 
-	/* heating to match cooling */
-       
-	#ifdef MPI_PARALLEL
-	ierr = MPI_Allreduce(&deltaE, &deltaE_global, 1, MPI_RL, MPI_SUM,
-			     MPI_COMM_WORLD);
-	if (ierr){
-	  ath_error("[Userwork_in_loop]: MPI_Allreduce returned error %d\n",
-		    ierr);
-	}
+                if (pGrid->time > tshift) {
+                  tmpfloor /= pow(4.0,(1.0/(2.5-coolinglaw)));  /*cstcool drops by a factor of 4*/
+                  tshift += tsim/steps;
+                  counter += 1.0;
+                }
 
-	deltaE = deltaE_global;
-	#endif
+              }
 
-	/* MPI_PARALLEL */
 
-	deltaE = deltaE/(gnx1*gnx2*gnx3);
+              /* apply temperature floor and write to the grid */
+              if (TE < 3.0*pGrid->U[k][j][i].d*tmpfloor/2.0){
+                TE = 3.0*pGrid->U[k][j][i].d*tmpfloor/2.0;
+              }
 
-	for (k=ks; k<=ke; k++) {
-	  for (j=js; j<=je; j++) {
-	    for (i=is; i<=ie; i++) {
 
-	      if (heaton == 1.0) {
-		pGrid->U[k][j][i].E += deltaE;
-			      
-	      }
-	      
-	    }
-	  }
-	}
+              /* apply temperature ceiling and write to the grid */
+              if (TE > 3.0*pGrid->U[k][j][i].d*CeilingTemp/2.0){
+                TE = 3.0*pGrid->U[k][j][i].d*CeilingTemp/2.0;
+              }
+              deltaE += pGrid->U[k][j][i].E - (KE + TE);
+              // ath_pout(0, "temp floor is %f\n", FloorTemp);
+#ifdef MHD
 
-	
+              deltaE -= ME;
+
+#endif // MHD
+
+              pGrid->U[k][j][i].E = KE + TE;
+
+
+
+#ifdef MHD
+
+              pGrid->U[k][j][i].E += ME;
+
+#endif // MHD
+
+            }
+          }
+        }
+
+        /* heating to match cooling */
+
+#ifdef MPI_PARALLEL
+        ierr = MPI_Allreduce(&deltaE, &deltaE_global, 1, MPI_RL, MPI_SUM,
+                             MPI_COMM_WORLD);
+        if (ierr){
+          ath_error("[Userwork_in_loop]: MPI_Allreduce returned error %d\n",
+                    ierr);
+        }
+
+        deltaE = deltaE_global;
+#endif
+
+        /* MPI_PARALLEL */
+
+        deltaE = deltaE/(gnx1*gnx2*gnx3);
+
+        for (k=ks; k<=ke; k++) {
+          for (j=js; j<=je; j++) {
+            for (i=is; i<=ie; i++) {
+
+              if (heaton == 1.0) {
+                pGrid->U[k][j][i].E += deltaE;
+
+              }
+
+            }
+          }
+        }
+
+
       }
     }
   }
 
 
 
-  
+
   return;
 }
 
 
 
-  
+
 /* ========================================================================== */
 
 void Userwork_after_loop(MeshS *pM)
@@ -805,7 +804,7 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 #ifdef MPI_PARALLEL
   rseed -= myID_Comm_world;
 #endif
-  
+
   int nl, nd, ntot;
   GridS *pGrid;
   DomainS *pDomain;
@@ -825,36 +824,36 @@ void problem_read_restart(MeshS *pM, FILE *fp)
     for (nd=0; nd<=(pM->DomainsPerLevel[nl])-1; nd++) {
       if (pM->Domain[nl][nd].Grid != NULL) {
 
-	pDomain = &(pM->Domain[nl][nd]);
-	
-	pGrid = pM->Domain[nl][nd].Grid;
-	is = pGrid->is, ie = pGrid->ie;
-	js = pGrid->js, je = pGrid->je;
-	ks = pGrid->ks, ke = pGrid->ke;
-	lx = pDomain->RootMaxX[0] - pDomain->RootMinX[0];
-	ly = pDomain->RootMaxX[1] - pDomain->RootMinX[1];
+        pDomain = &(pM->Domain[nl][nd]);
+
+        pGrid = pM->Domain[nl][nd].Grid;
+        is = pGrid->is, ie = pGrid->ie;
+        js = pGrid->js, je = pGrid->je;
+        ks = pGrid->ks, ke = pGrid->ke;
+        lx = pDomain->RootMaxX[0] - pDomain->RootMinX[0];
+        ly = pDomain->RootMaxX[1] - pDomain->RootMinX[1];
 
 
-	FloorTemp = par_getd("problem", "Floor");
-	CeilingTemp = par_getd("problem", "Ceiling");
-	coolon = par_getd("problem", "coolon");
-	heaton = par_getd("problem", "heaton");
-	tsim = par_getd("time", "tlim");
-	stepcooling = par_geti("problem", "stepcooling");
-	steps = par_getd("problem", "steps");
-	coolinglaw = par_getd("problem", "coolinglaw");  
-	
-	dump_history_enroll(hst_Sdye, "dye entropy");
-	dump_history_enroll(hotm1, "hot momentum");
-	dump_history_enroll(coldm1, "cold momentum");
-	
+        FloorTemp = par_getd("problem", "Floor");
+        CeilingTemp = par_getd("problem", "Ceiling");
+        coolon = par_getd("problem", "coolon");
+        heaton = par_getd("problem", "heaton");
+        tsim = par_getd("time", "tlim");
+        stepcooling = par_geti("problem", "stepcooling");
+        steps = par_getd("problem", "steps");
+        coolinglaw = par_getd("problem", "coolinglaw");
+
+        dump_history_enroll(hst_Sdye, "dye entropy");
+        dump_history_enroll(hotm1, "hot momentum");
+        dump_history_enroll(coldm1, "cold momentum");
+
 #ifdef VISCOSITY
-	reynolds  = par_getd_def("problem","reynolds",0.0);
-	v0  = par_getd_def("problem","v0",0.0);
-	nu_iso = lx * v0 / reynolds;
-	nu_aniso = 0.0;
+        reynolds  = par_getd_def("problem","reynolds",0.0);
+        v0  = par_getd_def("problem","v0",0.0);
+        nu_iso = lx * v0 / reynolds;
+        nu_aniso = 0.0;
 #endif // VISCOSITY
-	
+
       }
     }
   }
@@ -1343,7 +1342,7 @@ static int report_nans(MeshS *pM, DomainS *pDomain, int fix)
         /* TODO: what about B??? */
         if(fix) {
           pGrid->U[k][j][i].d  = rho;
-                  KE = (SQR(pGrid->U[k][j][i].M1) +
+          KE = (SQR(pGrid->U[k][j][i].M1) +
                 SQR(pGrid->U[k][j][i].M2) +
                 SQR(pGrid->U[k][j][i].M3)) /
             (2.0 * rho);
@@ -1407,17 +1406,17 @@ static int report_nans(MeshS *pM, DomainS *pDomain, int fix)
 
   // if (fix == 0) {
 #ifdef MHD
-    ath_pout(0, "[report_nans]: floored %d cells: %d P, %d d, %d v, %d beta.\n",
-      nfloor, npress, nrho, nv, nmag);
+  ath_pout(0, "[report_nans]: floored %d cells: %d P, %d d, %d v, %d beta.\n",
+           nfloor, npress, nrho, nv, nmag);
 #else
-    ath_pout(0, "[report_nans]: floored %d cells: %d P, %d d, %d v.\n",
-      nfloor, npress, nrho, nv);
+  ath_pout(0, "[report_nans]: floored %d cells: %d P, %d d, %d v.\n",
+           nfloor, npress, nrho, nv);
 #endif  /* MHD */
-    // }
+  // }
 
 
   //  if ((nnan > 0 || nfloor -nmag > 30) && fix == 0) {
-    if (nnan > 0 ){// && fix == 0) {
+  if (nnan > 0 ){// && fix == 0) {
 #ifdef MHD
     ath_pout(0, "[report_nans]: found %d nan cells: %d P, %d d, %d v, %d B.\n",
              nnan, nanpress, nanrho, nanv, nanmag);
@@ -1453,90 +1452,90 @@ static int report_nans(MeshS *pM, DomainS *pDomain, int fix)
 /* adding bits to energy and momentum when boosting frame */
 static void boost_frame(DomainS *pDomain, Real dvx)
 {
-    int i, j, k;
-    int is,ie,js,je,ks,ke;
-    
-    Real d;
-    
-    GridS *pGrid = pDomain->Grid;
-    is = pGrid->is; ie = pGrid->ie;
-    js = pGrid->js; je = pGrid->je;
-    ks = pGrid->ks; ke = pGrid->ke;
-    
-    for (k=ks; k<=ke; k++) {
-        for (j=js; j<=je; j++) {
-            for (i=is; i<=ie; i++) {
-                d = pGrid->U[k][j][i].d;
-                
+  int i, j, k;
+  int is,ie,js,je,ks,ke;
+
+  Real d;
+
+  GridS *pGrid = pDomain->Grid;
+  is = pGrid->is; ie = pGrid->ie;
+  js = pGrid->js; je = pGrid->je;
+  ks = pGrid->ks; ke = pGrid->ke;
+
+  for (k=ks; k<=ke; k++) {
+    for (j=js; j<=je; j++) {
+      for (i=is; i<=ie; i++) {
+        d = pGrid->U[k][j][i].d;
+
 #ifndef ISOTHERMAL
-                pGrid->U[k][j][i].E += 0.5 * d * SQR(dvx); /*second order term*/
-                pGrid->U[k][j][i].E -= dvx * pGrid->U[k][j][i].M1; /* first order term */
+        pGrid->U[k][j][i].E += 0.5 * d * SQR(dvx); /*second order term*/
+        pGrid->U[k][j][i].E -= dvx * pGrid->U[k][j][i].M1; /* first order term */
 #endif  /* ISOTHERMAL */
-                pGrid->U[k][j][i].M1 -= dvx * d;
-                
-            }
-        }
+        pGrid->U[k][j][i].M1 -= dvx * d;
+
+      }
     }
-    
-    return;
+  }
+
+  return;
 }
 
 
 
 static Real get_velocity_shift(MeshS *pM)
 {
-    GridS *pG;
-    int i, j, k, is, ie, js, je, ks, ke;
-    int nl, nd;
-    
-    Real s, d, scal[2], tmp;
+  GridS *pG;
+  int i, j, k, is, ie, js, je, ks, ke;
+  int nl, nd;
+
+  Real s, d, scal[2], tmp;
 #ifdef MPI_PARALLEL
-    Real my_scal[2];
-    int ierr;
+  Real my_scal[2];
+  int ierr;
 #endif
-    
-    /* do the integral over level-1 domains, if they exist */
-    nl = (pM->NLevels > 1) ? 1 : 0;
-    
-    scal[0] = scal[1] = 0.0;
-    for (nd=0; nd<(pM->DomainsPerLevel[nl]); nd++){
-        if (pM->Domain[nl][nd].Grid != NULL) {
-            
-            pG = pM->Domain[nl][nd].Grid;
-            is = pG->is;  ie = pG->ie;
-            js = pG->js;  je = pG->je;
-            ks = pG->ks;  ke = pG->ke;
-            
-            for (k=ks; k<=ke; k++) {
-                for (j=js; j<=je; j++) {
-                    for (i=is; i<=ie; i++) {
-                        d = pG->U[k][j][i].d;
-                        
-                        /* s is some weighting factor... maybe dx1*d(ln rho)/dx */
-                        s = 1.0;
-                        tmp = s * pG->U[k][j][i].M1 / d;
-                        if (tmp == tmp) {
-                            scal[0] += tmp;
-                            scal[1] += s;
-                        }
-                        
-                    }
-                }
+
+  /* do the integral over level-1 domains, if they exist */
+  nl = (pM->NLevels > 1) ? 1 : 0;
+
+  scal[0] = scal[1] = 0.0;
+  for (nd=0; nd<(pM->DomainsPerLevel[nl]); nd++){
+    if (pM->Domain[nl][nd].Grid != NULL) {
+
+      pG = pM->Domain[nl][nd].Grid;
+      is = pG->is;  ie = pG->ie;
+      js = pG->js;  je = pG->je;
+      ks = pG->ks;  ke = pG->ke;
+
+      for (k=ks; k<=ke; k++) {
+        for (j=js; j<=je; j++) {
+          for (i=is; i<=ie; i++) {
+            d = pG->U[k][j][i].d;
+
+            /* s is some weighting factor... maybe dx1*d(ln rho)/dx */
+            s = 1.0;
+            tmp = s * pG->U[k][j][i].M1 / d;
+            if (tmp == tmp) {
+              scal[0] += tmp;
+              scal[1] += s;
             }
-            
+
+          }
         }
+      }
+
     }
-    
+  }
+
 #ifdef MPI_PARALLEL
-    my_scal[0] = scal[0];
-    my_scal[1] = scal[1];
-    
-    ierr = MPI_Allreduce(&my_scal, &scal, 2, MPI_RL, MPI_SUM, MPI_COMM_WORLD);
-    if (ierr)
-        ath_error("[cloud_velocity]: MPI_Allreduce returned error %d\n", ierr);
+  my_scal[0] = scal[0];
+  my_scal[1] = scal[1];
+
+  ierr = MPI_Allreduce(&my_scal, &scal, 2, MPI_RL, MPI_SUM, MPI_COMM_WORLD);
+  if (ierr)
+    ath_error("[cloud_velocity]: MPI_Allreduce returned error %d\n", ierr);
 #endif
-    
-    return scal[0] / scal[1];
+
+  return scal[0] / scal[1];
 }
 
 
@@ -1556,4 +1555,3 @@ static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k)
   entropy = (-1.0)*(pG->U[k][j][i].d)*log(pG->U[k][j][i].d);
   return entropy;
 }
-
