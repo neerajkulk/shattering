@@ -16,9 +16,6 @@ static OutputS nan_dump;
 static int nan_dump_count;
 #endif  /* REPORT_NANS */
 
-static Real get_velocity_shift(MeshS *pM);
-static void boost_frame(DomainS *pDomain, Real dvx);
-
 
 static Real hotm1(const GridS *pG, const int i, const int j, const int k);
 static Real coldm1(const GridS *pG, const int i, const int j, const int k);
@@ -1449,94 +1446,6 @@ static int report_nans(MeshS *pM, DomainS *pDomain, int fix)
 
 
 
-/* adding bits to energy and momentum when boosting frame */
-static void boost_frame(DomainS *pDomain, Real dvx)
-{
-  int i, j, k;
-  int is,ie,js,je,ks,ke;
-
-  Real d;
-
-  GridS *pGrid = pDomain->Grid;
-  is = pGrid->is; ie = pGrid->ie;
-  js = pGrid->js; je = pGrid->je;
-  ks = pGrid->ks; ke = pGrid->ke;
-
-  for (k=ks; k<=ke; k++) {
-    for (j=js; j<=je; j++) {
-      for (i=is; i<=ie; i++) {
-        d = pGrid->U[k][j][i].d;
-
-#ifndef ISOTHERMAL
-        pGrid->U[k][j][i].E += 0.5 * d * SQR(dvx); /*second order term*/
-        pGrid->U[k][j][i].E -= dvx * pGrid->U[k][j][i].M1; /* first order term */
-#endif  /* ISOTHERMAL */
-        pGrid->U[k][j][i].M1 -= dvx * d;
-
-      }
-    }
-  }
-
-  return;
-}
-
-
-
-static Real get_velocity_shift(MeshS *pM)
-{
-  GridS *pG;
-  int i, j, k, is, ie, js, je, ks, ke;
-  int nl, nd;
-
-  Real s, d, scal[2], tmp;
-#ifdef MPI_PARALLEL
-  Real my_scal[2];
-  int ierr;
-#endif
-
-  /* do the integral over level-1 domains, if they exist */
-  nl = (pM->NLevels > 1) ? 1 : 0;
-
-  scal[0] = scal[1] = 0.0;
-  for (nd=0; nd<(pM->DomainsPerLevel[nl]); nd++){
-    if (pM->Domain[nl][nd].Grid != NULL) {
-
-      pG = pM->Domain[nl][nd].Grid;
-      is = pG->is;  ie = pG->ie;
-      js = pG->js;  je = pG->je;
-      ks = pG->ks;  ke = pG->ke;
-
-      for (k=ks; k<=ke; k++) {
-        for (j=js; j<=je; j++) {
-          for (i=is; i<=ie; i++) {
-            d = pG->U[k][j][i].d;
-
-            /* s is some weighting factor... maybe dx1*d(ln rho)/dx */
-            s = 1.0;
-            tmp = s * pG->U[k][j][i].M1 / d;
-            if (tmp == tmp) {
-              scal[0] += tmp;
-              scal[1] += s;
-            }
-
-          }
-        }
-      }
-
-    }
-  }
-
-#ifdef MPI_PARALLEL
-  my_scal[0] = scal[0];
-  my_scal[1] = scal[1];
-
-  ierr = MPI_Allreduce(&my_scal, &scal, 2, MPI_RL, MPI_SUM, MPI_COMM_WORLD);
-  if (ierr)
-    ath_error("[cloud_velocity]: MPI_Allreduce returned error %d\n", ierr);
-#endif
-
-  return scal[0] / scal[1];
-}
 
 
 static Real hotm1(const GridS *pG, const int i, const int j, const int k)
