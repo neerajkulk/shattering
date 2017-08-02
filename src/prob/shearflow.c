@@ -8,6 +8,10 @@
 #include "prototypes.h"
 #include "globals.h"
 
+
+/* fudge to find and remove nans from the domain -- i really think we
+   should remove this! */
+
 #define REPORT_NANS
 
 #ifdef REPORT_NANS
@@ -933,7 +937,7 @@ static void integrate_cooling(GridS *pG)
 #ifdef MPI_PARALLEL
   ierr = MPI_Allreduce(&deltaE, &deltaE_global, 1, MPI_RL, MPI_SUM, MPI_COMM_WORLD);
   if (ierr)
-    ath_error("[report_nans]: MPI_Allreduce returned error %d\n", ierr);
+    ath_error("[integrate_cooling]: MPI_Allreduce returned error %d\n", ierr);
 
   deltaE = deltaE_global;
 #endif  /* MPI_PARALLEL */
@@ -951,11 +955,32 @@ static void integrate_cooling(GridS *pG)
   return;
 
 }
-
 /* end cooling routines */
 /* ================================================================ */
 
 
+
+static Real hotm1(const GridS *pG, const int i, const int j, const int k)
+{
+  return  (pG->U[k][j][i].s[1] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d);
+}
+
+static Real coldm1(const GridS *pG, const int i, const int j, const int k)
+{
+  return  (pG->U[k][j][i].s[0] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d);
+}
+
+static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k)
+{
+  Real entropy;
+  entropy = (-1.0)*(pG->U[k][j][i].d)*log(pG->U[k][j][i].d);
+  return entropy;
+}
+
+
+/* ================================================================ */
+/* ryan's report_nans function to find and remove nans on the grid --
+   really think we should remove this! */
 #ifdef REPORT_NANS
 static int report_nans(MeshS *pM, DomainS *pDomain, int fix)
 {
@@ -1182,31 +1207,11 @@ static int report_nans(MeshS *pM, DomainS *pDomain, int fix)
     if (nan_dump_count > 10)
       ath_error("[report_nans]: too many nan'd timesteps.\n");
   }
-
-
 #endif  /* ISOTHERMAL */
 
   return nfloor+nnan;
 }
 #endif  /* REPORT_NANS */
 
-
-
-
-
-static Real hotm1(const GridS *pG, const int i, const int j, const int k)
-{
-  return  (pG->U[k][j][i].s[1] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d);
-}
-
-static Real coldm1(const GridS *pG, const int i, const int j, const int k)
-{
-  return  (pG->U[k][j][i].s[0] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d);
-}
-
-static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k)
-{
-  Real entropy;
-  entropy = (-1.0)*(pG->U[k][j][i].d)*log(pG->U[k][j][i].d);
-  return entropy;
-}
+/* end report nans */
+/* ================================================================ */
