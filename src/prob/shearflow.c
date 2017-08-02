@@ -722,11 +722,6 @@ void Userwork_before_loop(MeshS *pM)
       if (pM->Domain[nl][nd].Grid != NULL) {
 #ifdef REPORT_NANS
         ntot = report_nans(pM, &(pM->Domain[nl][nd]),1);
-        //if(ntot > 0)
-        //report_nans(pM, &(pM->Domain[nl][nd]),1);
-#endif
-#ifdef INSTANTCOOL
-        after_cool(pM, &(pM->Domain[nl][nd]),1);
 #endif
       }
     }
