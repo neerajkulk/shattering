@@ -59,9 +59,6 @@ static struct ath_3d_fft_plan *plan;
 static ath_fft_data *fd=NULL;   /* unnormalized */
 static Real ***dd=NULL;
 
-static ath_fft_data *fv1=NULL, *fv2=NULL, *fv3=NULL;
-static Real ***dv1=NULL, ***dv2=NULL, ***dv3=NULL;
-
 /* Cutoff wavenumbers, G&O spect peak, power law spect exponent, 2 pi/L */
 static Real klow,khigh,expo,dkx;
 /* Number of cells in local grid, number of cells in global grid */
