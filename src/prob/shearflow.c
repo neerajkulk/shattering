@@ -34,8 +34,9 @@ static Real coolinglaw;
 static Real netboost=0.0;
 static Real t_boostdump=0.0;
 
+#ifdef VISCOSITY
 extern Real nu_iso, nu_aniso;
-
+#endif  /* VISCOSITY */
 
 #ifdef MPI_PARALLEL
 #include "mpi.h"
@@ -457,16 +458,11 @@ void problem(DomainS *pDomain)
   dump_history_enroll(coldm1, "cold momentum");
 
 #ifdef VISCOSITY
-
   Real reynolds;
-
   reynolds  = par_getd_def("problem","reynolds",0.0);
-
-
   nu_iso = lx * v0 / reynolds;
   nu_aniso = 0.0;
-
-#endif // VISCOSITY
+#endif  /* VISCOSITY */
 
 
 
