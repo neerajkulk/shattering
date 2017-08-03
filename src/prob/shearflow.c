@@ -296,18 +296,18 @@ static void set_vars(DomainS *pDomain)
   CeilingTemp = par_getd("problem", "Ceiling");
   coolon      = par_getd("problem", "coolon");
   heaton      = par_getd("problem", "heaton");
-  tsim        = par_getd("time", "tlim");
+  tsim        = par_getd("time",    "tlim");
   stepcooling = par_geti("problem", "stepcooling");
   steps       = par_getd("problem", "steps");
   coolinglaw  = par_getd("problem", "coolinglaw");
 
   dump_history_enroll(hst_Sdye, "dye entropy");
-  dump_history_enroll(hotm1, "hot momentum");
-  dump_history_enroll(coldm1, "cold momentum");
+  dump_history_enroll(hotm1,    "hot momentum");
+  dump_history_enroll(coldm1,   "cold momentum");
 
 #ifdef VISCOSITY
-  reynolds  = par_getd_def("problem","reynolds",0.0);
-  nu_iso = lx * v0 / reynolds;
+  reynolds = par_getd_def("problem", "reynolds", 0.0);
+  nu_iso   = lx * v0 / reynolds;
   nu_aniso = 0.0;
 #endif  /* VISCOSITY */
 
