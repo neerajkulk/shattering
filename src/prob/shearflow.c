@@ -99,11 +99,11 @@ static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k);
  */
 static Real FloorTemp;
 static Real CeilingTemp;
-static Real coolon;
-static Real heaton;
 static Real tsim;
+static int coolon;
+static int heaton;
 static int stepcooling;
-static Real steps;
+static int steps;
 static Real coolinglaw;
 
 static Real netboost=0.0;
@@ -300,11 +300,11 @@ static void set_vars(DomainS *pDomain)
 
   FloorTemp   = par_getd("problem", "Floor");
   CeilingTemp = par_getd("problem", "Ceiling");
-  coolon      = par_getd("problem", "coolon");
-  heaton      = par_getd("problem", "heaton");
+  coolon      = par_geti("problem", "coolon");
+  heaton      = par_geti("problem", "heaton");
   tsim        = par_getd("time",    "tlim");
   stepcooling = par_geti("problem", "stepcooling");
-  steps       = par_getd("problem", "steps");
+  steps       = par_geti("problem", "steps");
   coolinglaw  = par_getd("problem", "coolinglaw");
 
   dump_history_enroll(hst_Sdye, "dye entropy");
@@ -478,7 +478,7 @@ void Userwork_in_loop(MeshS *pM)
 
               dE = SQR(pGrid->U[k][j][i].d)*(pow(temp,coolinglaw))*pGrid->dt;
 
-              if (coolon == 1.0) {
+              if (coolon == 1) {
                 TE -= dE;
               }
 
@@ -559,7 +559,7 @@ void Userwork_in_loop(MeshS *pM)
           for (j=js; j<=je; j++) {
             for (i=is; i<=ie; i++) {
 
-              if (heaton == 1.0) {
+              if (heaton == 1) {
                 pGrid->U[k][j][i].E += deltaE;
 
               }
