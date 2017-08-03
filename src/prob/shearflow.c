@@ -89,8 +89,8 @@ static double ran2(long int *idum);
 /* -------------------------------------------------------------------------- */
 /* functions for history outputs
  */
-static Real hotm1(const GridS *pG, const int i, const int j, const int k);
-static Real coldm1(const GridS *pG, const int i, const int j, const int k);
+static Real hst_hot_mom(const GridS *pG, const int i, const int j, const int k);
+static Real hst_cold_mom(const GridS *pG, const int i, const int j, const int k);
 static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k);
 /* -------------------------------------------------------------------------- */
 
@@ -305,9 +305,9 @@ static void set_vars(DomainS *pDomain)
   steps       = par_geti("problem", "steps");
   coolinglaw  = par_getd("problem", "coolinglaw");
 
-  dump_history_enroll(hst_Sdye, "dye entropy");
-  dump_history_enroll(hotm1,    "hot momentum");
-  dump_history_enroll(coldm1,   "cold momentum");
+  dump_history_enroll(hst_Sdye,     "dye entropy");
+  dump_history_enroll(hst_hot_mom,  "hot momentum");
+  dump_history_enroll(hst_cold_mom, "cold momentum");
 
 #ifdef VISCOSITY
   reynolds = par_getd_def("problem", "reynolds", 0.0);
@@ -329,12 +329,12 @@ static void set_vars(DomainS *pDomain)
 /* ========================================================================== */
 /* history outputs
  */
-static Real hotm1(const GridS *pG, const int i, const int j, const int k)
+static Real hst_hot_mom(const GridS *pG, const int i, const int j, const int k)
 {
   return  (pG->U[k][j][i].s[1] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d);
 }
 
-static Real coldm1(const GridS *pG, const int i, const int j, const int k)
+static Real hst_cold_mom(const GridS *pG, const int i, const int j, const int k)
 {
   return  (pG->U[k][j][i].s[0] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d);
 }
