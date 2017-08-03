@@ -8,6 +8,7 @@
 #include "prototypes.h"
 #include "globals.h"
 
+
 /* ========================================================================== */
 /* global variables and prototypes */
 
@@ -45,7 +46,7 @@ static int nan_dump_count;
  */
 
 /* FFT indexing Nfast=k, Nmid=j, Nslow=i (opposite to Athena)
- * For OFST, i,j,k,nx2,nx3 reference the local grid */
+   For OFST, i,j,k,nx2,nx3 reference the local grid */
 #define OFST(i, j, k) ((k) + nx3*((j) + nx2*(i)))
 /* KWVM: magnitude of wavenumber k in units of dkx */
 #define KWVM(i, j, k) (sqrt(SQR(KCOMP(i,gis-nghost,gnx1))+      \
@@ -66,8 +67,8 @@ static int gis,gie,gjs,gje,gks,gke;
 /* Seed for random number generator */
 long int rseed;
 
-/* Functions appear in this file in the same order that they appear in the
- * prototypes below */
+/* Functions appear in this file in the same order that they appear in
+   the prototypes below */
 
 /* Function prototypes for generating velocity perturbations */
 static void pspect(ath_fft_data *ampl);
@@ -109,10 +110,10 @@ extern Real nu_iso, nu_aniso;
 static Real FloorTemp;
 static Real CeilingTemp;
 static Real tsim;
-static int coolon;
-static int heaton;
-static int stepcooling;
-static int steps;
+static int  coolon;
+static int  heaton;
+static int  stepcooling;
+static int  steps;
 static Real coolinglaw;
 
 static void integrate_cooling(GridS *pG);
