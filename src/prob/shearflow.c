@@ -91,7 +91,6 @@ static double ran2(long int *idum);
 static Real hotm1(const GridS *pG, const int i, const int j, const int k);
 static Real coldm1(const GridS *pG, const int i, const int j, const int k);
 static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k);
-static Real color(const GridS *pG, const int i, const int j, const int k);
 /* -------------------------------------------------------------------------- */
 
 
@@ -339,14 +338,6 @@ static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k)
   entropy = (-1.0)*(pG->U[k][j][i].d)*log(pG->U[k][j][i].d);
   return entropy;
 }
-
-#if (NSCALARS > 0)
-/*! \fn static Real color(const GridS *pG, const int i, const int j,const int k)
- *  \brief Returns first passively advected scalar s[0] */
-static Real color(const GridS *pG, const int i, const int j, const int k)
-{
-  return pG->U[k][j][i].s[0]/pG->U[k][j][i].d;
-}
 #endif
 
 /* end history outputs */
@@ -438,9 +429,6 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 
 ConsFun_t get_usr_expr(const char *expr)
 {
-#if (NSCALARS > 0)
-  if(strcmp(expr,"color")==0) return color;
-#endif
   return NULL;
 }
 
