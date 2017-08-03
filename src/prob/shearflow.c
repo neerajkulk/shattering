@@ -130,62 +130,78 @@ static void integrate_cooling(GridS *pG);
  */
 static void set_vars(DomainS *pDomain);
 
+static Real window(x, width, a);
+
 void problem(DomainS *pDomain)
 {
   GridS *pGrid = (pDomain->Grid);
+
   int i, is=pGrid->is, ie = pGrid->ie;
   int j, js=pGrid->js, je = pGrid->je;
   int k, ks=pGrid->ks, ke = pGrid->ke;
-  int ixs,jxs,kxs;
-  Real x1,x2,x3;
+
+  Real x1, x2, x3, r;
   Real lx = pDomain->RootMaxX[0] - pDomain->RootMinX[0];
   Real ly = pDomain->RootMaxX[1] - pDomain->RootMinX[1];
 
+  const Real P = 1.0, vy = 0.0;
+
+#ifdef MHD
+  const Real Bx = 0.01;
+#endif
+
   Real vx;
-  Real n=2.0, amp=lx/50.0, thickness=lx/50.0;
+
+  Real thickness = lx/50.0;
   Real a = 2.0*atanh(0.9)/thickness;
-  Real vb = par_getd("problem","boost");
-  Real noise = par_getd("problem","noise");
-  Real width = par_getd("problem","frac_cold")*(ly/2.0);
+
+  Real noise = par_getd("problem", "noise");
+  Real width = par_getd("problem", "frac_cold");
+  width *= (ly/2.0);
+
   Real intrfc;
-  Real v0 = par_getd("problem","v0");
-  Real dbig = par_getd("problem","dbig");
+
+  Real v0    = par_getd("problem","v0");
+  Real dbig  = par_getd("problem","dbig");
   Real dsmal = par_getd("problem","dsmal");
-  Real r; /*r in cylindrical coordinates*/
 
   Prim1DS W;
   Cons1DS U1d;
 
-  /* Ensure a different initial random seed for each process in an MPI calc. */
-  rseed = -11;
-#ifdef MPI_PARALLEL
-  rseed -= myID_Comm_world;
-#endif
-  initialize_fourier(pGrid, pDomain);
-
-  Real P=1.0,vy=0.0;
-
-#ifdef MHD
-  Real Bx = 0.01;
-#endif
 
   /* initialize global variables in a separate function so it can be
      done identically here and in read_restart()  */
   set_vars(pDomain);
 
-  /* Initialize uniform density */
+
+  /* ensure a different initial random seed for each process in an MPI
+     calc, and then initialize the fourier stuff */
+  rseed = -11;
+#ifdef MPI_PARALLEL
+  rseed -= myID_Comm_world;
+#endif
+  initialize_fourier(pGrid, pDomain);
+  generate();
+
+
+  /* this sets the grid density field */
+  perturb(pGrid);
+
+
+  /* start with a uniform grid */
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-        cc_pos(pGrid,i,j,0,&x1,&x2,&x3);
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
 
-        pGrid->U[k][j][i].d = 1.0;
-        pGrid->U[k][j][i].M1 = 0.0;
-        pGrid->U[k][j][i].M2 = 0.0;
-        pGrid->U[k][j][i].M3 = 0.0;
+        /* MM: i'm not sure what this does... neeraj, can you
+           clarify?? */
+        pGrid->U[k][j][i].d *= (noise/2.0);
+        pGrid->U[k][j][i].d += 1.0 - noise;
+
 
 #ifdef MHD
-        pGrid->U[k][j][i].B1c = 0.01;
+        pGrid->U[k][j][i].B1c = Bx;
         pGrid->U[k][j][i].B2c = 0.0;
         pGrid->U[k][j][i].B3c = 0.0;
 
@@ -195,96 +211,86 @@ void problem(DomainS *pDomain)
 
         if (i == ie && ie > is) pGrid->B1i[k][j][i+1] = Bx;
 #endif /*MHD*/
-
-        pGrid->U[k][j][i].E = P/Gamma_1 + (SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2) + SQR(pGrid->U[k][j][i].M3))/(2.0*pGrid->U[k][j][i].d);
-
-#ifdef MHD
-        pGrid->U[k][j][i].E += (SQR(pGrid->U[k][j][i].B1c)
-                                + SQR(pGrid->U[k][j][i].B2c)
-                                + SQR(pGrid->U[k][j][i].B3c))*0.5;
-#endif
       }
     }
   }
 
-  /* Set the initial perturbations.  Note that we're putting in too much
-   * energy this time.  This is okay since we're only interested in the
-   * saturated state. */
-
-  generate();
-
-  perturb(pGrid);
-
-  /* this results in a grid with an average density of 2 with flucions between 0~5*/
-
-  /* divide by 2 so avg density of cool side is 1 w/ density perturbations by a factor of 2.5 ... then add a smooth interface.*/
 
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        cc_pos(pGrid, i, j, k, &x1, &x2, &x3);
 
+        /* perturbation is cylindrically symmetric in the y-z plane */
         r = sqrt(x3*x3 + x2*x2);
 
-        intrfc = 0.5*(dbig-dsmal)*(tanh((-r+width)*a)+tanh((r+width)*a))+dsmal;
-        vx = v0 - 0.5*v0*(tanh((-r+width)*a)+tanh((r+width)*a));
-
-
-        pGrid->U[k][j][i].d /= 2.0;
-
-        /* At this stage we have a density distribuiton with a mean value of 1 with a range of 0-2.5. rescale to given noise.*/
-
-        pGrid->U[k][j][i].d /= 1.0/noise;
-
-        pGrid->U[k][j][i].d += 1.0 - noise;
-
-        /* add hot-cold interface */
-
+        /* create a strip of cold, dense gas along the midplane */
+        intrfc = dsmal + (dbig-dsmal) * window(r, width, a);
         pGrid->U[k][j][i].d *= intrfc;
 
-        /*shift stuff above the floor temp*/
+        /* MM: i'm not sure what this does... neeraj, can you
+           clarify?? */
+        pGrid->U[k][j][i].d /= (1.0 + 1.8*noise);
 
-        pGrid->U[k][j][i].d /= (1.0 + 1.8*noise) ;
 
+        /* set velocity */
+        vx = v0 * (1.0 - window(r, width, a));
 
         pGrid->U[k][j][i].M1 = pGrid->U[k][j][i].d*vx;
+        pGrid->U[k][j][i].M2 = 0.0;
+        pGrid->U[k][j][i].M3 = 0.0;
 
-        pGrid->U[k][j][i].E = P/Gamma_1 + (SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2))/(2.0*pGrid->U[k][j][i].d);
 
+        /* make the initial condition isobaric */
+#ifndef ISOTHERMAL
+        pGrid->U[k][j][i].E = P/Gamma_1;
 
+        pGrid->U[k][j][i].E += (SQR(pGrid->U[k][j][i].M1) +
+                                SQR(pGrid->U[k][j][i].M2) +
+                                SQR(pGrid->U[k][j][i].M3)) /
+          (2.0*pGrid->U[k][j][i].d);
 #ifdef MHD
-        pGrid->U[k][j][i].E += (SQR(pGrid->U[k][j][i].B1c)
-                                + SQR(pGrid->U[k][j][i].B2c)
-                                + SQR(pGrid->U[k][j][i].B3c))*0.5;
-#endif
+        pGrid->U[k][j][i].E += (SQR(pGrid->U[k][j][i].B1c) +
+                                SQR(pGrid->U[k][j][i].B2c) +
+                                SQR(pGrid->U[k][j][i].B3c)) * 0.5;
+#endif  /* MHD */
+#endif  /* ISOTHERMAL */
 
+
+        /* initialize passive scalars to track the hot and cold gas */
 #if (NSCALARS > 0)
-        /*cold gas dye*/
-        pGrid->U[k][j][i].s[0] =  0.5*(tanh((-r+width)*a)+tanh((r+width)*a))*pGrid->U[k][j][i].d;
-
-        /*hot gas dye*/
-        pGrid->U[k][j][i].s[1] = pGrid->U[k][j][i].d - pGrid->U[k][j][i].s[0] ;
-
-        /*gas is initialized by 2 dyes to be either hot or cold*/
-
+        /* dye to mark cold gas */
+        pGrid->U[k][j][i].s[0] = window(r, width, a);
+        pGrid->U[k][j][i].s[0] *= pGrid->U[k][j][i].d;
 #endif
-
-        /* s = ρc. c is the specific dye (roughly 0-1 specifying what fraction of the gas is cold) the volume integral of s is conserved. */
-
-        /*passively advected scalar with 1 in cold gas and 0 in hot gas*/
-
+#if (NSCALARS > 1)
+        /* dye to mark hot gas */
+        pGrid->U[k][j][i].s[1] = 1.0 - window(r, width, a);
+        pGrid->U[k][j][i].s[1] *= pGrid->U[k][j][i].d;
+#endif
       }
     }
   }
 
-  /* Free Athena-style arrays */
-  free_3d_array(dd);
 
-  /* Free FFTW-style arrays */
+  /* free arrays allocated in initialize_fourier() */
+  free_3d_array(dd);
   ath_3d_fft_free(fd);
+
 
   return;
 }
+
+
+/* smooth top-hat function, centered on x=0, with sharpness parameter
+   a.  goes from 0 to 1.
+ */
+static Real window(x, width, a)
+{
+  return 0.5 * (tanh(a * (width - r)) +
+                tanh(a * (width + r)));
+}
+
 
 static void set_vars(DomainS *pDomain)
 {
@@ -874,7 +880,7 @@ static void perturb(GridS *pGrid)
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-        pGrid->U[k][j][i].d *= exp(1.0 + dd[k][j][i]);
+        pGrid->U[k][j][i].d = exp(1.0 + dd[k][j][i]);
 
         /* flatten out high density stuff */
         if (pGrid->U[k][j][i].d > 1.0) {
