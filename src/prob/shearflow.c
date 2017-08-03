@@ -89,8 +89,12 @@ static double ran2(long int *idum);
 /* -------------------------------------------------------------------------- */
 /* functions for history outputs
  */
+#if (NSCALARS > 1)
 static Real hst_hot_mom(const GridS *pG, const int i, const int j, const int k);
+#endif  /* NSCALARS */
+#if (NSCALARS > 0)
 static Real hst_cold_mom(const GridS *pG, const int i, const int j, const int k);
+#endif  /* NSCALARS */
 static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k);
 /* -------------------------------------------------------------------------- */
 
@@ -130,7 +134,7 @@ static void integrate_cooling(GridS *pG);
  */
 static void set_vars(DomainS *pDomain);
 
-static Real window(x, width, a);
+static Real window(Real x, Real width, Real a);
 
 void problem(DomainS *pDomain)
 {
@@ -284,10 +288,10 @@ void problem(DomainS *pDomain)
 /* smooth top-hat function, centered on x=0, with sharpness parameter
    a.  goes from 0 to 1.
  */
-static Real window(x, width, a)
+static Real window(Real x, Real width, Real a)
 {
-  return 0.5 * (tanh(a * (width - r)) +
-                tanh(a * (width + r)));
+  return 0.5 * (tanh(a * (width - x)) +
+                tanh(a * (width + x)));
 }
 
 
@@ -307,8 +311,12 @@ static void set_vars(DomainS *pDomain)
   coolinglaw  = par_getd("problem", "coolinglaw");
 
   dump_history_enroll(hst_Sdye,     "dye entropy");
-  dump_history_enroll(hst_hot_mom,  "hot momentum");
+#if (NSCALARS > 0)
   dump_history_enroll(hst_cold_mom, "cold momentum");
+#endif  /* NSCALARS */
+#if (NSCALARS > 1)
+  dump_history_enroll(hst_hot_mom,  "hot momentum");
+#endif  /* NSCALARS */
 
 #ifdef VISCOSITY
   reynolds = par_getd_def("problem", "reynolds", 0.0);
@@ -338,7 +346,7 @@ static Real hst_hot_mom(const GridS *pG, const int i, const int j, const int k)
 #endif  /* NSCALARS */
 
 
-#if (NSCALARS > 1)
+#if (NSCALARS > 0)
 static Real hst_cold_mom(const GridS *pG, const int i, const int j, const int k)
 {
   return (pG->U[k][j][i].s[0] * pG->U[k][j][i].M1);
@@ -385,7 +393,7 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 
         pDomain = &(pM->Domain[nl][nd]);
 
-        set_vars(pDomain)
+        set_vars(pDomain);
       }
     }
   }
@@ -505,7 +513,7 @@ static void integrate_cooling(GridS *pG)
           temp = W.P/W.d;
 
           /* cooling law */
-          temp -= Gamma_1 * W.d * pow(temp, coolinglaw) * pGrid->dt;
+          temp -= Gamma_1 * W.d * pow(temp, coolinglaw) * pG->dt;
 
           /* apply a temperature floor (nans tolerated) */
           if (isnan(temp) || temp < tfloor)
