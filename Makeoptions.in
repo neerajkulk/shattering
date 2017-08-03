@@ -112,6 +112,16 @@ ifeq ($(MACHINE),macosx)
 	MPILIB = -L/usr/local/lib -lmpi		
 	FFTWLIB = -L/opt/local/lib -lfftw3 
 	FFTWINC = -I/opt/local/include -I/usr/include/malloc/
+else
+ifeq ($(MACHINE),macosx-mike)
+	CC = gcc
+	LDR = gcc
+	OPT = -O3
+	MPIINC = -I/Users/mike/homebrew/include -I/usr/include/malloc
+	MPILIB = -L/Users/mike/homebrew/lib -lmpi
+	FFTWLIB = -L/Users/mike/homebrew/lib -lfftw3
+	FFTWINC = -I/Users/mike/homebrew/include
+endif
 endif
 endif
 endif
