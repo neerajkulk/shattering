@@ -128,6 +128,8 @@ static void integrate_cooling(GridS *pG);
 /* ========================================================================== */
 /* main problem function -- sets initial conditions for the simulation
  */
+static void set_vars(DomainS *pDomain);
+
 void problem(DomainS *pDomain)
 {
   GridS *pGrid = (pDomain->Grid);
@@ -151,16 +153,6 @@ void problem(DomainS *pDomain)
   Real dsmal = par_getd("problem","dsmal");
   Real r; /*r in cylindrical coordinates*/
 
-  FloorTemp = par_getd("problem", "Floor");
-  CeilingTemp = par_getd("problem", "Ceiling");
-  coolon = par_getd("problem", "coolon");
-  heaton = par_getd("problem", "heaton");
-  tsim = par_getd("time", "tlim");
-  stepcooling = par_geti("problem", "stepcooling");
-  steps = par_getd("problem", "steps");
-  coolinglaw = par_getd("problem", "coolinglaw");
-
-
   Prim1DS W;
   Cons1DS U1d;
 
@@ -177,6 +169,9 @@ void problem(DomainS *pDomain)
   Real Bx = 0.01;
 #endif
 
+  /* initialize global variables in a separate function so it can be
+     done identically here and in read_restart()  */
+  set_vars(pDomain);
 
   /* Initialize uniform density */
   for (k=ks; k<=ke; k++) {
@@ -282,38 +277,46 @@ void problem(DomainS *pDomain)
     }
   }
 
-
-  dump_history_enroll(hst_Sdye, "dye entropy");
-  dump_history_enroll(hotm1, "hot momentum");
-  dump_history_enroll(coldm1, "cold momentum");
-
-#ifdef VISCOSITY
-  Real reynolds;
-  reynolds  = par_getd_def("problem","reynolds",0.0);
-  nu_iso = lx * v0 / reynolds;
-  nu_aniso = 0.0;
-#endif  /* VISCOSITY */
-
-
-
-
-
-  ath_pout(0,"De-allocating driving memory.\n");
-
   /* Free Athena-style arrays */
   free_3d_array(dd);
 
   /* Free FFTW-style arrays */
   ath_3d_fft_free(fd);
 
+  return;
+}
 
+static void set_vars(DomainS *pDomain)
+{
+#ifdef VISCOSITY
+  Real reynolds;
+#endif  /* VISCOSITY */
+
+  FloorTemp   = par_getd("problem", "Floor");
+  CeilingTemp = par_getd("problem", "Ceiling");
+  coolon      = par_getd("problem", "coolon");
+  heaton      = par_getd("problem", "heaton");
+  tsim        = par_getd("time", "tlim");
+  stepcooling = par_geti("problem", "stepcooling");
+  steps       = par_getd("problem", "steps");
+  coolinglaw  = par_getd("problem", "coolinglaw");
+
+  dump_history_enroll(hst_Sdye, "dye entropy");
+  dump_history_enroll(hotm1, "hot momentum");
+  dump_history_enroll(coldm1, "cold momentum");
+
+#ifdef VISCOSITY
+  reynolds  = par_getd_def("problem","reynolds",0.0);
+  nu_iso = lx * v0 / reynolds;
+  nu_aniso = 0.0;
+#endif  /* VISCOSITY */
 
 #ifdef REPORT_NANS
   nan_dump_count = 0;
 #endif
 
-  return;
 }
+
 /* end problem() */
 /* -------------------------------------------------------------------------- */
 
@@ -363,26 +366,8 @@ void problem_write_restart(MeshS *pM, FILE *fp)
 
 void problem_read_restart(MeshS *pM, FILE *fp)
 {
-  /* Ensure a different initial random seed for each process in an MPI calc. */
-  rseed = -11;
-#ifdef MPI_PARALLEL
-  rseed -= myID_Comm_world;
-#endif
-
   int nl, nd, ntot;
-  GridS *pGrid;
   DomainS *pDomain;
-  int is, ie, js, je, ks, ke;
-  int i,j,k;
-  int ixs,jxs,kxs;
-  Real x1,x2,x3;
-  Real lx,ly;
-  Real v0;
-  Real r; /*r in cylindrical coordinates*/
-  Prim1DS W;
-  Cons1DS U1d;
-  Real reynolds;
-
 
   for (nl=0; nl<=(pM->NLevels)-1; nl++) {
     for (nd=0; nd<=(pM->DomainsPerLevel[nl])-1; nd++) {
@@ -390,38 +375,10 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 
         pDomain = &(pM->Domain[nl][nd]);
 
-        pGrid = pM->Domain[nl][nd].Grid;
-        is = pGrid->is, ie = pGrid->ie;
-        js = pGrid->js, je = pGrid->je;
-        ks = pGrid->ks, ke = pGrid->ke;
-        lx = pDomain->RootMaxX[0] - pDomain->RootMinX[0];
-        ly = pDomain->RootMaxX[1] - pDomain->RootMinX[1];
-
-
-        FloorTemp = par_getd("problem", "Floor");
-        CeilingTemp = par_getd("problem", "Ceiling");
-        coolon = par_getd("problem", "coolon");
-        heaton = par_getd("problem", "heaton");
-        tsim = par_getd("time", "tlim");
-        stepcooling = par_geti("problem", "stepcooling");
-        steps = par_getd("problem", "steps");
-        coolinglaw = par_getd("problem", "coolinglaw");
-
-        dump_history_enroll(hst_Sdye, "dye entropy");
-        dump_history_enroll(hotm1, "hot momentum");
-        dump_history_enroll(coldm1, "cold momentum");
-
-#ifdef VISCOSITY
-        reynolds  = par_getd_def("problem","reynolds",0.0);
-        v0  = par_getd_def("problem","v0",0.0);
-        nu_iso = lx * v0 / reynolds;
-        nu_aniso = 0.0;
-#endif // VISCOSITY
-
+        set_vars(pDomain)
       }
     }
   }
-
 
   return;
 }
