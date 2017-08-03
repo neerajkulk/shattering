@@ -97,18 +97,6 @@ static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k);
 /* -------------------------------------------------------------------------- */
 /* global variables used throughout the simulation
  */
-static Real FloorTemp;
-static Real CeilingTemp;
-static Real tsim;
-static int coolon;
-static int heaton;
-static int stepcooling;
-static int steps;
-static Real coolinglaw;
-
-static Real netboost=0.0;
-static Real t_boostdump=0.0;
-
 #ifdef VISCOSITY
 extern Real nu_iso, nu_aniso;
 #endif  /* VISCOSITY */
@@ -118,6 +106,15 @@ extern Real nu_iso, nu_aniso;
 /* -------------------------------------------------------------------------- */
 /* simple cooling integrator
  */
+static Real FloorTemp;
+static Real CeilingTemp;
+static Real tsim;
+static int coolon;
+static int heaton;
+static int stepcooling;
+static int steps;
+static Real coolinglaw;
+
 static void integrate_cooling(GridS *pG);
 
 /* end cooling routines */
