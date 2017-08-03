@@ -116,7 +116,9 @@ static int  stepcooling;
 static int  steps;
 static Real coolinglaw;
 
+#ifndef BAROTROPIC
 static void integrate_cooling(GridS *pG);
+#endif  /* BAROTROPIC */
 
 /* end cooling routines */
 /* -------------------------------------------------------------------------- */
@@ -408,19 +410,6 @@ void Userwork_in_loop(MeshS *pM)
 {
   int nl, nd, ntot;
   GridS *pGrid;
-  DomainS *pD;
-  int is, ie, js, je, ks, ke;
-  int i,j,k;
-  Real KE,TE,ME,temp,dE;
-  Real dvx;
-  Real deltaE;
-  int gnx1, gnx2, gnx3;
-  Real counter, tshift;
-  Real tmpfloor;
-#ifdef MPI_PARALLEL
-  Real deltaE_global;
-  int ierr;
-#endif /* MPI_PARALLEL */
 
   gnx1 = pM->Nx[0];
   gnx2 = pM->Nx[1];
@@ -432,136 +421,9 @@ void Userwork_in_loop(MeshS *pM)
       if (pM->Domain[nl][nd].Grid != NULL) {
         pGrid = pM->Domain[nl][nd].Grid;
 
-        deltaE = 0;
-        is = pGrid->is; ie = pGrid->ie;
-        js = pGrid->js; je = pGrid->je;
-        ks = pGrid->ks; ke = pGrid->ke;
-
-        tmpfloor = FloorTemp;
-        counter = 1.0;
-        tshift = tsim/steps;
-
-        for(k=ks; k<=ke; k++){
-          for (j=js; j<=je; j++){
-            for (i=is; i<=ie; i++){
-
-              /* start cooling routine */
-              if (pGrid->U[k][j][i].d != pGrid->U[k][j][i].d
-                  || pGrid->U[k][j][i].d <= 0.0){
-                ath_error("bad density of %f at cell (%d,%d,%d)\n",
-                          pGrid->U[k][j][i].d, k,j,i);
-              }
-
-              KE = (SQR(pGrid->U[k][j][i].M1)
-                    + SQR(pGrid->U[k][j][i].M2)
-                    + SQR(pGrid->U[k][j][i].M3)) / (2.0*pGrid->U[k][j][i].d);
-
-
-#ifdef MHD
-              ME =  (SQR(pGrid->U[k][j][i].B1c)
-                     + SQR(pGrid->U[k][j][i].B2c)
-                     + SQR(pGrid->U[k][j][i].B3c))*0.5;
-#endif  /* MHD */
-
-              TE = pGrid->U[k][j][i].E - KE;
-
-#ifdef MHD
-              TE -= ME;
-#endif  /* MHD */
-
-              temp = ((2.0/3.0)*TE)/(pGrid->U[k][j][i].d);
-
-              if (temp != temp || temp <= 0.0){
-                ath_error("Floor temp at (%d,%d,%d), T = %f, KE = %f, E = %f, d = %f\n",k,j,i, temp, KE, pGrid->U[k][j][i].E,pGrid->U[k][j][i].d);
-              }
-
-              dE = SQR(pGrid->U[k][j][i].d)*(pow(temp,coolinglaw))*pGrid->dt;
-
-              if (coolon == 1) {
-                TE -= dE;
-              }
-
-
-              if (stepcooling ==1) {
-
-                if (pGrid->time > tshift) {
-                  tmpfloor = tmpfloor*(steps - counter)/steps;
-                  tshift += tsim/steps;
-                  counter += 1.0;
-                }
-              }
-
-
-
-
-              if (stepcooling == 2) {
-
-                if (pGrid->time > tshift) {
-                  tmpfloor /= pow(4.0,(1.0/(2.5-coolinglaw)));  /*cstcool drops by a factor of 4*/
-                  tshift += tsim/steps;
-                  counter += 1.0;
-                }
-
-              }
-
-
-              /* apply temperature floor and write to the grid */
-              if (TE < 3.0*pGrid->U[k][j][i].d*tmpfloor/2.0){
-                TE = 3.0*pGrid->U[k][j][i].d*tmpfloor/2.0;
-              }
-
-
-              /* apply temperature ceiling and write to the grid */
-              if (TE > 3.0*pGrid->U[k][j][i].d*CeilingTemp/2.0){
-                TE = 3.0*pGrid->U[k][j][i].d*CeilingTemp/2.0;
-              }
-              deltaE += pGrid->U[k][j][i].E - (KE + TE);
-#ifdef MHD
-              deltaE -= ME;
-#endif  /* MHD */
-
-              pGrid->U[k][j][i].E = KE + TE;
-
-
-
-#ifdef MHD
-
-              pGrid->U[k][j][i].E += ME;
-
-#endif  /* MHD */
-            }
-          }
-        }
-
-        /* heating to match cooling */
-
-#ifdef MPI_PARALLEL
-        ierr = MPI_Allreduce(&deltaE, &deltaE_global, 1, MPI_RL, MPI_SUM,
-                             MPI_COMM_WORLD);
-        if (ierr){
-          ath_error("[Userwork_in_loop]: MPI_Allreduce returned error %d\n",
-                    ierr);
-        }
-
-        deltaE = deltaE_global;
-#endif  /* MPI_PARALLEL */
-
-        deltaE = deltaE/(gnx1*gnx2*gnx3);
-
-        for (k=ks; k<=ke; k++) {
-          for (j=js; j<=je; j++) {
-            for (i=is; i<=ie; i++) {
-
-              if (heaton == 1) {
-                pGrid->U[k][j][i].E += deltaE;
-
-              }
-
-            }
-          }
-        }
-
-
+#ifndef BAROTROPIC
+        integrate_cooling(pGrid);
+#endif  /* BAROTROPIC */
       }
     }
   }
@@ -604,7 +466,9 @@ void Userwork_before_loop(MeshS *pM)
 
 
 /* ========================================================================== */
-/* cooling routines */
+/* cooling routines
+ */
+#ifndef BAROTROPIC
 static void integrate_cooling(GridS *pG)
 {
   int i, j, k;
@@ -612,7 +476,9 @@ static void integrate_cooling(GridS *pG)
 
   PrimS W;
   ConsS U;
-  Real temp, tcloud = Gamma_1 / 1000;
+  Real temp, tfloor;
+  Real s = (Real) steps,
+    x = pG->time / tsim;
 
   Real deltaE;
 #ifdef MPI_PARALLEL
@@ -620,51 +486,58 @@ static void integrate_cooling(GridS *pG)
   int ierr;
 #endif  /* MPI_PARALLEL */
 
-  /* ath_pout(0, "integrating cooling using Townsend (2009) algorithm.\n"); */
-
   is = pG->is;  ie = pG->ie;
   js = pG->js;  je = pG->je;
   ks = pG->ks;  ke = pG->ke;
 
+  /* drop tfloor in evenly-spaced steps */
+  tfloor = (s - floor(s*x))/s;
+  tfloor *= FloorTemp;
+
   deltaE = 0.0;
-  for (k=ks; k<=ke; k++) {
-    for (j=js; j<=je; j++) {
-      for (i=is; i<=ie; i++) {
+  if(coolon){
+    for (k=ks; k<=ke; k++) {
+      for (j=js; j<=je; j++) {
+        for (i=is; i<=ie; i++) {
 
-        W = Cons_to_Prim(&(pG->U[k][j][i]));
+          /* first, get the temperature */
+          W = Cons_to_Prim(&(pG->U[k][j][i]));
+          temp = W.P/W.d;
 
-        /* find temp in keV */
-        temp = W.P/W.d;
-        temp = newtemp_townsend(W.d, temp, pG->dt);
+          /* cooling law */
+          temp -= Gamma_1 * W.d * pow(temp, coolinglaw) * pGrid->dt;
 
-        /* apply a temperature floor (nans tolerated) */
-        if (isnan(temp) || temp < tcloud)
-          temp = tcloud;
+          /* apply a temperature floor (nans tolerated) */
+          if (isnan(temp) || temp < tfloor)
+            temp = tfloor;
 
-        W.P = W.d * temp;
-        U = Prim_to_Cons(&W);
+          W.P = W.d * temp;
+          U = Prim_to_Cons(&W);
 
-        deltaE += pG->U[k][j][i].E - U.E;
-        pG->U[k][j][i].E = U.E;
+          deltaE += pG->U[k][j][i].E - U.E;
+          pG->U[k][j][i].E = U.E;
+        }
       }
     }
   }
 
 
+  if (heaton){
 #ifdef MPI_PARALLEL
-  ierr = MPI_Allreduce(&deltaE, &deltaE_global, 1, MPI_RL, MPI_SUM, MPI_COMM_WORLD);
-  if (ierr)
-    ath_error("[integrate_cooling]: MPI_Allreduce returned error %d\n", ierr);
+    ierr = MPI_Allreduce(&deltaE, &deltaE_global, 1, MPI_RL, MPI_SUM, MPI_COMM_WORLD);
+    if (ierr)
+      ath_error("[integrate_cooling]: MPI_Allreduce returned error %d\n", ierr);
 
-  deltaE = deltaE_global;
+    deltaE = deltaE_global;
 #endif  /* MPI_PARALLEL */
 
-  deltaE = deltaE / (gnx1*gnx2*gnx3);
+    deltaE = deltaE / (gnx1*gnx2*gnx3);
 
-  for (k=ks; k<=ke; k++) {
-    for (j=js; j<=je; j++) {
-      for (i=is; i<=ie; i++) {
-        pG->U[k][j][i].E += deltaE;
+    for (k=ks; k<=ke; k++) {
+      for (j=js; j<=je; j++) {
+        for (i=is; i<=ie; i++) {
+          pG->U[k][j][i].E += deltaE;
+        }
       }
     }
   }
@@ -672,6 +545,8 @@ static void integrate_cooling(GridS *pG)
   return;
 
 }
+#endif  /* BAROTROPIC */
+
 /* end cooling routines */
 /* -------------------------------------------------------------------------- */
 
