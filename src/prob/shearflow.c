@@ -331,12 +331,12 @@ static void set_vars(DomainS *pDomain)
  */
 static Real hst_hot_mom(const GridS *pG, const int i, const int j, const int k)
 {
-  return  (pG->U[k][j][i].s[1] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d);
+  return (pG->U[k][j][i].s[1] * pG->U[k][j][i].M1);
 }
 
 static Real hst_cold_mom(const GridS *pG, const int i, const int j, const int k)
 {
-  return  (pG->U[k][j][i].s[0] * pG->U[k][j][i].M1)/( pG->U[k][j][i].d);
+  return (pG->U[k][j][i].s[0] * pG->U[k][j][i].M1);
 }
 
 static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k)
