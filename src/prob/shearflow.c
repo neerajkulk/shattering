@@ -146,7 +146,7 @@ void problem(DomainS *pDomain)
 
 #ifdef MHD
   const Real Bx = 0.01;
-#endif
+#endif  /* MHD */
 
   Real vx;
 
@@ -177,7 +177,7 @@ void problem(DomainS *pDomain)
   rseed = -11;
 #ifdef MPI_PARALLEL
   rseed -= myID_Comm_world;
-#endif
+#endif  /* MPI_PARALLEL */
   initialize_fourier(pGrid, pDomain);
   generate();
 
@@ -197,7 +197,6 @@ void problem(DomainS *pDomain)
         pGrid->U[k][j][i].d *= (noise/2.0);
         pGrid->U[k][j][i].d += 1.0 - noise;
 
-
 #ifdef MHD
         pGrid->U[k][j][i].B1c = Bx;
         pGrid->U[k][j][i].B2c = 0.0;
@@ -208,7 +207,7 @@ void problem(DomainS *pDomain)
         pGrid->B3i[k][j][i] = 0.0;
 
         if (i == ie && ie > is) pGrid->B1i[k][j][i+1] = Bx;
-#endif /*MHD*/
+#endif /* MHD */
       }
     }
   }
@@ -260,12 +259,12 @@ void problem(DomainS *pDomain)
         /* dye to mark cold gas */
         pGrid->U[k][j][i].s[0] = window(r, width, a);
         pGrid->U[k][j][i].s[0] *= pGrid->U[k][j][i].d;
-#endif
+#endif  /* NSCALARS */
 #if (NSCALARS > 1)
         /* dye to mark hot gas */
         pGrid->U[k][j][i].s[1] = 1.0 - window(r, width, a);
         pGrid->U[k][j][i].s[1] *= pGrid->U[k][j][i].d;
-#endif
+#endif  /* NSCALARS */
       }
     }
   }
@@ -317,7 +316,7 @@ static void set_vars(DomainS *pDomain)
 
 #ifdef REPORT_NANS
   nan_dump_count = 0;
-#endif
+#endif  /* REPORT_NANS */
 
 }
 
@@ -329,15 +328,21 @@ static void set_vars(DomainS *pDomain)
 /* ========================================================================== */
 /* history outputs
  */
+#if (NSCALARS > 1)
 static Real hst_hot_mom(const GridS *pG, const int i, const int j, const int k)
 {
   return (pG->U[k][j][i].s[1] * pG->U[k][j][i].M1);
 }
+#endif  /* NSCALARS */
 
+
+#if (NSCALARS > 1)
 static Real hst_cold_mom(const GridS *pG, const int i, const int j, const int k)
 {
   return (pG->U[k][j][i].s[0] * pG->U[k][j][i].M1);
 }
+#endif  /* NSCALARS */
+
 
 static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k)
 {
@@ -345,7 +350,6 @@ static Real hst_Sdye(const GridS *pG, const int i, const int j, const int k)
   entropy = (-1.0)*(pG->U[k][j][i].d)*log(pG->U[k][j][i].d);
   return entropy;
 }
-#endif
 
 /* end history outputs */
 /* -------------------------------------------------------------------------- */
@@ -416,7 +420,7 @@ void Userwork_in_loop(MeshS *pM)
 #ifdef MPI_PARALLEL
   Real deltaE_global;
   int ierr;
-#endif /*MPI_PARALLEL*/
+#endif /* MPI_PARALLEL */
 
   gnx1 = pM->Nx[0];
   gnx2 = pM->Nx[1];
@@ -454,19 +458,16 @@ void Userwork_in_loop(MeshS *pM)
 
 
 #ifdef MHD
-
               ME =  (SQR(pGrid->U[k][j][i].B1c)
                      + SQR(pGrid->U[k][j][i].B2c)
                      + SQR(pGrid->U[k][j][i].B3c))*0.5;
-
-
-#endif // MHD
+#endif  /* MHD */
 
               TE = pGrid->U[k][j][i].E - KE;
 
 #ifdef MHD
               TE -= ME;
-#endif // MHD
+#endif  /* MHD */
 
               temp = ((2.0/3.0)*TE)/(pGrid->U[k][j][i].d);
 
@@ -515,12 +516,9 @@ void Userwork_in_loop(MeshS *pM)
                 TE = 3.0*pGrid->U[k][j][i].d*CeilingTemp/2.0;
               }
               deltaE += pGrid->U[k][j][i].E - (KE + TE);
-              // ath_pout(0, "temp floor is %f\n", FloorTemp);
 #ifdef MHD
-
               deltaE -= ME;
-
-#endif // MHD
+#endif  /* MHD */
 
               pGrid->U[k][j][i].E = KE + TE;
 
@@ -530,8 +528,7 @@ void Userwork_in_loop(MeshS *pM)
 
               pGrid->U[k][j][i].E += ME;
 
-#endif // MHD
-
+#endif  /* MHD */
             }
           }
         }
@@ -547,9 +544,7 @@ void Userwork_in_loop(MeshS *pM)
         }
 
         deltaE = deltaE_global;
-#endif
-
-        /* MPI_PARALLEL */
+#endif  /* MPI_PARALLEL */
 
         deltaE = deltaE/(gnx1*gnx2*gnx3);
 
@@ -596,7 +591,7 @@ void Userwork_before_loop(MeshS *pM)
       if (pM->Domain[nl][nd].Grid != NULL) {
 #ifdef REPORT_NANS
         ntot = report_nans(pM, &(pM->Domain[nl][nd]),1);
-#endif
+#endif  /* REPORT_NANS */
       }
     }
   }
@@ -904,7 +899,7 @@ static int report_nans(MeshS *pM, DomainS *pDomain, int fix)
   int i, j, k;
   int is,ie,js,je,ks,ke;
   Real x1, x2, x3;
-  int V=0; //verbose off
+  int V=0;
   int NO = 2;
   Real KE, rho, press, temp;
   int nanpress=0, nanrho=0, nanv=0, nnan;   /* nan count */
@@ -1088,7 +1083,6 @@ static int report_nans(MeshS *pM, DomainS *pDomain, int fix)
   nfloor += nmag;
 #endif  /* MHD */
 
-  // if (fix == 0) {
 #ifdef MHD
   ath_pout(0, "[report_nans]: floored %d cells: %d P, %d d, %d v, %d beta.\n",
            nfloor, npress, nrho, nv, nmag);
@@ -1096,11 +1090,9 @@ static int report_nans(MeshS *pM, DomainS *pDomain, int fix)
   ath_pout(0, "[report_nans]: floored %d cells: %d P, %d d, %d v.\n",
            nfloor, npress, nrho, nv);
 #endif  /* MHD */
-  // }
 
 
-  //  if ((nnan > 0 || nfloor -nmag > 30) && fix == 0) {
-  if (nnan > 0 ){// && fix == 0) {
+  if (nnan > 0 ){
 #ifdef MHD
     ath_pout(0, "[report_nans]: found %d nan cells: %d P, %d d, %d v, %d B.\n",
              nnan, nanpress, nanrho, nanv, nanmag);
