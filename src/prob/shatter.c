@@ -303,7 +303,7 @@ static void integrate_cooling(GridS *pG)
           temp = W.P/W.d;
 
           /* cooling law */
-          temp -= (gm-1) * W.d * pow(temp, alpha) * pG->dt;
+          temp -= (gm-1) * W.d * lambda_0 * pow(temp, alpha) * pG->dt;
 
           /* apply a temperature floor (nans tolerated) */
           if (isnan(temp) || temp < tfloor)
