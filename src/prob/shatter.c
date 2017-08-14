@@ -146,13 +146,13 @@ void problem(DomainS *pDomain)
 	//set up hot cold kh beam
 	pGrid->U[k][j][i].d = 1.0 + (drat-1) * window(x2, width, a);
 	pGrid->U[k][j][i].M1 = (vflow * (1.0 - window(x2, width, a)))*pGrid->U[k][j][i].d;
-        pGrid->U[k][j][i].M2 = 0.0;;
+        pGrid->U[k][j][i].M2 = 0.0;
         pGrid->U[k][j][i].M3 = 0.0;
 
 	
 	// white noise perturbations to velocity
-	pGrid->U[k][j][i].M1 += amp*(((Real)rand()/RAND_MAX) - 0.5)*pGrid->U[k][j][i].d;
-        pGrid->U[k][j][i].M2 += amp*(((Real)rand()/RAND_MAX) - 0.5)*pGrid->U[k][j][i].d;
+	pGrid->U[k][j][i].M1 += amp*(((Real)rand()/RAND_MAX) - 0.5)*pGrid->U[k][j][i].d * vflow;
+        pGrid->U[k][j][i].M2 += amp*(((Real)rand()/RAND_MAX) - 0.5)*pGrid->U[k][j][i].d * vflow;
       
 
 	
