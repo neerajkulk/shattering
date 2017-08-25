@@ -94,30 +94,60 @@ extern Real nu_iso, nu_aniso;
 /* -------------------------------------------------------------------------- */
 /* simple cooling integrator
  */
-static Real FloorTemp;
-static Real CeilingTemp;
-static Real tsim;
-static int  coolon;
-static int  heaton;
-static int  stepcooling;
-static int  steps;
-static Real coolinglaw;
 
-#ifndef BAROTROPIC
+static Real mach;               // Mach number
+static Real alpha;              // exponent for cooling function
+static int num_steps;           // number of steps for cooling function
+static Real lambda_0;           // normalization of the cooling curve
+static Real n_kh;               // t_sim / t_kh
+static Real end_time;
+static Real f, gm;                 // gamma = cp/cv
+
+
+static int cooling_flag;
+static int heating_flag;
+
+
+// parameters for simulation length
+//
+static const Real n_cool = 1.0/3.0; // t_sim / t_{cool,hot}
+
+
+// helper functions to reduce code
+//
+
+static inline Real window(Real x, Real width, Real a);
+static inline Real get_tfloor(Real cstcool);
+static inline Real get_cstcool(const Real time);
 static void integrate_cooling(GridS *pG);
-#endif  /* BAROTROPIC */
+static void set_vars(DomainS *pDomain);
+static Real window(Real x, Real width, Real a);
 
-/* end cooling routines */
-/* -------------------------------------------------------------------------- */
+// history outputs
+//
+//Real hst_cstcool(MeshBlock *pmb, int iout);
+//Real hst_tfloor(MeshBlock *pmb, int iout);
+
+
+// mass of hot and cold gas...
+// ... (scalars are useless for this problem)
+//Real hst_rho_hot(MeshBlock *pmb, int iout);
+//Real hst_rho_cold(MeshBlock *pmb, int iout);
+
+// mass*velocity for hot and cold gas...
+// ... ratio with previous entries to get mass-weighted velocity
+//Real hst_rho_v_hot(MeshBlock *pmb, int iout);
+//Real hst_rho_v_cold(MeshBlock *pmb, int iout);
+
+
+
+static double ran2(long int *idum);
 
 
 
 /* ========================================================================== */
 /* main problem function -- sets initial conditions for the simulation
  */
-static void set_vars(DomainS *pDomain);
-
-static Real window(Real x, Real width, Real a);
 
 void problem(DomainS *pDomain)
 {
@@ -132,26 +162,67 @@ void problem(DomainS *pDomain)
   Real ly = pDomain->RootMaxX[1] - pDomain->RootMinX[1];
 
   const Real P = 1.0, vy = 0.0;
-
+   Real noise = par_getd("problem", "noise");
+   
 #ifdef MHD
   const Real Bx = 0.01;
 #endif  /* MHD */
 
-  Real vx;
 
-  Real thickness = lx/50.0;
-  Real a = 2.0*atanh(0.9)/thickness;
+  mach         = par_getd("problem", "mach");
+  alpha        = par_getd("cooling", "alpha");
+  end_time     = par_getd("time", "tlim");
+  n_kh         = par_getd("problem", "n_kh");
+  gm           = par_getd("problem", "gamma");
+  
+  num_steps    = par_geti("cooling", "steps");
+  
+  cooling_flag = par_geti("cooling", "cooling");
+  heating_flag = par_geti("cooling", "heating");
 
-  Real noise = par_getd("problem", "noise");
-  Real width = par_getd("problem", "frac_cold");
-  width *= (ly/2.0);
+  
+  //gm and f are used in cooling routines
+  f = pow(gm, 1.5)/(gm-1.0)/(2.0-alpha);
+  f = 1.0/f;
 
-  Real intrfc;
+  //calculate lambda_0
 
-  Real v0    = par_getd("problem","v0");
-  Real dbig  = par_getd("problem","dbig");
-  Real dsmal = par_getd("problem","dsmal");
+  lambda_0=1/f;
+  lambda_0 *= pow(get_cstcool(0.0), 1.0 / (4.0-2.0*alpha));
+  lambda_0 *= pow(mach * n_cool / n_kh, (5.0-2.0*alpha)/(4.0-2.0*alpha));
+  
+  /*check that runtime is consistent with mach number*/
 
+  Real tkh = pow(lambda_0 * f * get_cstcool(0.0), -1.0/(5.0-2.0*alpha));
+  tkh = tkh / (mach * sqrt(gm));
+
+  Real err = fabs(end_time - n_kh * tkh)/end_time;
+
+  if (err >= 1.0e-4) {
+    ath_error("#### FATAL ERROR in problem file \n Simulation tlim should equal %f\n", n_kh * tkh);
+  }
+
+  /*check to see if variables are defined correctly*/  
+
+  ath_pout(0, "gamma =  %f\n", gm);
+  ath_pout(0, "f =  %f\n", f);
+  ath_pout(0, "lambda_0 = %f\n", lambda_0);
+  ath_pout(0, "init_cstcool = %f\n", get_cstcool(0.0));
+
+  /*write initial conditions*/
+
+  Real amp   =  par_getd("problem", "amp");
+  Real a     = par_getd("problem", "a");
+  Real width = par_getd("problem", "width");
+  Real  end_time     = par_getd("time", "tlim");
+
+  Real vflow = mach * sqrt(gm);
+
+  Real drat = 1.0 / get_tfloor(get_cstcool(0.0));
+
+  ath_pout(0, "drat =  %f\n", drat);
+
+  
   Prim1DS W;
   Cons1DS U1d;
 
@@ -160,13 +231,6 @@ void problem(DomainS *pDomain)
      done identically here and in read_restart()  */
   set_vars(pDomain);
 
-
-  /* ensure a different initial random seed for each process in an MPI
-     calc, and then initialize the fourier stuff */
-  rseed = -11;
-#ifdef MPI_PARALLEL
-  rseed -= myID_Comm_world;
-#endif  /* MPI_PARALLEL */
   initialize_fourier(pGrid, pDomain);
   generate();
 
@@ -180,12 +244,21 @@ void problem(DomainS *pDomain)
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
         cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-
-        /* MM: i'm not sure what this does... neeraj, can you
-           clarify?? */
+	
         pGrid->U[k][j][i].d *= (noise/2.0);
         pGrid->U[k][j][i].d += 1.0 - noise;
 
+	/* density perturbations are now normalized to have a mean of ~1 with drho/rho ~ noise */
+	
+	//set up hot cold kh beam
+	pGrid->U[k][j][i].d *= 1.0 + (drat-1) * window(x2, width, a);
+	pGrid->U[k][j][i].M1 = (vflow * (1.0 - window(x2, width, a)))*pGrid->U[k][j][i].d;
+        pGrid->U[k][j][i].M2 = 0.0;
+        pGrid->U[k][j][i].M3 = 0.0;
+	
+
+	
+	
 #ifdef MHD
         pGrid->U[k][j][i].B1c = Bx;
         pGrid->U[k][j][i].B2c = 0.0;
@@ -197,66 +270,19 @@ void problem(DomainS *pDomain)
 
         if (i == ie && ie > is) pGrid->B1i[k][j][i+1] = Bx;
 #endif /* MHD */
-      }
-    }
-  }
-
-
-  for (k=ks; k<=ke; k++) {
-    for (j=js; j<=je; j++) {
-      for (i=is; i<=ie; i++) {
-        cc_pos(pGrid, i, j, k, &x1, &x2, &x3);
-
-        /* perturbation is cylindrically symmetric in the y-z plane */
-        r = sqrt(x3*x3 + x2*x2);
-
-        /* create a strip of cold, dense gas along the midplane */
-        intrfc = dsmal + (dbig-dsmal) * window(r, width, a);
-        pGrid->U[k][j][i].d *= intrfc;
-
-        /* MM: i'm not sure what this does... neeraj, can you
-           clarify?? */
-        pGrid->U[k][j][i].d /= (1.0 + 1.8*noise);
-
-
-        /* set velocity */
-        vx = v0 * (1.0 - window(r, width, a));
-
-        pGrid->U[k][j][i].M1 = pGrid->U[k][j][i].d*vx;
-        pGrid->U[k][j][i].M2 = 0.0;
-        pGrid->U[k][j][i].M3 = 0.0;
-
-
-        /* make the initial condition isobaric */
-#ifndef ISOTHERMAL
-        pGrid->U[k][j][i].E = P/Gamma_1;
-
-        pGrid->U[k][j][i].E += (SQR(pGrid->U[k][j][i].M1) +
-                                SQR(pGrid->U[k][j][i].M2) +
-                                SQR(pGrid->U[k][j][i].M3)) /
-          (2.0*pGrid->U[k][j][i].d);
+	     	
+	pGrid->U[k][j][i].E = P/Gamma_1 + (SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2) + SQR(pGrid->U[k][j][i].M3))/(2.0*pGrid->U[k][j][i].d);
+	
 #ifdef MHD
-        pGrid->U[k][j][i].E += (SQR(pGrid->U[k][j][i].B1c) +
-                                SQR(pGrid->U[k][j][i].B2c) +
-                                SQR(pGrid->U[k][j][i].B3c)) * 0.5;
-#endif  /* MHD */
-#endif  /* ISOTHERMAL */
+	pGrid->U[k][j][i].E += (SQR(pGrid->U[k][j][i].B1c)
+				+ SQR(pGrid->U[k][j][i].B2c)
+				+ SQR(pGrid->U[k][j][i].B3c))*0.5;
+#endif
 
-
-        /* initialize passive scalars to track the hot and cold gas */
-#if (NSCALARS > 0)
-        /* dye to mark cold gas */
-        pGrid->U[k][j][i].s[0] = window(r, width, a);
-        pGrid->U[k][j][i].s[0] *= pGrid->U[k][j][i].d;
-#endif  /* NSCALARS */
-#if (NSCALARS > 1)
-        /* dye to mark hot gas */
-        pGrid->U[k][j][i].s[1] = 1.0 - window(r, width, a);
-        pGrid->U[k][j][i].s[1] *= pGrid->U[k][j][i].d;
-#endif  /* NSCALARS */
       }
     }
   }
+
 
 
   /* free arrays allocated in initialize_fourier() */
@@ -268,13 +294,110 @@ void problem(DomainS *pDomain)
 }
 
 
-/* smooth top-hat function, centered on x=0, with sharpness parameter
-   a.  goes from 0 to 1.
- */
+
+
+static inline Real get_cstcool(const Real time)
+{
+  const Real x = time / end_time;
+  const Real fact = -1.0 * floor(x * num_steps);
+
+  return pow(4.0, fact);
+}
+
+
+static inline Real get_tfloor(Real cstcool)
+{
+  // cs*tcool = Tfloor^(2.5-alpha)/(f*Lambda_0)
+
+  return pow(f * lambda_0 * cstcool, 2.0/(5.0-2.0*alpha));
+}
+
 static Real window(Real x, Real width, Real a)
 {
   return 0.5 * (tanh(a * (width - x)) +
                 tanh(a * (width + x)));
+}
+
+
+
+static void integrate_cooling(GridS *pG)
+{
+  PrimS W;
+  ConsS U;
+  int i, j, k;
+  int is, ie, js, je, ks, ke;
+  Real temp, tfloor;
+  Real s = (Real) num_steps,
+    x = pG->time / (n_kh*end_time);
+
+  Real deltaE[2];
+#ifdef MPI_PARALLEL
+  Real deltaE_global[2];
+  int ierr;
+#endif  /* MPI_PARALLEL */
+
+  is = pG->is;  ie = pG->ie;
+  js = pG->js;  je = pG->je;
+  ks = pG->ks;  ke = pG->ke;
+
+  tfloor = get_tfloor(get_cstcool(pG->time));
+  
+  deltaE[0] = deltaE[1] = 0.0;
+  
+  if(cooling_flag){
+    for (k=ks; k<=ke; k++) {
+      for (j=js; j<=je; j++) {
+        for (i=is; i<=ie; i++) {
+
+          /* first, get the temperature */
+          W = Cons_to_Prim(&(pG->U[k][j][i]));
+          temp = W.P/W.d;
+
+          /* cooling law */
+          temp -= (gm-1) * W.d * lambda_0 * pow(temp, alpha) * pG->dt;
+
+          /* apply a temperature floor (nans tolerated) */
+          if (isnan(temp) || temp < tfloor)
+            temp = tfloor;
+
+	  else if (temp > 1.5)
+	    temp = 1.5;
+
+          W.P = W.d * temp;
+          U = Prim_to_Cons(&W);
+
+          deltaE[0] += pG->U[k][j][i].E - U.E;
+	  deltaE[1] += 1.0;
+          pG->U[k][j][i].E = U.E;
+        }
+      }
+    }
+  }
+
+
+  if (heating_flag){
+#ifdef MPI_PARALLEL
+    ierr = MPI_Allreduce(&deltaE, &deltaE_global, 2, MPI_RL, MPI_SUM, MPI_COMM_WORLD);
+    if (ierr)
+      ath_error("[integrate_cooling]: MPI_Allreduce returned error %d\n", ierr);
+
+    deltaE[0] = deltaE_global[0];
+    deltaE[1] = deltaE_global[1];
+#endif  /* MPI_PARALLEL */
+
+    deltaE[0] /= deltaE[1];
+
+    for (k=ks; k<=ke; k++) {
+      for (j=js; j<=je; j++) {
+        for (i=is; i<=ie; i++) {
+          pG->U[k][j][i].E += deltaE[0];
+        }
+      }
+    }
+  }
+
+  return;
+
 }
 
 
@@ -284,15 +407,19 @@ static void set_vars(DomainS *pDomain)
   Real reynolds;
 #endif  /* VISCOSITY */
 
-  FloorTemp   = par_getd("problem", "Floor");
-  CeilingTemp = par_getd("problem", "Ceiling");
-  coolon      = par_geti("problem", "coolon");
-  heaton      = par_geti("problem", "heaton");
-  tsim        = par_getd("time",    "tlim");
-  stepcooling = par_geti("problem", "stepcooling");
-  steps       = par_geti("problem", "steps");
-  coolinglaw  = par_getd("problem", "coolinglaw");
+  mach         = par_getd("problem", "mach");
+  alpha        = par_getd("cooling", "alpha");
+  end_time     = par_getd("time", "tlim");
+  n_kh         = par_getd("problem", "n_kh");
+  gm           = par_getd("problem", "gamma");
+  
+  num_steps    = par_geti("cooling", "steps");
+  
+  cooling_flag = par_geti("cooling", "cooling");
+  heating_flag = par_geti("cooling", "heating");
+  
 
+  
   dump_history_enroll(hst_Sdye,     "dye entropy");
 #if (NSCALARS > 0)
   dump_history_enroll(hst_cold_mom, "cold momentum");
@@ -455,91 +582,6 @@ void Userwork_before_loop(MeshS *pM)
 /* end user functions */
 /* -------------------------------------------------------------------------- */
 
-
-/* ========================================================================== */
-/* cooling routines
- */
-#ifndef BAROTROPIC
-static void integrate_cooling(GridS *pG)
-{
-  int i, j, k;
-  int is, ie, js, je, ks, ke;
-
-  PrimS W;
-  ConsS U;
-  Real temp, tfloor;
-  Real s = (Real) steps,
-    x = pG->time / tsim;
-
-  Real deltaE;
-#ifdef MPI_PARALLEL
-  Real deltaE_global;
-  int ierr;
-#endif  /* MPI_PARALLEL */
-
-  is = pG->is;  ie = pG->ie;
-  js = pG->js;  je = pG->je;
-  ks = pG->ks;  ke = pG->ke;
-
-  /* drop tfloor in evenly-spaced steps */
-  tfloor = (s - floor(s*x))/s;
-  tfloor *= FloorTemp;
-
-  deltaE = 0.0;
-  if(coolon){
-    for (k=ks; k<=ke; k++) {
-      for (j=js; j<=je; j++) {
-        for (i=is; i<=ie; i++) {
-
-          /* first, get the temperature */
-          W = Cons_to_Prim(&(pG->U[k][j][i]));
-          temp = W.P/W.d;
-
-          /* cooling law */
-          temp -= Gamma_1 * W.d * pow(temp, coolinglaw) * pG->dt;
-
-          /* apply a temperature floor (nans tolerated) */
-          if (isnan(temp) || temp < tfloor)
-            temp = tfloor;
-
-          W.P = W.d * temp;
-          U = Prim_to_Cons(&W);
-
-          deltaE += pG->U[k][j][i].E - U.E;
-          pG->U[k][j][i].E = U.E;
-        }
-      }
-    }
-  }
-
-
-  if (heaton){
-#ifdef MPI_PARALLEL
-    ierr = MPI_Allreduce(&deltaE, &deltaE_global, 1, MPI_RL, MPI_SUM, MPI_COMM_WORLD);
-    if (ierr)
-      ath_error("[integrate_cooling]: MPI_Allreduce returned error %d\n", ierr);
-
-    deltaE = deltaE_global;
-#endif  /* MPI_PARALLEL */
-
-    deltaE = deltaE / (gnx1*gnx2*gnx3);
-
-    for (k=ks; k<=ke; k++) {
-      for (j=js; j<=je; j++) {
-        for (i=is; i<=ie; i++) {
-          pG->U[k][j][i].E += deltaE;
-        }
-      }
-    }
-  }
-
-  return;
-
-}
-#endif  /* BAROTROPIC */
-
-/* end cooling routines */
-/* -------------------------------------------------------------------------- */
 
 
 /* ========================================================================== */
@@ -754,241 +796,6 @@ static void perturb(GridS *pGrid)
 }
 /* -------------------------------------------------------------------------- */
 
-
-/* ========================================================================== */
-/* ryan's report_nans function to find and remove nans on the grid --
-   really think we should remove this! */
-#ifdef REPORT_NANS
-static int report_nans(MeshS *pM, DomainS *pDomain, int fix)
-{
-#ifndef ISOTHERMAL
-  int i, j, k;
-  int is,ie,js,je,ks,ke;
-  Real x1, x2, x3;
-  int V=0;
-  int NO = 2;
-  Real KE, rho, press, temp;
-  int nanpress=0, nanrho=0, nanv=0, nnan;   /* nan count */
-  int npress=0,   nrho=0,   nv=0,   nfloor; /* floor count */
-  Real tfloor = 1.0e-6, tceil = 100.0;
-  Real rhofloor = 1.0e-3;
-#ifdef MHD
-  Real ME;
-  int nanmag=0;
-  int nmag=0;
-#endif  /* MHD */
-  Real beta;
-  Real scal[8];
-#ifdef MPI_PARALLEL
-  Real my_scal[8];
-  int ierr;
-#endif
-
-  /* Real tfloor    = 1.0e-2 / drat; */
-  /* Real tceil     = 100.0; */
-  /* Real rhofloor  = 1.0e-2; */
-#ifdef MHD
-  Real betafloor = 3.0e-3;
-#endif
-  GridS *pGrid = pDomain->Grid;
-
-  is = pGrid->is; ie = pGrid->ie;
-  js = pGrid->js; je = pGrid->je;
-  ks = pGrid->ks; ke = pGrid->ke;
-
-  for (k=ks; k<=ke; k++) {
-    for (j=js; j<=je; j++) {
-      for (i=is; i<=ie; i++) {
-        rho = pGrid->U[k][j][i].d;
-        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-        KE = (SQR(pGrid->U[k][j][i].M1) +
-              SQR(pGrid->U[k][j][i].M2) +
-              SQR(pGrid->U[k][j][i].M3)) /
-          (2.0 * rho);
-
-        press = pGrid->U[k][j][i].E - KE;
-#ifdef MHD
-        ME = (SQR(pGrid->U[k][j][i].B1c) +
-              SQR(pGrid->U[k][j][i].B2c) +
-              SQR(pGrid->U[k][j][i].B3c)) * 0.5;
-        press -= ME;
-#endif  /* MHD */
-
-        press *= Gamma_1;
-        temp = press / rho;
-#ifdef MHD
-        beta = press / ME;
-#else
-        beta = fabs(200.0);
-#endif  /* MHD */
-
-        if (press != press) {
-          nanpress++;
-          if(V && nanpress < NO) printf("bad press %e R %e  %e %e %e  %d %d %d %e %e %e %e\n",press, 1.0/pGrid->dx1, x1, x2, x3, i, j, k,rho, press, temp, beta);
-          if(fix)
-            temp = tfloor;
-        } else if (temp < tfloor) {
-          npress++;
-          if(V && npress < NO) printf("bad tempF %e R %e  %e %e %e  %d %d %d %e %e %e %e\n",temp, 1.0/pGrid->dx1, x1, x2, x3, i, j, k,rho, press, temp, beta);
-          if(fix)
-            temp = tfloor;
-        } else if (temp > tceil) {
-          npress++;
-          if(V && npress < NO) printf("bad tempC %e R %e  %e %e %e  %d %d %d %e %e %e %e\n",temp, 1.0/pGrid->dx1, x1, x2, x3, i, j, k,rho, press, temp, beta);
-          if(fix)
-            temp = tceil;
-        }
-
-        if (rho != rho) {
-          nanrho++;
-          if(V&&nanrho < NO) printf("bad rho %e R %e  %e %e %e  %d %d %d\n",rho, 1.0/pGrid->dx1, x1, x2, x3, i, j, k);
-          if(fix)
-            rho = rhofloor;
-        } else if (rho < rhofloor) {
-          nrho++;
-          if(V&& nrho < NO) printf("bad rho %e R %e  %e %e %e  %d %d %d\n",rho, 1.0/pGrid->dx1, x1, x2, x3, i, j, k);
-          if(fix)
-            rho = rhofloor;
-        }
-
-        if (pGrid->U[k][j][i].M1 != pGrid->U[k][j][i].M1) {
-          nanv++;
-          if(fix)
-            pGrid->U[k][j][i].M1 = 0.0;
-        }
-        if (pGrid->U[k][j][i].M2 != pGrid->U[k][j][i].M2) {
-          nanv++;
-          if(fix)
-            pGrid->U[k][j][i].M2 = 0.0;
-        }
-        if (pGrid->U[k][j][i].M3 != pGrid->U[k][j][i].M3) {
-          nanv++;
-          if(fix)
-            pGrid->U[k][j][i].M3 = 0.0;
-        }
-
-#ifdef MHD
-        if (ME != ME) {
-          nanmag++;
-          /* TODO: apply a fix to B? */
-        } else if (beta < betafloor && betafloor > 0.0) {
-          nmag++;
-          if(V && nmag < NO) printf("bad mag %e R %e  %e %e %e  %d %d %d %e %e %e %e %e\n",beta, 1.0/pGrid->dx1, x1, x2, x3, i, j, k,rho, press, temp, beta, ME);
-          if(fix){
-            rho  = MAX(rho, sqrt(betafloor * ME));
-            temp = betafloor * ME / rho;
-            temp = MAX(temp,tfloor);
-            if(V && nmag < NO) printf("bad magf %e R %e  %e %e %e  %d %d %d %e %e %e %e %e\n",beta, 1.0/pGrid->dx1, x1, x2, x3, i, j, k,rho, press, temp, beta,ME);
-          }
-        }
-#endif  /* MHD */
-
-        /* write values back to the grid */
-        /* TODO: what about B??? */
-        if(fix) {
-          pGrid->U[k][j][i].d  = rho;
-          KE = (SQR(pGrid->U[k][j][i].M1) +
-                SQR(pGrid->U[k][j][i].M2) +
-                SQR(pGrid->U[k][j][i].M3)) /
-            (2.0 * rho);
-
-          pGrid->U[k][j][i].E = temp*rho/Gamma_1 + KE;
-#ifdef MHD
-          pGrid->U[k][j][i].E += ME;
-#endif  /* MHD */
-        }
-      }
-    }
-  }
-
-  /* synchronize over grids */
-#ifdef MPI_PARALLEL
-  my_scal[0] = nanpress;
-  my_scal[1] = nanrho;
-  my_scal[2] = nanv;
-#ifdef MHD
-  my_scal[3] = nanmag;
-#endif  /* MHD */
-  my_scal[4] = npress;
-  my_scal[5] = nrho;
-  my_scal[6] = nv;
-#ifdef MHD
-  my_scal[7] = nmag;
-#endif  /* MHD */
-
-  ierr = MPI_Allreduce(&my_scal, &scal, 8, MPI_RL, MPI_SUM, MPI_COMM_WORLD);
-  if (ierr)
-    ath_error("[report_nans]: MPI_Allreduce returned error %d\n", ierr);
-
-  nanpress = scal[0];
-  nanrho   = scal[1];
-  nanv     = scal[2];
-#ifdef MHD
-  nanmag   = scal[3];
-#endif  /* MHD */
-  npress   = scal[4];
-  nrho     = scal[5];
-  nv       = scal[6];
-#ifdef MHD
-  nmag     = scal[7];
-#endif  /* MHD */
-#endif  /* MPI_PARALLEL */
-
-
-  /* sum up the # of bad cells and report */
-  nnan = nanpress+nanrho+nanv;
-
-#ifdef MHD
-  nnan += nanmag;
-#endif  /* MHD */
-
-  /* sum up the # of floored cells and report */
-  nfloor = npress+nrho+nv;
-
-#ifdef MHD
-  nfloor += nmag;
-#endif  /* MHD */
-
-#ifdef MHD
-  ath_pout(0, "[report_nans]: floored %d cells: %d P, %d d, %d v, %d beta.\n",
-           nfloor, npress, nrho, nv, nmag);
-#else
-  ath_pout(0, "[report_nans]: floored %d cells: %d P, %d d, %d v.\n",
-           nfloor, npress, nrho, nv);
-#endif  /* MHD */
-
-
-  if (nnan > 0 ){
-#ifdef MHD
-    ath_pout(0, "[report_nans]: found %d nan cells: %d P, %d d, %d v, %d B.\n",
-             nnan, nanpress, nanrho, nanv, nanmag);
-#else
-    ath_pout(0, "[report_nans]: found %d nan cells: %d P, %d d, %d v.\n",
-             nnan, nanpress, nanrho, nanv);
-#endif  /* MHD */
-
-
-    nan_dump.n      = 100;
-    nan_dump.dt     = HUGE_NUMBER;
-    nan_dump.t      = pM->time;
-    nan_dump.num    = 1000 + nan_dump_count;
-    nan_dump.out    = "prim";
-    nan_dump.nlevel = -1;       /* dump all levels */
-
-
-    dump_vtk(pM, &nan_dump);
-    if(nnan) nan_dump_count++;
-    if (nan_dump_count > 10)
-      ath_error("[report_nans]: too many nan'd timesteps.\n");
-  }
-#endif  /* ISOTHERMAL */
-
-  return nfloor+nnan;
-}
-#endif  /* REPORT_NANS */
-
-/* end report nans */
-/* -------------------------------------------------------------------------- */
 
 
 /* ========================================================================== */
