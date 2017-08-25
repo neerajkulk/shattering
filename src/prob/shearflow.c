@@ -12,23 +12,6 @@
 /* ========================================================================== */
 /* global variables and prototypes */
 
-/* -------------------------------------------------------------------------- */
-/* fudge to find and remove nans from the domain -- i really think we
-   should remove this!
- */
-#define REPORT_NANS
-
-#ifdef REPORT_NANS
-static int report_nans(MeshS *pM, DomainS *pDomain, int fix);
-static OutputS nan_dump;
-static int nan_dump_count;
-#endif  /* REPORT_NANS */
-/* -------------------------------------------------------------------------- */
-
-
-/* -------------------------------------------------------------------------- */
-/* really should have been defined in athena.h...
- */
 #ifdef MPI_PARALLEL
 #include "mpi.h"
 #ifdef DOUBLE_PREC
