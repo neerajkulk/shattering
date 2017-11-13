@@ -17,13 +17,23 @@
 
 // Global variables uses
 
-static Real mach;               // Mach number
+static Real mach;
 static Real alpha;              // exponent for cooling function
 static int num_steps;           // number of steps for cooling function
 static Real lambda_0;           // normalization of the cooling curve
 static Real n_kh;               // t_sim / t_kh
 static Real end_time;
-static Real f, gm;                 // gamma = cp/cv
+static Real drat;
+static int cooling_flag;
+static int heating_flag;
+static Real f, gm;
+
+
+
+// tfloor drop times. time spent in each step reduces by a factor of 2
+static const Real geometric [5] = {0.51612903225806451613, 0.77419354838709677419, 0.90322580645161290323, 0.96774193548387096774, 1.0};
+
+
 
 
 static int cooling_flag;
@@ -41,19 +51,17 @@ static inline Real window(Real x, Real width, Real a);
 static inline Real get_tfloor(Real cstcool);
 static inline Real get_cstcool(const Real time);
 static void integrate_cooling(GridS *pG);
+
 // history outputs
 //
 //Real hst_cstcool(MeshBlock *pmb, int iout);
 //Real hst_tfloor(MeshBlock *pmb, int iout);
 
-
 // mass of hot and cold gas...
-// ... (scalars are useless for this problem)
 //Real hst_rho_hot(MeshBlock *pmb, int iout);
 //Real hst_rho_cold(MeshBlock *pmb, int iout);
 
 // mass*velocity for hot and cold gas...
-// ... ratio with previous entries to get mass-weighted velocity
 //Real hst_rho_v_hot(MeshBlock *pmb, int iout);
 //Real hst_rho_v_cold(MeshBlock *pmb, int iout);
 
@@ -78,11 +86,10 @@ void problem(DomainS *pDomain)
   ks = pGrid->ks; ke = pGrid->ke;
   
   mach         = par_getd("problem", "mach");
+  drat         = par_getd("problem", "drat");
   alpha        = par_getd("cooling", "alpha");
   end_time     = par_getd("time", "tlim");
-  n_kh         = par_getd("problem", "n_kh");
   gm           = par_getd("problem", "gamma");
-  
   num_steps    = par_geti("cooling", "steps");
 
   cooling_flag = par_geti("cooling", "cooling");
@@ -93,31 +100,15 @@ void problem(DomainS *pDomain)
   f = pow(gm, 1.5)/(gm-1.0)/(2.0-alpha);
   f = 1.0/f;
 
-  //calculate lambda_0
 
-  lambda_0=1/f;
-  lambda_0 *= pow(get_cstcool(0.0), 1.0 / (4.0-2.0*alpha));
-  lambda_0 *= pow(mach * n_cool / n_kh, (5.0-2.0*alpha)/(4.0-2.0*alpha));
+
   
-  /*check that runtime is consistent with mach number*/
+  // set cstcool = 0.25 initially in cold gas. for a given drat, lambda_0 is determined.
+  lambda_0 = 1.0/f;
+  lambda_0 *= 1/pow(drat,2.5 - alpha);
+  lambda_0 *= 4.0;
 
-  Real tkh = pow(lambda_0 * f * get_cstcool(0.0), -1.0/(5.0-2.0*alpha));
-  tkh = tkh / (mach * sqrt(gm));
-
-  Real err = fabs(end_time - n_kh * tkh)/end_time;
-
-  if (err >= 1.0e-4) {
-    ath_error("#### FATAL ERROR in problem file \n Simulation tlim should equal %f\n", n_kh * tkh);
-  }
-
-  /*check to see if variables are defined correctly*/  
-
-  ath_pout(0, "gamma =  %f\n", gm);
-  ath_pout(0, "f =  %f\n", f);
-  ath_pout(0, "lambda_0 = %f\n", lambda_0);
-  ath_pout(0, "init_cstcool = %f\n", get_cstcool(0.0));
   
-
   /*write initial conditions*/
 
   Real amp   =  par_getd("problem", "amp");
@@ -126,7 +117,6 @@ void problem(DomainS *pDomain)
 
   Real vflow = mach * sqrt(gm);
 
-  Real drat = 1.0 / get_tfloor(get_cstcool(0.0));
   Real P = 1.0;
  
   srand(iseed);
@@ -144,7 +134,7 @@ void problem(DomainS *pDomain)
 
 
 	//set up hot cold kh beam
-	pGrid->U[k][j][i].d = 1.0 + (drat-1) * window(x2, width, a);
+	pGrid->U[k][j][i].d = 1.0 + (drat - 1.0) * window(x2, width, a);
 	pGrid->U[k][j][i].M1 = (vflow * (1.0 - window(x2, width, a)))*pGrid->U[k][j][i].d;
         pGrid->U[k][j][i].M2 = 0.0;
         pGrid->U[k][j][i].M3 = 0.0;
@@ -245,13 +235,18 @@ void Userwork_after_loop(MeshS *pM)
   return;
 }
 
-
 static inline Real get_cstcool(const Real time)
 {
   const Real x = time / end_time;
-  const Real fact = -1.0 * floor(x * num_steps);
+  int index = 0;
 
-  return pow(4.0, fact);
+  // TODO: this isn't great, but this function isn't called all-that often
+  while (x > geometric[index]) {
+    index += 1;
+  }
+
+  return pow(4.0, (Real)(-index-1.0));
+
 }
 
 
