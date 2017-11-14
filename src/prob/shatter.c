@@ -114,9 +114,7 @@ void problem(DomainS *pDomain)
   Real amp   =  par_getd("problem", "amp");
   Real a     = par_getd("problem", "a");
   Real width = par_getd("problem", "width");
-
   Real vflow = mach * sqrt(gm);
-
   Real P = 1.0;
  
   srand(iseed);
@@ -156,6 +154,14 @@ void problem(DomainS *pDomain)
       }
     }
   }
+
+#ifdef VISCOSITY
+  extern Real nu_iso, nu_aniso;
+  nu_aniso = 0.0;
+  Real dx = 1.0/(par_getd("domain1","Nx1"));
+  nu_iso =  par_getd_def("problem","nu_iso",0.0); // in units of dx*cs
+  nu_iso *= dx * sqrt(gm);
+#endif /* VISCOSITY */
 
 
   
