@@ -40,9 +40,6 @@ static int cooling_flag;
 static int heating_flag;
 
 
-// parameters for simulation length
-//
-static const Real n_cool = 1.0/3.0; // t_sim / t_{cool,hot}
 
 
 // helper functions to reduce code
