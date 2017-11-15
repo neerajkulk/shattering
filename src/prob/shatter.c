@@ -40,8 +40,6 @@ static int cooling_flag;
 static int heating_flag;
 
 
-
-
 // helper functions to reduce code
 //
 static inline Real window(Real x, Real width, Real a);
@@ -50,17 +48,19 @@ static inline Real get_cstcool(const Real time);
 static void integrate_cooling(GridS *pG);
 
 // history outputs
-//
-//Real hst_cstcool(MeshBlock *pmb, int iout);
-//Real hst_tfloor(MeshBlock *pmb, int iout);
 
-// mass of hot and cold gas...
-//Real hst_rho_hot(MeshBlock *pmb, int iout);
-//Real hst_rho_cold(MeshBlock *pmb, int iout);
 
-// mass*velocity for hot and cold gas...
-//Real hst_rho_v_hot(MeshBlock *pmb, int iout);
-//Real hst_rho_v_cold(MeshBlock *pmb, int iout);
+static Real hst_cstcool(const GridS *pG, const int i, const int j, const int k);
+static Real hst_tfloor(const GridS *pG, const int i, const int j, const int k);
+
+static Real hst_rho_hot(const GridS *pG, const int i, const int j, const int k);
+static Real hst_rho_cold(const GridS *pG, const int i, const int j, const int k);
+
+
+static Real hst_rho_v_hot(const GridS *pG, const int i, const int j, const int k);
+static Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int k);
+
+static Real hst_rhosq(const GridS *pG, const int i, const int j, const int k);
 
 
 
@@ -163,7 +163,15 @@ void problem(DomainS *pDomain)
 
   
 /* enroll new history variables, only once  */
+  dump_history_enroll(hst_cstcool, "cstcool");
+  dump_history_enroll(hst_tfloor, "tfloor");
+  dump_history_enroll(hst_rho_hot, "rho_hot");
+  dump_history_enroll(hst_rho_v_hot, "rho_v_hot");
+  dump_history_enroll(hst_rho_cold, "rho_cold");
+  dump_history_enroll(hst_rho_v_cold, "rho_v_cold");
+  dump_history_enroll(hst_rhosq, "rho^2");
 
+  
 }
 
 /*==============================================================================
@@ -346,3 +354,111 @@ static void integrate_cooling(GridS *pG)
   return;
 
 }
+
+
+
+/* ========================================================================== */
+/* history outputs
+ */
+
+Real hst_cstcool(const GridS *pG, const int i, const int j, const int k)
+{
+  return get_cstcool(pG->time);
+}
+
+Real hst_tfloor(const GridS *pG, const int i, const int j, const int k)
+{
+  return get_tfloor(get_cstcool(pG->time));
+}
+
+
+Real hst_rho_hot(const GridS *pG, const int i, const int j, const int k)
+{
+  Real tcut = 0.5;
+  Real ret = 0.0;
+
+  PrimS W;
+  ConsS U;
+
+  W = Cons_to_Prim(&(pG->U[k][j][i]));
+  Real temp = W.P/W.d;
+
+  if (temp >=tcut) {
+    ret = W.d;
+  }
+
+  return ret;
+}
+
+
+
+
+Real hst_rho_v_hot(const GridS *pG, const int i, const int j, const int k)
+{
+  Real tcut = 0.5;
+  Real ret = 0.0;
+
+  PrimS W;
+  ConsS U;
+
+  W = Cons_to_Prim(&(pG->U[k][j][i]));
+  Real temp = W.P/W.d;
+
+  if (temp >=tcut) {
+    ret = pG->U[k][j][i].M1;
+  }
+
+  return ret;
+}
+
+
+
+Real hst_rho_cold(const GridS *pG, const int i, const int j, const int k)
+{
+  Real tfloor = get_tfloor(get_cstcool(pG->time));
+  Real tcut = 2.0 * tfloor;
+  Real ret = 0.0;
+  PrimS W;
+  ConsS U;
+
+  W = Cons_to_Prim(&(pG->U[k][j][i]));
+  Real temp = W.P/W.d;
+
+  if (temp <=tcut) {
+    ret = W.d;
+  }
+
+  return ret;
+}
+
+
+
+
+Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int k)
+{
+  Real tfloor = get_tfloor(get_cstcool(pG->time));
+  Real tcut = 2.0 * tfloor;
+  Real ret = 0.0;
+  PrimS W;
+  ConsS U;
+
+  W = Cons_to_Prim(&(pG->U[k][j][i]));
+  Real temp = W.P/W.d;
+
+  if (temp <=tcut) {
+    ret = pG->U[k][j][i].M1;
+  }
+
+  return ret;
+}
+
+
+
+
+
+Real hst_rhosq(const GridS *pG, const int i, const int j, const int k)
+{
+  return SQR(pG->U[k][j][i].d);
+}
+
+
