@@ -6,7 +6,7 @@
  *  - Forward and backward FFT is done for input (Gaussian) profile.
  *  - nlim should be set 1 (one-step calculation).
  *  - Use input file tst/3D-hydro/athinput.fft_test
- *  - OUTPUT: each variable doesn't represent its own physical meaning. 
+ *  - OUTPUT: each variable doesn't represent its own physical meaning.
  *      input data -> d
  *      real part of FFT(d) -> M1
  *      imaginary part of FFT(d) -> M2
@@ -89,7 +89,7 @@ void problem_write_restart(MeshS *pM, FILE *fp)
   return;
 }
 
-/* problem restart needs to enroll cooling function and boundary conditions. 
+/* problem restart needs to enroll cooling function and boundary conditions.
  */
 
 void problem_read_restart(MeshS *pM, FILE *fp)
@@ -209,7 +209,7 @@ void do_fft(DomainS *pD)
     }
 
     ath_3d_fft(pD->fplan3d, work);
-   
+
     for (k=ks; k<=ke; k++) {
       for (j=js; j<=je; j++) {
         for (i=is; i<=ie; i++) {
@@ -244,7 +244,7 @@ void do_fft(DomainS *pD)
     }
 
     ath_2d_fft(pD->fplan2d, work);
-   
+
     for (k=ks; k<=ke; k++) {
       for (j=js; j<=je; j++) {
         for (i=is; i<=ie; i++) {

@@ -1,7 +1,7 @@
 #include "copyright.h"
 /*============================================================================*/
 /*! \file field_loop.c
- *  \brief Problem generator for advection of a field loop test. 
+ *  \brief Problem generator for advection of a field loop test.
  *
  * PURPOSE: Problem generator for advection of a field loop test.  Can only
  *   be run in 2D or 3D.  Input parameters are:
@@ -10,12 +10,12 @@
  *   -  problem/vflow = flow velocity
  *   -  problem/drat  = density ratio in loop.  Enables density advection and
  *                      thermal conduction tests.
- *   The flow is automatically set to run along the diagonal. 
+ *   The flow is automatically set to run along the diagonal.
  *
  *   Various test cases are possible:
  *   - (iprob=1): field loop in x1-x2 plane (cylinder in 3D)
  *   - (iprob=2): field loop in x2-x3 plane (cylinder in 3D)
- *   - (iprob=3): field loop in x3-x1 plane (cylinder in 3D) 
+ *   - (iprob=3): field loop in x3-x1 plane (cylinder in 3D)
  *   - (iprob=4): rotated cylindrical field loop in 3D.
  *   - (iprob=5): spherical field loop in rotated plane
  *
@@ -131,10 +131,10 @@ void problem(DomainS *pDomain)
     x1f = x1c - 0.5*pGrid->dx1;
     x2f = x2c - 0.5*pGrid->dx2;
     x3f = x3c - 0.5*pGrid->dx3;
-     
+
 /* (iprob=1): field loop in x1-x2 plane (cylinder in 3D) */
 
-    if(iprob==1) {  
+    if(iprob==1) {
       ax[k][j][i] = 0.0;
       ay[k][j][i] = 0.0;
       if ((x1f*x1f + x2f*x2f) < rad*rad) {
@@ -146,7 +146,7 @@ void problem(DomainS *pDomain)
 
 /* (iprob=2): field loop in x2-x3 plane (cylinder in 3D) */
 
-    if(iprob==2) {  
+    if(iprob==2) {
       if ((x2f*x2f + x3f*x3f) < rad*rad) {
         ax[k][j][i] = amp*(rad - sqrt(x2f*x2f + x3f*x3f));
       } else {
@@ -158,7 +158,7 @@ void problem(DomainS *pDomain)
 
 /* (iprob=3): field loop in x3-x1 plane (cylinder in 3D) */
 
-    if(iprob==3) {  
+    if(iprob==3) {
       if ((x1f*x1f + x3f*x3f) < rad*rad) {
         ay[k][j][i] = amp*(rad - sqrt(x1f*x1f + x3f*x3f));
       } else {
@@ -208,7 +208,7 @@ void problem(DomainS *pDomain)
 
 /* (iprob=5): spherical field loop in rotated plane */
 
-    if(iprob==5) { 
+    if(iprob==5) {
       ax[k][j][i] = 0.0;
       if ((x1f*x1f + x2c*x2c + x3f*x3f) < rad*rad) {
         ay[k][j][i] = amp*(rad - sqrt(x1f*x1f + x2c*x2c + x3f*x3f));
@@ -290,24 +290,24 @@ void problem(DomainS *pDomain)
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
 #ifdef MHD
-        pGrid->U[k][j][i].B1c = 0.5*(pGrid->B1i[k][j][i  ] + 
+        pGrid->U[k][j][i].B1c = 0.5*(pGrid->B1i[k][j][i  ] +
                                      pGrid->B1i[k][j][i+1]);
         pGrid->U[k][j][i].B2c = 0.5*(pGrid->B2i[k][j  ][i] +
                                      pGrid->B2i[k][j+1][i]);
-	if (ke > ks)
-	  pGrid->U[k][j][i].B3c = 0.5*(pGrid->B3i[k  ][j][i] + 
+        if (ke > ks)
+          pGrid->U[k][j][i].B3c = 0.5*(pGrid->B3i[k  ][j][i] +
                                        pGrid->B3i[k+1][j][i]);
-	else
-	  pGrid->U[k][j][i].B3c = pGrid->B3i[k][j][i];
+        else
+          pGrid->U[k][j][i].B3c = pGrid->B3i[k][j][i];
 #endif
 
 #ifndef ISOTHERMAL
-	pGrid->U[k][j][i].E = 1.0/Gamma_1
+        pGrid->U[k][j][i].E = 1.0/Gamma_1
 #ifdef MHD
-	  + 0.5*(SQR(pGrid->U[k][j][i].B1c) + SQR(pGrid->U[k][j][i].B2c)
+          + 0.5*(SQR(pGrid->U[k][j][i].B1c) + SQR(pGrid->U[k][j][i].B2c)
                + SQR(pGrid->U[k][j][i].B3c))
 #endif
-	  + 0.5*(SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2)
+          + 0.5*(SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2)
                + SQR(pGrid->U[k][j][i].M3))/pGrid->U[k][j][i].d;
 #endif /* ISOTHERMAL */
       }
@@ -346,22 +346,22 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 }
 
 #ifdef MHD
-/*! \fn static Real current(const GridS *pG, const int i, const int j, const 
+/*! \fn static Real current(const GridS *pG, const int i, const int j, const
  *			   int k)
  *  \brief computes x3-component of current
  */
 static Real current(const GridS *pG, const int i, const int j, const int k)
 {
-  return ((pG->B2i[k][j][i]-pG->B2i[k][j][i-1])/pG->dx1 - 
-	  (pG->B1i[k][j][i]-pG->B1i[k][j-1][i])/pG->dx2);
+  return ((pG->B2i[k][j][i]-pG->B2i[k][j][i-1])/pG->dx1 -
+          (pG->B1i[k][j][i]-pG->B1i[k][j-1][i])/pG->dx2);
 }
 
 /*! \fn static Real Bp2(const GridS *pG, const int i, const int j, const int k)
  *  \brief computes magnetic pressure (Bx2 + By2) */
 static Real Bp2(const GridS *pG, const int i, const int j, const int k)
 {
-  return (pG->U[k][j][i].B1c*pG->U[k][j][i].B1c + 
-	  pG->U[k][j][i].B2c*pG->U[k][j][i].B2c);
+  return (pG->U[k][j][i].B1c*pG->U[k][j][i].B1c +
+          pG->U[k][j][i].B2c*pG->U[k][j][i].B2c);
 }
 
 /*! \fn static Real divB(const GridS *pG, const int i, const int j, const int k)
@@ -370,11 +370,11 @@ static Real divB(const GridS *pG, const int i, const int j, const int k)
 {
   Real qa;
   if (pG->Nx[2] > 1) {
-    qa = (pG->B1i[k][j][i+1]-pG->B1i[k][j][i])/pG->dx1 + 
+    qa = (pG->B1i[k][j][i+1]-pG->B1i[k][j][i])/pG->dx1 +
          (pG->B2i[k][j+1][i]-pG->B2i[k][j][i])/pG->dx2 +
          (pG->B3i[k+1][j][i]-pG->B3i[k][j][i])/pG->dx3;
   } else {
-    qa = (pG->B1i[k][j][i+1]-pG->B1i[k][j][i])/pG->dx1 + 
+    qa = (pG->B1i[k][j][i+1]-pG->B1i[k][j][i])/pG->dx1 +
          (pG->B2i[k][j+1][i]-pG->B2i[k][j][i])/pG->dx2;
   }
   return qa;
@@ -391,7 +391,7 @@ static Real color(const GridS *pG, const int i, const int j, const int k)
 #endif
 
 #ifndef BAROTROPIC
-/*! \fn static Real Temperature(const GridS *pG, const int i, const int j, 
+/*! \fn static Real Temperature(const GridS *pG, const int i, const int j,
  *				const int k)
  *  \brief returns temperature for conduction tests */
 static Real Temperature(const GridS *pG, const int i, const int j, const int k)
@@ -400,7 +400,7 @@ static Real Temperature(const GridS *pG, const int i, const int j, const int k)
   Temp = pG->U[k][j][i].E - (0.5/pG->U[k][j][i].d)*(
     SQR(pG->U[k][j][i].M1) + SQR(pG->U[k][j][i].M2) + SQR(pG->U[k][j][i].M3));
 #ifdef MHD
-  Temp -= 0.5*(SQR(pG->U[k][j][i].B1c) + SQR(pG->U[k][j][i].B2c) 
+  Temp -= 0.5*(SQR(pG->U[k][j][i].B1c) + SQR(pG->U[k][j][i].B2c)
             + SQR(pG->U[k][j][i].B3c));
 #endif
   Temp *= Gamma_1/pG->U[k][j][i].d;

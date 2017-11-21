@@ -88,7 +88,7 @@ void problem(DomainS *pDomain)
 
         Eint = (pgas0 + 0.5*SQR(br0)*(1.0 + SQR(sin(psi)))/SQR(x1))/Gamma_1;
         Emag = 0.5*(SQR(pG->U[k][j][i].B1c) + SQR(pG->U[k][j][i].B2c) + SQR(pG->U[k][j][i].B3c));
-        Ekin = 0.5*(SQR(pG->U[k][j][i].M1) + SQR(pG->U[k][j][i].M2) + SQR(pG->U[k][j][i].M3))/pG->U[k][j][i].d; 
+        Ekin = 0.5*(SQR(pG->U[k][j][i].M1) + SQR(pG->U[k][j][i].M2) + SQR(pG->U[k][j][i].M3))/pG->U[k][j][i].d;
         pG->U[k][j][i].E = Eint + Emag + Ekin;
 
         /* Save solution */
@@ -97,7 +97,7 @@ void problem(DomainS *pDomain)
     }
   }
 
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
   bvals_mhd_fun(pDomain,left_x1,cylbr_ix1);
   bvals_mhd_fun(pDomain,right_x1,cylbr_ox1);
 
@@ -181,7 +181,7 @@ void cylbr_ix1(GridS *pG)
 
         Eint = (pgas0 + 0.5*SQR(br0)*(1.0 + SQR(sin(psi)))/SQR(x1))/Gamma_1;
         Emag = 0.5*(SQR(pG->U[k][j][is-i].B1c) + SQR(pG->U[k][j][is-i].B2c) + SQR(pG->U[k][j][is-i].B3c));
-        Ekin = 0.5*(SQR(pG->U[k][j][is-i].M1) + SQR(pG->U[k][j][is-i].M2) + SQR(pG->U[k][j][is-i].M3))/pG->U[k][j][is-i].d; 
+        Ekin = 0.5*(SQR(pG->U[k][j][is-i].M1) + SQR(pG->U[k][j][is-i].M2) + SQR(pG->U[k][j][is-i].M3))/pG->U[k][j][is-i].d;
         pG->U[k][j][is-i].E = Eint + Emag + Ekin;
       }
     }
@@ -218,7 +218,7 @@ void cylbr_ox1(GridS *pG)
 
         Eint = (pgas0 + 0.5*SQR(br0)*(1.0 + SQR(sin(psi)))/SQR(x1))/Gamma_1;
         Emag = 0.5*(SQR(pG->U[k][j][ie+i].B1c) + SQR(pG->U[k][j][ie+i].B2c) + SQR(pG->U[k][j][ie+i].B3c));
-        Ekin = 0.5*(SQR(pG->U[k][j][ie+i].M1) + SQR(pG->U[k][j][ie+i].M2) + SQR(pG->U[k][j][ie+i].M3))/pG->U[k][j][ie+i].d; 
+        Ekin = 0.5*(SQR(pG->U[k][j][ie+i].M1) + SQR(pG->U[k][j][ie+i].M2) + SQR(pG->U[k][j][ie+i].M3))/pG->U[k][j][ie+i].d;
         pG->U[k][j][ie+i].E = Eint + Emag + Ekin;
       }
     }

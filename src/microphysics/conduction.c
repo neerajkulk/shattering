@@ -4,12 +4,12 @@
  *  \brief Adds explicit thermal conduction term to the energy equation,
  *      dE/dt = Div(Q)
  *
- *   where 
+ *   where
  *    - Q = kappa_iso Grad(T) + kappa_aniso([b Dot Grad(T)]b) = heat flux
  *    - T = (P/d)*(mbar/k_B) = temperature
  *    - b = magnetic field unit vector
  *
- *   Here 
+ *   Here
  *    - kappa_iso   is the   isotropic coefficient of thermal diffusion
  *    - kappa_aniso is the anisotropic coefficient of thermal diffusion
  *
@@ -43,6 +43,7 @@
 
 /* Arrays for the temperature and heat fluxes */
 static Real ***Temp=NULL;
+static Real ***Press=NULL;      /* for finding shocks */
 static Real3Vect ***Q=NULL;
 
 /*==============================================================================
@@ -73,9 +74,12 @@ void conduction(DomainS *pD)
 #ifdef STS
   Real my_dt = STS_dt;
 #else
-  Real my_dt = pG->dt;
+  Real my_dt = pG->dt / ncycle;
 #endif
   Real dtodx1=my_dt/pG->dx1, dtodx2=0.0, dtodx3=0.0;
+
+  if (KappaFun_a == NULL && KappaFun_i == NULL)
+    return;
 
   if (pG->Nx[1] > 1){
     jl = js - 1;
@@ -95,7 +99,7 @@ void conduction(DomainS *pD)
   }
 
 /* Zero heat heat flux array; compute temperature at cell centers.  Temperature
- * includes a factor [k_B/mbar].  For cgs units, the heat flux would have to 
+ * includes a factor [k_B/mbar].  For cgs units, the heat flux would have to
  * be multiplied by this factor.
  */
 
@@ -115,13 +119,20 @@ void conduction(DomainS *pD)
 #endif
     Temp[k][j][i] *= (Gamma_1/pG->U[k][j][i].d);
 
+    /* also compute the pressure so we can detect shocks.  (at a
+       contact discontinuity, temp can be discontinuous, but pressure
+       isn't.  we want to turn off conduction at shocks, but not
+       contact discontinuities.) */
+    Press[k][j][i] = Temp[k][j][i] * pG->U[k][j][i].d;
+
   }}}
 
 /* Compute isotropic and anisotropic heat fluxes.  Heat fluxes and temperature
  * are global variables in this file. */
 
-  if (kappa_iso > 0.0)   HeatFlux_iso(pD);
-  if (kappa_aniso > 0.0) HeatFlux_aniso(pD);
+  if (KappaFun_i != NULL)   HeatFlux_iso(pD);
+  if (KappaFun_a != NULL) HeatFlux_aniso(pD);
+
 
 /* Update energy using x1-fluxes */
 
@@ -162,46 +173,67 @@ void conduction(DomainS *pD)
  *  \brief Calculate heat fluxes with isotropic conduction
  */
 
+
 void HeatFlux_iso(DomainS *pD)
-{ 
+{
   GridS *pG = (pD->Grid);
-  int i, is = pG->is, ie = pG->ie;
-  int j, js = pG->js, je = pG->je;
-  int k, ks = pG->ks, ke = pG->ke;
-  Real kd;
+  int i, is = pG->is, ie = pG->ie, iu;
+  int j, js = pG->js, je = pG->je, ju;
+  int k, ks = pG->ks, ke = pG->ke, ku;
 
-/* Add heat fluxes in 1-direction */ 
+  Real x1, x2, x3, kappa;
+  Real dTdx, dTdy, dTdz;
+  Real dPdx, dPdy, dPdz;
 
-  for (k=ks; k<=ke; k++) {
-  for (j=js; j<=je; j++) {
-    for (i=is; i<=ie+1; i++) {
-      kd = kappa_iso*0.5*(pG->U[k][j][i].d + pG->U[k][j][i-1].d);
-      Q[k][j][i].x1 += kd*(Temp[k][j][i] - Temp[k][j][i-1])/pG->dx1;
+  const Real shock_thresh = 0.15;
+
+  iu = ie+1;
+  ju = (pG->Nx[1] > 1) ? je+1 : je;
+  ku = (pG->Nx[2] > 1) ? ke+1 : ke;
+
+  for (k=ks; k<=ku; k++) {
+    for (j=js; j<=ju; j++) {
+      for (i=is; i<=iu; i++) {
+        /* Calculate the temperature gradient */
+        dTdx = dTdy = dTdz = 0.0;
+                           dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+        if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
+        if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
+
+        /* Calculate kappa, but zero it at shocks */
+        cc_pos(pG, i, j, k, &x1, &x2, &x3);
+        kappa = (*KappaFun_i)(pG->U[k][j][i].d, Temp[k][j][i], x1, x2, x3);
+
+        /* temp should be continuous... */
+        if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
+            (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
+            (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+
+          /* Calculate the pressure gradient */
+          dPdx = dPdy = dPdz = 0.0;
+          dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
+          if (pG->Nx[1] > 1) dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
+          if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
+
+          /* check that pressure is continuous */
+          if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
+              (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
+              (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
+
+            /* The potential near the center of the cluster is
+               unresolved, so can look like a shock.  Adding a cut P
+               < 100 separates out the center of the cluster pretty
+               cleanly over the whole redshift range of interest. */
+            if (Press[k][j][i] < 100.0)
+              kappa = 0.0;
+          }
+        }
+
+                           Q[k][j][i].x1 += kappa*dTdx;
+        if (pG->Nx[1] > 1) Q[k][j][i].x2 += kappa*dTdy;
+        if (pG->Nx[2] > 1) Q[k][j][i].x3 += kappa*dTdz;
+      }
     }
-  }}
-
-/* Add heat fluxes in 2-direction */ 
-
-  if (pG->Nx[1] > 1) {
-    for (k=ks; k<=ke; k++) {
-    for (j=js; j<=je+1; j++) {
-      for (i=is; i<=ie; i++) {
-        kd = kappa_iso*0.5*(pG->U[k][j][i].d + pG->U[k][j-1][i].d);
-        Q[k][j][i].x2 += kd*(Temp[k][j][i] - Temp[k][j-1][i])/pG->dx2;
-      }
-    }}
-  }
-
-/* Add heat fluxes in 3-direction */
-
-  if (pG->Nx[2] > 1) {
-    for (k=ks; k<=ke+1; k++) {
-    for (j=js; j<=je; j++) {
-      for (i=is; i<=ie; i++) {
-        kd = kappa_iso*0.5*(pG->U[k][j][i].d + pG->U[k-1][j][i].d);
-        Q[k][j][i].x3 += kd*(Temp[k][j][i] - Temp[k-1][j][i])/pG->dx3;
-      }
-    }}
   }
 
   return;
@@ -218,7 +250,15 @@ void HeatFlux_aniso(DomainS *pD)
   int i, is = pG->is, ie = pG->ie;
   int j, js = pG->js, je = pG->je;
   int k, ks = pG->ks, ke = pG->ke;
-  Real Bx,By,Bz,B02,dTc,dTl,dTr,lim_slope,dTdx,dTdy,dTdz,bDotGradT,kd;
+  Real Bx,By,Bz,B02,dTc,dTl,dTr,lim_slope,dTdx,dTdy,dTdz,bDotGradT;
+
+  Real d, x1, x2, x3, kappau, kappad, kappa;
+
+  /* added by mkmcc to detect the virial shock */
+  Real dPdx, dPdy, dPdz;
+  const Real shock_thresh = 0.15;
+  int at_shock;
+
 
 #ifdef MHD
   if (pD->Nx[1] == 1) return;  /* problem must be at least 2D */
@@ -229,21 +269,81 @@ void HeatFlux_aniso(DomainS *pD)
   for (j=js; j<=je; j++) {
     for (i=is; i<=ie+1; i++) {
 
-      /* Monotonized temperature difference dT/dy */
-      dTdy = limiter4(Temp[k][j+1][i  ] - Temp[k][j  ][i  ],
-                      Temp[k][j  ][i  ] - Temp[k][j-1][i  ],
-                      Temp[k][j+1][i-1] - Temp[k][j  ][i-1],
-                      Temp[k][j  ][i-1] - Temp[k][j-1][i-1]);
-      dTdy /= pG->dx2;
-      
-      /* Monotonized temperature difference dT/dz, 3D problem ONLY */
-      if (pD->Nx[2] > 1) {
-        dTdz = limiter4(Temp[k+1][j][i  ] - Temp[k  ][j][i  ],
-                        Temp[k  ][j][i  ] - Temp[k-1][j][i  ],
-                        Temp[k+1][j][i-1] - Temp[k  ][j][i-1],
-                        Temp[k  ][j][i-1] - Temp[k-1][j][i-1]);
-        dTdz /= pG->dx3;
+/* Use unprojected gradients to determine whether we're at a shock. */
+      /* Calculate the temperature gradient */
+      at_shock = 0;
+
+      dTdx = dTdy = dTdz = 0.0;
+                         dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+                         dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
+      if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
+
+      /* temp should be continuous... */
+      if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
+          (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
+          (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+
+        /* Calculate the pressure gradient */
+        dPdx = dPdy = dPdz = 0.0;
+                           dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
+                           dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
+        if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
+
+        /* check that pressure is continuous */
+        if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
+            (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
+            (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
+
+          /* The potential near the center of the cluster is
+             unresolved, so can look like a shock.  Adding a cut P <
+             100 separates out the center of the cluster pretty
+             cleanly over the whole redshift range of interest. */
+          if (Press[k][j][i] < 100.0)
+           at_shock = 1;
+        }
       }
+
+
+/* Monotonized temperature difference dT/dy */
+      dTr = 0.5*((Temp[k][j+1][i-1] + Temp[k][j+1][i]) -
+                 (Temp[k][j  ][i-1] + Temp[k][j  ][i]));
+      dTl = 0.5*((Temp[k][j  ][i-1] + Temp[k][j  ][i]) -
+                 (Temp[k][j-1][i-1] + Temp[k][j-1][i]));
+      dTc = dTr + dTl;
+
+      dTdy = 0.0;
+      if (dTl*dTr > 0.0) {
+        lim_slope = MIN(fabs(dTl),fabs(dTr));
+        dTdy = SIGN(dTc)*MIN(0.5*fabs(dTc),2.0*lim_slope)/pG->dx2;
+      }
+
+/* Monotonized temperature difference dT/dz, 3D problem ONLY */
+      if (pD->Nx[2] > 1) {
+        dTr = 0.5*((Temp[k+1][j][i-1] + Temp[k+1][j][i]) -
+                   (Temp[k  ][j][i-1] + Temp[k  ][j][i]));
+        dTl = 0.5*((Temp[k  ][j][i-1] + Temp[k  ][j][i]) -
+                   (Temp[k-1][j][i-1] + Temp[k-1][j][i]));
+        dTc = dTr + dTl;
+
+        dTdz = 0.0;
+        if (dTl*dTr > 0.0) {
+          lim_slope = MIN(fabs(dTl),fabs(dTr));
+          dTdz = SIGN(dTc)*MIN(0.5*fabs(dTc),2.0*lim_slope)/pG->dx3;
+        }
+      }
+
+
+      /* Interpolate the conductivity to the cell interface using
+         harmonic averaging */
+      d = pG->U[k][j][i].d;
+
+      cc_pos(pG, i-1, j, k, &x1, &x2, &x3);
+      kappad = (*KappaFun_a)(pG->U[k][j][i-1].d, Temp[k][j][i-1], x1, x2, x3);
+      cc_pos(pG, i, j, k, &x1, &x2, &x3);
+      kappau = (*KappaFun_a)(d, Temp[k][j][i], x1, x2, x3);
+
+      kappa = 2.0 * (kappad * kappau) / (kappad + kappau + TINY_NUMBER);
+      if (at_shock) kappa = 0.0;
 
 /* Add flux at x1-interface, 2D PROBLEM */
 
@@ -253,8 +353,7 @@ void HeatFlux_aniso(DomainS *pD)
         B02 = MAX(B02,TINY_NUMBER); /* limit in case B=0 */
         bDotGradT = pG->B1i[k][j][i]*(Temp[k][j][i]-Temp[k][j][i-1])/pG->dx1
            + By*dTdy;
-        kd = kappa_aniso*0.5*(pG->U[k][j][i].d + pG->U[k][j][i-1].d);
-        Q[k][j][i].x1 += kd*(pG->B1i[k][j][i]*bDotGradT)/B02;
+        Q[k][j][i].x1 += kappa*(pG->B1i[k][j][i]*bDotGradT)/B02;
 
 /* Add flux at x1-interface, 3D PROBLEM */
 
@@ -265,8 +364,7 @@ void HeatFlux_aniso(DomainS *pD)
         B02 = MAX(B02,TINY_NUMBER); /* limit in case B=0 */
         bDotGradT = pG->B1i[k][j][i]*(Temp[k][j][i]-Temp[k][j][i-1])/pG->dx1
            + By*dTdy + Bz*dTdz;
-        kd = kappa_aniso*0.5*(pG->U[k][j][i].d + pG->U[k][j][i-1].d);
-        Q[k][j][i].x1 += kd*(pG->B1i[k][j][i]*bDotGradT)/B02;
+        Q[k][j][i].x1 += kappa*(pG->B1i[k][j][i]*bDotGradT)/B02;
       }
     }
   }}
@@ -277,21 +375,80 @@ void HeatFlux_aniso(DomainS *pD)
   for (j=js; j<=je+1; j++) {
     for (i=is; i<=ie; i++) {
 
-      /* Monotonized temperature difference dT/dx */
-      dTdx = limiter4(Temp[k][j  ][i+1] - Temp[k][j  ][i  ],
-                      Temp[k][j  ][i  ] - Temp[k][j  ][i-1],
-                      Temp[k][j-1][i+1] - Temp[k][j-1][i  ],
-                      Temp[k][j-1][i  ] - Temp[k][j-1][i-1]);
-      dTdx /= pG->dx1;
-      
-      /* Monotonized temperature difference dT/dz, 3D problem ONLY */
-      if (pD->Nx[2] > 1) {
-        dTdz = limiter4(Temp[k+1][j  ][i] - Temp[k  ][j  ][i],
-                        Temp[k  ][j  ][i] - Temp[k-1][j  ][i],
-                        Temp[k+1][j-1][i] - Temp[k  ][j-1][i],
-                        Temp[k  ][j-1][i] - Temp[k-1][j-1][i]);
-        dTdz /= pG->dx3;
+/* Use unprojected gradients to determine whether we're at a shock. */
+      /* Calculate the temperature gradient */
+      at_shock = 0;
+
+      dTdx = dTdy = dTdz = 0.0;
+                         dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+                         dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
+      if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
+
+      /* temp should be continuous... */
+      if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
+          (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
+          (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+
+        /* Calculate the pressure gradient */
+        dPdx = dPdy = dPdz = 0.0;
+                           dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
+                           dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
+        if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
+
+        /* check that pressure is continuous */
+        if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
+            (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
+            (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
+
+          /* The potential near the center of the cluster is
+             unresolved, so can look like a shock.  Adding a cut P <
+             100 separates out the center of the cluster pretty
+             cleanly over the whole redshift range of interest. */
+          if (Press[k][j][i] < 100.0)
+            at_shock = 1;
+        }
       }
+
+
+/* Monotonized temperature difference dT/dx */
+      dTr = 0.5*((Temp[k][j-1][i+1] + Temp[k][j][i+1]) -
+                 (Temp[k][j-1][i  ] + Temp[k][j][i  ]));
+      dTl = 0.5*((Temp[k][j-1][i  ] + Temp[k][j][i  ]) -
+                 (Temp[k][j-1][i-1] + Temp[k][j][i-1]));
+      dTc = dTr + dTl;
+
+      dTdx = 0.0;
+      if (dTl*dTr > 0.0) {
+        lim_slope = MIN(fabs(dTl),fabs(dTr));
+        dTdx = SIGN(dTc)*MIN(0.5*fabs(dTc),2.0*lim_slope)/pG->dx1;
+      }
+
+/* Monotonized temperature difference dT/dz, 3D problem ONLY */
+      if (pD->Nx[2] > 1) {
+        dTr = 0.5*((Temp[k+1][j-1][i] + Temp[k+1][j][i]) -
+                   (Temp[k  ][j-1][i] + Temp[k  ][j][i]));
+        dTl = 0.5*((Temp[k  ][j-1][i] + Temp[k  ][j][i]) -
+                   (Temp[k-1][j-1][i] + Temp[k-1][j][i]));
+        dTc = dTr + dTl;
+
+        dTdz = 0.0;
+        if (dTl*dTr > 0.0) {
+          lim_slope = MIN(fabs(dTl),fabs(dTr));
+          dTdz = SIGN(dTc)*MIN(0.5*fabs(dTc),2.0*lim_slope)/pG->dx3;
+        }
+      }
+
+      /* Interpolate the conductivity to the cell interface using
+         harmonic averaging */
+      d = pG->U[k][j][i].d;
+
+      cc_pos(pG, i, j-1, k, &x1, &x2, &x3);
+      kappad = (*KappaFun_a)(pG->U[k][j-1][i].d, Temp[k][j-1][i], x1, x2, x3);
+      cc_pos(pG, i, j, k, &x1, &x2, &x3);
+      kappau = (*KappaFun_a)(d, Temp[k][j][i], x1, x2, x3);
+
+      kappa = 2.0 * (kappad * kappau) / (kappad + kappau + TINY_NUMBER);
+      if (at_shock) kappa = 0.0;
 
 /* Add flux at x2-interface, 2D PROBLEM */
 
@@ -302,8 +459,7 @@ void HeatFlux_aniso(DomainS *pD)
 
         bDotGradT = pG->B2i[k][j][i]*(Temp[k][j][i]-Temp[k][j-1][i])/pG->dx2
            + Bx*dTdx;
-        kd = kappa_aniso*0.5*(pG->U[k][j][i].d + pG->U[k][j-1][i].d);
-        Q[k][j][i].x2 += kd*(pG->B2i[k][j][i]*bDotGradT)/B02;
+        Q[k][j][i].x2 += kappa*(pG->B2i[k][j][i]*bDotGradT)/B02;
 
 /* Add flux at x2-interface, 3D PROBLEM */
 
@@ -314,8 +470,7 @@ void HeatFlux_aniso(DomainS *pD)
         B02 = MAX(B02,TINY_NUMBER); /* limit in case B=0 */
         bDotGradT = pG->B2i[k][j][i]*(Temp[k][j][i]-Temp[k][j-1][i])/pG->dx2
            + Bx*dTdx + Bz*dTdz;
-        kd = kappa_aniso*0.5*(pG->U[k][j][i].d + pG->U[k][j-1][i].d);
-        Q[k][j][i].x2 += kd*(pG->B2i[k][j][i]*bDotGradT)/B02;
+        Q[k][j][i].x2 += kappa*(pG->B2i[k][j][i]*bDotGradT)/B02;
       }
     }
   }}
@@ -327,19 +482,78 @@ void HeatFlux_aniso(DomainS *pD)
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
 
-        /* Monotonized temperature difference dT/dx */
-        dTdx = limiter4(Temp[k  ][j][i+1] - Temp[k  ][j][i  ],
-                        Temp[k  ][j][i  ] - Temp[k  ][j][i-1],
-                        Temp[k-1][j][i+1] - Temp[k-1][j][i  ],
-                        Temp[k-1][j][i  ] - Temp[k-1][j][i-1]);
-        dTdx /= pG->dx1;
-        
-        /* Monotonized temperature difference dT/dy */
-        dTdy = limiter4(Temp[k  ][j+1][i] - Temp[k  ][j  ][i],
-                        Temp[k  ][j  ][i] - Temp[k  ][j-1][i],
-                        Temp[k-1][j+1][i] - Temp[k-1][j  ][i],
-                        Temp[k-1][j  ][i] - Temp[k-1][j-1][i]);
-        dTdy /= pG->dx2;
+/* Use unprojected gradients to determine whether we're at a shock. */
+        /* Calculate the temperature gradient */
+        at_shock = 0;
+
+        dTdx = dTdy = dTdz = 0.0;
+                           dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+                           dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
+        if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
+
+        /* temp should be continuous... */
+        if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
+            (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
+            (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+
+          /* Calculate the pressure gradient */
+          dPdx = dPdy = dPdz = 0.0;
+                             dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
+                             dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
+          if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
+
+          /* check that pressure is continuous */
+          if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
+              (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
+              (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
+
+            /* The potential near the center of the cluster is
+               unresolved, so can look like a shock.  Adding a cut P <
+               100 separates out the center of the cluster pretty
+               cleanly over the whole redshift range of interest. */
+            if (Press[k][j][i] < 100.0)
+             at_shock = 1;
+          }
+        }
+
+
+/* Monotonized temperature difference dT/dx */
+        dTr = 0.5*((Temp[k-1][j][i+1] + Temp[k][j][i+1]) -
+                   (Temp[k-1][j][i  ] + Temp[k][j][i  ]));
+        dTl = 0.5*((Temp[k-1][j][i  ] + Temp[k][j][i  ]) -
+                   (Temp[k-1][j][i-1] + Temp[k][j][i-1]));
+        dTc = dTr + dTl;
+
+        dTdx = 0.0;
+        if (dTl*dTr > 0.0) {
+          lim_slope = MIN(fabs(dTl),fabs(dTr));
+          dTdx = SIGN(dTc)*MIN(0.5*fabs(dTc),2.0*lim_slope)/pG->dx1;
+        }
+
+/* Monotonized temperature difference dT/dy */
+        dTr = 0.5*((Temp[k-1][j+1][i] + Temp[k][j+1][i]) -
+                   (Temp[k-1][j  ][i] + Temp[k][j  ][i]));
+        dTl = 0.5*((Temp[k-1][j  ][i] + Temp[k][j  ][i]) -
+                   (Temp[k-1][j-1][i] + Temp[k][j-1][i]));
+        dTc = dTr + dTl;
+
+        dTdy = 0.0;
+        if (dTl*dTr > 0.0) {
+          lim_slope = MIN(fabs(dTl),fabs(dTr));
+          dTdy = SIGN(dTc)*MIN(0.5*fabs(dTc),2.0*lim_slope)/pG->dx2;
+        }
+
+        /* Interpolate the conductivity to the cell interface using
+           harmonic averaging */
+         d = pG->U[k][j][i].d;
+
+        cc_pos(pG, i, j, k-1, &x1, &x2, &x3);
+        kappad = (*KappaFun_a)(pG->U[k-1][j][i].d, Temp[k-1][j][i], x1, x2, x3);
+        cc_pos(pG, i, j, k, &x1, &x2, &x3);
+        kappau = (*KappaFun_a)(d, Temp[k][j][i], x1, x2, x3);
+
+        kappa = 2.0 * (kappad * kappau) / (kappad + kappau + TINY_NUMBER);
+        if (at_shock) kappa = 0.0;
 
 /* Add flux at x3-interface, 3D PROBLEM */
 
@@ -349,8 +563,7 @@ void HeatFlux_aniso(DomainS *pD)
         B02 = MAX(B02,TINY_NUMBER); /* limit in case B=0 */
         bDotGradT = pG->B3i[k][j][i]*(Temp[k][j][i]-Temp[k-1][j][i])/pG->dx3
            + Bx*dTdx + By*dTdy;
-        kd = kappa_aniso*0.5*(pG->U[k][j][i].d + pG->U[k-1][j][i].d);
-        Q[k][j][i].x3 += kd*(pG->B3i[k][j][i]*bDotGradT)/B02;
+        Q[k][j][i].x3 += kappa*(pG->B3i[k][j][i]*bDotGradT)/B02;
       }
     }}
   }
@@ -361,14 +574,14 @@ void HeatFlux_aniso(DomainS *pD)
 
 
 /*----------------------------------------------------------------------------*/
-/* limiter2 and limiter4: call slope limiters to preserve monotonicity                                       
+/* limiter2 and limiter4: call slope limiters to preserve monotonicity
  */
 
 static Real limiter2(const Real A, const Real B)
 {
   /* van Leer slope limiter */
   return vanleer(A,B);
-  
+
   /* monotonized central (MC) limiter */
   /* return minmod(2.0*minmod(A,B),0.5*(A+B)); */
 }
@@ -379,7 +592,7 @@ static Real limiter4(const Real A, const Real B, const Real C, const Real D)
 }
 
 /*----------------------------------------------------------------------------*/
-/* vanleer: van Leer slope limiter                                                                           
+/* vanleer: van Leer slope limiter
  */
 
 static Real vanleer(const Real A, const Real B)
@@ -392,7 +605,7 @@ static Real vanleer(const Real A, const Real B)
 }
 
 /*----------------------------------------------------------------------------*/
-/* minmod: minmod slope limiter                                                                              
+/* minmod: minmod slope limiter
  */
 
 static Real minmod(const Real A, const Real B)
@@ -409,7 +622,7 @@ static Real minmod(const Real A, const Real B)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void conduction_init(MeshS *pM) 
+/*! \fn void conduction_init(MeshS *pM)
  *  \brief Allocate temporary arrays
  */
 
@@ -449,6 +662,8 @@ void conduction_init(MeshS *pM)
   }
   if ((Temp = (Real***)calloc_3d_array(Nx3,Nx2,Nx1, sizeof(Real))) == NULL)
     goto on_error;
+  if ((Press = (Real***)calloc_3d_array(Nx3,Nx2,Nx1, sizeof(Real))) == NULL)
+    goto on_error;
   if ((Q = (Real3Vect***)calloc_3d_array(Nx3,Nx2,Nx1,sizeof(Real3Vect)))==NULL)
     goto on_error;
   return;
@@ -466,6 +681,7 @@ void conduction_init(MeshS *pM)
 void conduction_destruct(void)
 {
   if (Temp != NULL) free_3d_array(Temp);
+  if (Press != NULL) free_3d_array(Press);
   if (Q != NULL) free_3d_array(Q);
   return;
 }

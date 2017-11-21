@@ -73,13 +73,13 @@ static int ath_log_out_open(void)
 /* open the ath_fp_out file pointer */
   if((ath_fp_out = fopen(out_fname, log_mode)) == NULL){
     fprintf(stderr,"[ath_log_out_open]: Failed to open ath_fp_out as \"%s\"\n",
-	    out_fname);
+            out_fname);
     return 1;
   }
 
   if(iExist == 0) /* Write a separator */
     fprintf(ath_fp_out, "\n***************************** Appending "
-	                "Output Log *****************************\n\n");
+                        "Output Log *****************************\n\n");
 
   return 0;
 }
@@ -101,20 +101,20 @@ static int ath_log_err_open(void)
 /* open the ath_fp_err file pointer */
   if((ath_fp_err = fopen(err_fname, log_mode)) == NULL){
     fprintf(stderr,"[ath_log_err_open]: Failed to open ath_fp_err as \"%s\"\n",
-	    err_fname);
+            err_fname);
     return 1;
   }
 
   if(iExist == 0) /* Write a separator */
     fprintf(ath_fp_err, "\n***************************** Appending "
-	                "Error Log ******************************\n\n");
+                        "Error Log ******************************\n\n");
 
   return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void ath_log_set_level(const int out, const int err)
- *  \brief Sets "output level" and "error level" from input 
+ *  \brief Sets "output level" and "error level" from input
  *   arguments, global parameters used by many functions in this file.
  *
  *   Called from main(), where the parameters are parsed from athinput.
@@ -128,7 +128,7 @@ void ath_log_set_level(const int out, const int err)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void ath_log_open(const char *basename, const int lazy, 
+/*! \fn void ath_log_open(const char *basename, const int lazy,
  *			  const char *mode)
  *  \brief Opens output and error log files if "lazy" flag is false (0).
  *
@@ -136,7 +136,7 @@ void ath_log_set_level(const int out, const int err)
  *   files, but rather prepares to open them on the first invocation of either
  *   ath_pout() ath_perr(), athout_fp() or atherr_fp().  This is useful for
  *   parallel jobs where the children, if made sufficiently quiet would
- *   otherwise generate a large number of empty files. -- T. A. Gardiner -- 
+ *   otherwise generate a large number of empty files. -- T. A. Gardiner --
  */
 void ath_log_open(const char *basename, const int lazy, const char *mode)
 {
@@ -145,7 +145,7 @@ void ath_log_open(const char *basename, const int lazy, const char *mode)
 /* ath_fp_out filename */
   if((out_fname = (char*)malloc(size*sizeof(char))) == NULL){
     fprintf(stderr,"[ath_log_open]: Error constructing filename \"%s.out\"\n",
-	    basename);
+            basename);
     exit(EXIT_FAILURE);
   }
   sprintf(out_fname,"%s.out",basename);
@@ -153,7 +153,7 @@ void ath_log_open(const char *basename, const int lazy, const char *mode)
 /* ath_fp_err filename */
   if((err_fname = (char*)malloc(size*sizeof(char))) == NULL){
     fprintf(stderr,"[ath_log_open]: Error constructing filename \"%s.err\"\n",
-	    basename);
+            basename);
     exit(EXIT_FAILURE);
   }
   sprintf(err_fname,"%s.err",basename);
@@ -251,7 +251,7 @@ void ath_flush_err(void)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn int ath_perr(const int level, const char *fmt, ...)
- *  \brief Foutput variable argument string to "error log file".   
+ *  \brief Foutput variable argument string to "error log file".
  *
  *  Should be used in place of printf(stderr,...). The first argument should be:
  *     -1 : all processes write output
@@ -281,7 +281,7 @@ int ath_perr(const int level, const char *fmt, ...)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn int ath_pout(const int level, const char *fmt, ...)
- *  \brief Output variable argument string to "output log file".   
+ *  \brief Output variable argument string to "output log file".
  *
  *  Should be used in place of printf(stdout,...). The first argument should be:
  *     -1 : all processes write output

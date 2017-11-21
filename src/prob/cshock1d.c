@@ -88,7 +88,7 @@ void problem(DomainS *pDomain)
   x1max = pDomain->RootMaxX[0];
   Lx = x1max - x1min;
 
-/* Ambipolar diffusion coefficient 
+/* Ambipolar diffusion coefficient
  * ambipolar diffusion length scale is FIXED to be 1 in code unit! */
 
   Q_AD = 1.0/vA;            /* N.B. AD diffusion coefficient is set this way! */
@@ -112,7 +112,7 @@ void problem(DomainS *pDomain)
 
   /* Upstream region */
   i = is;
-  cc_pos(pGrid,i,js,ks,&x1,&x2,&x3); 
+  cc_pos(pGrid,i,js,ks,&x1,&x2,&x3);
   while (x1 < xs){
 
     Soln[i].d  = d0;
@@ -143,7 +143,7 @@ void problem(DomainS *pDomain)
       Soln[i].B3c= 0.0;
       Soln[i].M1 = d0 * v0;
       Soln[i].M2 = myD* SQR(vA)/v0*cos(theta)*(Soln[i].B2c/B0-sin(theta));
-      Soln[i].M3 = 0.0; 
+      Soln[i].M3 = 0.0;
 
       i += 1;
       cc_pos(pGrid,i,js,ks,&x1,&x2,&x3);
@@ -206,30 +206,30 @@ void problem(DomainS *pDomain)
  * Userwork_in_loop        - problem specific work IN     main loop
  * Userwork_after_loop     - problem specific work AFTER  main loop
  *----------------------------------------------------------------------------*/
-    
+
 void problem_write_restart(MeshS *pM, FILE *fp)
 {
   return;
 }
-  
+
 void problem_read_restart(MeshS *pM, FILE *fp)
 {
   return;
-} 
-    
+}
+
 ConsFun_t get_usr_expr(const char *expr)
-{     
+{
   return NULL;
-}     
+}
 
 VOutFun_t get_usr_out_fun(const char *name){
   return NULL;
-}     
+}
 
 #ifdef RESISTIVITY
 void get_eta_user(GridS *pG, int i, int j, int k,
                              Real *eta_O, Real *eta_H, Real *eta_A)
-{ 
+{
   *eta_O = 0.0;
   *eta_H = 0.0;
   *eta_A = 0.0;
@@ -288,4 +288,3 @@ Real Dprime(Real D, Real A, Real M, Real theta)
 
   return b/A*(b-D*((b-sintheta)/SQR(A)*costheta2+sintheta))/(b2+costheta2)/(1/SQR(D)-M21);
 }
-

@@ -2,11 +2,11 @@
 /*============================================================================*/
 /*! \file esystem_prim.c
  *  \brief Functions to evaluate the eigenvalues, and left- and
- * right-eigenvectors for the linearized system in the 
+ * right-eigenvectors for the linearized system in the
  * PRIMITIVE variables.
  *
  * PURPOSE: Functions to evaluate the eigenvalues, and left- and
- * right-eigenvectors for the linearized system in the 
+ * right-eigenvectors for the linearized system in the
  * PRIMITIVE variables, i.e. W,t = AW,x, where W=(d,vx,vy,vz,[P],[By,Bz]).
  * The eigenvalues are returned through the argument list as a vector of length
  * NWAVE.  The eigenvectors are returned as matrices of size (NWAVE)x(NWAVE),
@@ -39,7 +39,7 @@
 #include "../prototypes.h"
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void esys_prim_iso_hyd(const Real d, const Real v1, 
+/*! \fn void esys_prim_iso_hyd(const Real d, const Real v1,
  *  Real eigenvalues[],
  *  Real right_eigenmatrix[][4], Real left_eigenmatrix[][4])
  *  \brief ISOTHERMAL HYDRO
@@ -48,7 +48,7 @@
  */
 
 #if defined(BAROTROPIC) && defined(HYDRO)
-void esys_prim_iso_hyd(const Real d, const Real v1, 
+void esys_prim_iso_hyd(const Real d, const Real v1,
   Real eigenvalues[],
   Real right_eigenmatrix[][4], Real left_eigenmatrix[][4])
 {
@@ -200,7 +200,7 @@ void esys_prim_adb_hyd(const Real d, const Real v1, const Real rho_a2,
 #endif
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void esys_prim_iso_mhd(const Real d, const Real v1, const Real b1, 
+/*! \fn void esys_prim_iso_mhd(const Real d, const Real v1, const Real b1,
  *  const Real b2, const Real b3, Real eigenvalues[],
  *  Real right_eigenmatrix[][6], Real left_eigenmatrix[][6])
  *  \brief ISOTHERMAL MHD

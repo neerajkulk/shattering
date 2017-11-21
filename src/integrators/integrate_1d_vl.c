@@ -7,8 +7,8 @@
  * PURPOSE: Integrate MHD equations using 1D version of MUSCL-Hancock (VL)
  *   integrator.  Updates U.[d,M1,M2,M3,E,B2c,B3c,s] in Grid structure.
  *   Adds gravitational source terms, self-gravity.
- *        
- * CONTAINS PUBLIC FUNCTIONS: 
+ *
+ * CONTAINS PUBLIC FUNCTIONS:
  * - integrate_1d_vl()
  * - integrate_init_1d()
  * - integrate_destruct_1d() */
@@ -43,7 +43,7 @@ static ConsS *Uhalf=NULL;
 /*=========================== PUBLIC FUNCTIONS ===============================*/
 /*----------------------------------------------------------------------------*/
 /*! \fn void integrate_1d_vl(DomainS *pD)
- *  \brief 1D version of van Leer unsplit integrator for MHD.  
+ *  \brief 1D version of van Leer unsplit integrator for MHD.
  *
  *   The numbering of steps follows the numbering in the 3D version.
  *   NOT ALL STEPS ARE NEEDED IN 1D.
@@ -57,6 +57,7 @@ void integrate_1d_vl(DomainS *pD)
   int js = pG->js;
   int ks = pG->ks;
   Real x1,x2,x3,phicl,phicr,phifc,phil,phir,phic;
+  Real dedt_cool, P_cool;
 #if (NSCALARS > 0)
   int n;
 #endif
@@ -83,7 +84,7 @@ void integrate_1d_vl(DomainS *pD)
 /* No source terms are needed since there is no temporal evolution */
 
 /*--- Step 1a ------------------------------------------------------------------
- * Load 1D vector of conserved variables;  
+ * Load 1D vector of conserved variables;
  * U1d = (d, M1, M2, M3, E, B2c, B3c, s[n])
  */
 
@@ -169,12 +170,12 @@ void integrate_1d_vl(DomainS *pD)
  *    S_{M} = -(\rho) Grad(Phi);   S_{E} = -(\rho v) Grad{Phi}
  */
 
-  if (StaticGravPot != NULL){
+  if (ExternalGravPot != NULL){
     for (i=il; i<=iu; i++) {
       cc_pos(pG,i,js,ks,&x1,&x2,&x3);
-      phic = (*StaticGravPot)((x1            ),x2,x3);
-      phir = (*StaticGravPot)((x1+0.5*pG->dx1),x2,x3);
-      phil = (*StaticGravPot)((x1-0.5*pG->dx1),x2,x3);
+      phic = (*ExternalGravPot)((x1            ),x2,x3, pG->time + 0.5*pG->dt);
+      phir = (*ExternalGravPot)((x1+0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+      phil = (*ExternalGravPot)((x1-0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
 
 #ifdef CYLINDRICAL
       rsf = ri[i+1]/r[i];  lsf = ri[i]/r[i];
@@ -212,8 +213,34 @@ void integrate_1d_vl(DomainS *pD)
 /*--- Step 6c (NOT NEEDED IN 1D) ---------------------------------------------*/
 
 /*--- Step 6d ------------------------------------------------------------------
+ * Add source terms from optically thin cooling for 0.5*dt to predict
+ * step.
+ */
+
+#ifndef BAROTROPIC
+  if (CoolingFunc != NULL){
+    for (i=il; i<=iu; i++) {
+      P_cool = Uhalf[i].E;
+      P_cool -= (SQR(Uhalf[i].M1)
+                 + SQR(Uhalf[i].M2)
+                 + SQR(Uhalf[i].M3))/ (2.0 * Uhalf[i].d);
+#ifdef MHD
+      P_cool -= 0.5 * (SQR(Uhalf[i].B1c)
+                       + SQR(Uhalf[i].B2c)
+                       + SQR(Uhalf[i].B3c));
+#endif  /* MHD */
+      P_cool *= Gamma_1;
+
+      dedt_cool = (*CoolingFunc)(Uhalf[i].d, P_cool, 0.5 * pG->dt);
+
+      Uhalf[i].E -= dedt_cool * (0.5 * pG->dt);
+    }
+  }
+#endif  /* BAROTROPIC */
+
+/*--- Step 6d ------------------------------------------------------------------
  * Add the geometric source-term now using cell-centered conserved variables
- *   at time t^n 
+ *   at time t^n
  */
 
 #ifdef CYLINDRICAL
@@ -297,9 +324,9 @@ void integrate_1d_vl(DomainS *pD)
   }
 
 /*=== STEP 11: Not needed in 1D ===*/
-        
+
 /*=== STEP 12: Add source terms for a full timestep using n+1/2 states =======*/
-       
+
 /*--- Step 12a -----------------------------------------------------------------
  * Add gravitational source terms due to a Static Potential
  * To improve conservation of total energy, we average the energy
@@ -307,12 +334,12 @@ void integrate_1d_vl(DomainS *pD)
  *    S_{M} = -(\rho)^{n+1/2} Grad(Phi);   S_{E} = -(\rho v)^{n+1/2} Grad{Phi}
  */
 
-  if (StaticGravPot != NULL){
+  if (ExternalGravPot != NULL){
     for (i=is; i<=ie; i++) {
       cc_pos(pG,i,js,ks,&x1,&x2,&x3);
-      phic = (*StaticGravPot)((x1            ),x2,x3);
-      phir = (*StaticGravPot)((x1+0.5*pG->dx1),x2,x3);
-      phil = (*StaticGravPot)((x1-0.5*pG->dx1),x2,x3);
+      phic = (*ExternalGravPot)((x1            ),x2,x3, pG->time + 0.5*pG->dt);
+      phir = (*ExternalGravPot)((x1+0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+      phil = (*ExternalGravPot)((x1-0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
 
 #ifdef CYLINDRICAL
       rsf = ri[i+1]/r[i];  lsf = ri[i]/r[i];
@@ -364,6 +391,31 @@ void integrate_1d_vl(DomainS *pD)
     pG->x1MassFlux[ks][js][i] = x1Flux[i].d;
   }
 #endif /* SELF_GRAVITY */
+
+/*--- Step 12c -----------------------------------------------------------------
+ * Add source terms due to optically thin cooling
+ */
+
+#ifndef BAROTROPIC
+  if (CoolingFunc != NULL){
+    for (i=is; i<=ie; i++) {
+      P_cool = Uhalf[i].E;
+      P_cool -= (SQR(Uhalf[i].M1)
+                 + SQR(Uhalf[i].M2)
+                 + SQR(Uhalf[i].M3)) / (2.0*Uhalf[i].d);
+#ifdef MHD
+      P_cool -= 0.5 * (SQR(Uhalf[i].B1c)
+                       + SQR(Uhalf[i].B2c)
+                       + SQR(Uhalf[i].B3c));
+#endif  /* MHD */
+      P_cool *= Gamma_1;
+
+      dedt_cool = (*CoolingFunc)(Uhalf[i].d, P_cool, pG->dt);
+
+      pG->U[ks][js][i].E -= dedt_cool * pG->dt;
+    }
+                       }
+#endif  /* BAROTROPIC */
 
 /*--- Step 12c -----------------------------------------------------------------
  * Add the geometric source-term now using cell-centered conserved variables

@@ -5,8 +5,8 @@
  *
  * PURPOSE: A variety of useful utility functions.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
- * - ath_strdup()     - not supplied by fancy ANSI C, but ok in C89 
+ * CONTAINS PUBLIC FUNCTIONS:
+ * - ath_strdup()     - not supplied by fancy ANSI C, but ok in C89
  * - ath_gcd()        - computes greatest common divisor by Euler's method
  * - ath_big_endian() - run-time detection of endianism of the host cpu
  * - ath_bswap()      - fast byte swapping routine
@@ -27,7 +27,7 @@
 
 /*----------------------------------------------------------------------------*/
 /*! \fn char *ath_strdup(const char *in)
- *  \brief This is really strdup(), but strdup is not available in 
+ *  \brief This is really strdup(), but strdup is not available in
  *   ANSI  (-pendantic or -ansi will leave it undefined in gcc)
  *   much like allocate.
  */
@@ -50,7 +50,7 @@ char *ath_strdup(const char *in)
 int ath_gcd(int a, int b)
 {
   int c;
-  if(b>a) {c=a; a=b; b=c;} 
+  if(b>a) {c=a; a=b; b=c;}
   while((c=a%b)) {a=b; b=c;}
   return b;
 }
@@ -71,14 +71,14 @@ int ath_big_endian(void)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void ath_bswap(void *vdat, int len, int cnt)
- *  \brief Swap bytes, code stolen from NEMO  
+ *  \brief Swap bytes, code stolen from NEMO
  */
- 
+
 void ath_bswap(void *vdat, int len, int cnt)
 {
   char tmp, *dat = (char *) vdat;
   int k;
- 
+
   if (len==1)
     return;
   else if (len==2)
@@ -173,7 +173,7 @@ void minmax2(Real **data, int nx2, int nx1, Real *dmino, Real *dmaxo)
   *dmaxo = dmax;
 }
 
-/*! \fn void minmax3(Real ***data, int nx3, int nx2, int nx1, Real *dmino, 
+/*! \fn void minmax3(Real ***data, int nx3, int nx2, int nx1, Real *dmino,
  *                   Real *dmaxo)
  *  \brief Return the min and max of a 3D array using registers
  *  Works on data of type float, not Real.
@@ -187,8 +187,8 @@ void minmax3(Real ***data, int nx3, int nx2, int nx1, Real *dmino, Real *dmaxo)
   for (k=0; k<nx3; k++) {
     for (j=0; j<nx2; j++) {
       for (i=0; i<nx1; i++) {
-	dmin = MIN(dmin,data[k][j][i]);
-	dmax = MAX(dmax,data[k][j][i]);
+        dmin = MIN(dmin,data[k][j][i]);
+        dmax = MAX(dmax,data[k][j][i]);
       }
     }
   }
@@ -199,7 +199,7 @@ void minmax3(Real ***data, int nx3, int nx2, int nx1, Real *dmino, Real *dmaxo)
 /*----------------------------------------------------------------------------*/
 /*! \fn  void do_nothing_bc(GridS *pG)
  *
- *  \brief DOES ABSOLUTELY NOTHING!  THUS, WHATEVER THE BOUNDARY ARE SET TO 
+ *  \brief DOES ABSOLUTELY NOTHING!  THUS, WHATEVER THE BOUNDARY ARE SET TO
  *  INITIALLY, THEY REMAIN FOR ALL TIME.
  */
 void do_nothing_bc(GridS *pG __attribute((unused)))
@@ -212,7 +212,7 @@ void do_nothing_bc(GridS *pG __attribute((unused)))
 
 /*----------------------------------------------------------------------------*/
 /*! \fn Real compute_div_b(GridS *pG)
- *  \brief COMPUTE THE DIVERGENCE OF THE MAGNETIC FIELD USING FACE-CENTERED 
+ *  \brief COMPUTE THE DIVERGENCE OF THE MAGNETIC FIELD USING FACE-CENTERED
  *  FIELDS OVER THE ENTIRE ACTIVE GRID.  RETURNS THE MAXIMUM OF |DIV B|.
  */
 Real compute_div_b(GridS *pG)
@@ -255,18 +255,18 @@ Real compute_div_b(GridS *pG)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void compute_l1_error(const char *problem, const MeshS *pM, 
- *                            const ConsS ***RootSoln, const int errortype) 
- *  \brief COMPUTE THE L1-ERRORS IN ALL VARIABLES AT THE CURRENT 
+/*! \fn void compute_l1_error(const char *problem, const MeshS *pM,
+ *                            const ConsS ***RootSoln, const int errortype)
+ *  \brief COMPUTE THE L1-ERRORS IN ALL VARIABLES AT THE CURRENT
  *  (USUALLY THE FINAL)
- *  TIMESTEP USING THE INITIAL SOLUTION.  
+ *  TIMESTEP USING THE INITIAL SOLUTION.
  *
  *  THIS MEANS THAT THE SOLUTION MUST
  *  EITHER BE STATIC (STEADY-STATE) OR MUST HAVE COMPLETED A FULL PERIOD OF
  *  ROTATION, ETC.  FOR THE ERRORTYPE FLAG, 0 MEANS ABSOLUTE ERROR, AND
  *  1 MEANS AVERAGE ERROR PER GRID CELL.
  */
-void compute_l1_error(const char *problem, const MeshS *pM, 
+void compute_l1_error(const char *problem, const MeshS *pM,
                       const ConsS ***RootSoln, const int errortype)
 {
   DomainS *pD=&(pM->Domain[0][0]);
@@ -317,7 +317,7 @@ void compute_l1_error(const char *problem, const MeshS *pM,
         error.d   += dVol*fabs(pG->U[k][j][i].d   - RootSoln[k][j][i].d );
         error.M1  += dVol*fabs(pG->U[k][j][i].M1  - RootSoln[k][j][i].M1);
         error.M2  += dVol*fabs(pG->U[k][j][i].M2  - RootSoln[k][j][i].M2);
-        error.M3  += dVol*fabs(pG->U[k][j][i].M3  - RootSoln[k][j][i].M3); 
+        error.M3  += dVol*fabs(pG->U[k][j][i].M3  - RootSoln[k][j][i].M3);
 #ifdef MHD
         error.B1c += dVol*fabs(pG->U[k][j][i].B1c - RootSoln[k][j][i].B1c);
         error.B2c += dVol*fabs(pG->U[k][j][i].B2c - RootSoln[k][j][i].B2c);
@@ -421,7 +421,7 @@ void compute_l1_error(const char *problem, const MeshS *pM,
   rms_error = SQR(total_error.d) + SQR(total_error.M1) + SQR(total_error.M2)
                 + SQR(total_error.M3);
 #ifdef MHD
-  rms_error += SQR(total_error.B1c) + SQR(total_error.B2c) 
+  rms_error += SQR(total_error.B1c) + SQR(total_error.B2c)
                + SQR(total_error.B3c);
 #endif /* MHD */
 #ifndef ISOTHERMAL
@@ -468,10 +468,10 @@ void compute_l1_error(const char *problem, const MeshS *pM,
   fprintf(fp,"%d  %d  %d  %e",Nx1,Nx2,Nx3,rms_error);
 
   fprintf(fp,"  %e  %e  %e  %e",
-	  (total_error.d /totVol),
-	  (total_error.M1/totVol),
-	  (total_error.M2/totVol),
-	  (total_error.M3/totVol));
+          (total_error.d /totVol),
+          (total_error.M1/totVol),
+          (total_error.M2/totVol),
+          (total_error.M3/totVol));
 
 #ifndef ISOTHERMAL
   fprintf(fp,"  %e",total_error.E/totVol);
@@ -479,9 +479,9 @@ void compute_l1_error(const char *problem, const MeshS *pM,
 
 #ifdef MHD
   fprintf(fp,"  %e  %e  %e",
-	  (total_error.B1c/totVol),
-	  (total_error.B2c/totVol),
-	  (total_error.B3c/totVol));
+          (total_error.B1c/totVol),
+          (total_error.B2c/totVol),
+          (total_error.B3c/totVol));
 #endif /* MHD */
 #if (NSCALARS > 0)
     for (n=0; n<NSCALARS; n++) {
@@ -502,16 +502,16 @@ void compute_l1_error(const char *problem, const MeshS *pM,
  *============================================================================*/
 
 /*----------------------------------------------------------------------------*/
-/*! \fn int sign_change(Real (*func)(const Real,const Real), const Real a0, 
+/*! \fn int sign_change(Real (*func)(const Real,const Real), const Real a0,
  *                      const Real b0, const Real x, Real *a, Real *b)
- *  \brief SEARCH FOR A SIGN CHANGE.  
+ *  \brief SEARCH FOR A SIGN CHANGE.
  *
  *  THIS FUNCTION PARTITIONS THE INTERVAL (a0,b0) INTO
  *  2^k EQUALLY SPACED GRID POINTS, EVALUATES THE FUNCTION f AT THOSE POINTS,
  *  AND THEN SEARCHES FOR A SIGN CHANGE IN f BETWEEN ADJACENT GRID POINTS.  THE
  *  FIRST SUCH INTERVAL FOUND, (a,b), IS RETURNED.
  */
-int sign_change(Real (*func)(const Real,const Real), const Real a0, 
+int sign_change(Real (*func)(const Real,const Real), const Real a0,
                              const Real b0, const Real x, Real *a, Real *b) {
   const int kmax=20;
   int k, n, i;
@@ -533,16 +533,16 @@ int sign_change(Real (*func)(const Real,const Real), const Real a0,
   }
 //   ath_error("[sign_change]: No sign change was detected in (%f,%f) for x=%f!\n",a0,b0,x);
   return 0;
-} 
+}
 
 
 /*----------------------------------------------------------------------------*/
-/*! \fn int bisection(Real (*func)(const Real,const Real), const Real a0, 
- *                    const Real b0, const Real x, Real *root) 
+/*! \fn int bisection(Real (*func)(const Real,const Real), const Real a0,
+ *                    const Real b0, const Real x, Real *root)
  *  \brief THIS FUNCTION IMPLEMENTS THE BISECTION METHOD FOR ROOT FINDING.
  */
 int bisection(Real (*func)(const Real,const Real), const Real a0, const Real b0,
-                           const Real x, Real *root) 
+                           const Real x, Real *root)
 {
   const Real tol = 1.0E-10;
   const int maxiter = 400;
@@ -607,17 +607,17 @@ int bisection(Real (*func)(const Real,const Real), const Real a0, const Real b0,
 /*----------------------------------------------------------------------------*/
 /*! \fn Real trapzd(Real (*func)(Real), const Real a, const Real b, const int n,
  *		    const Real s)
- *  \brief THIS ROUTINE COMPUTES THE nTH STAGE OF REFINEMENT OF AN EXTENDED 
- *  TRAPEZOIDAL RULE.  
+ *  \brief THIS ROUTINE COMPUTES THE nTH STAGE OF REFINEMENT OF AN EXTENDED
+ *  TRAPEZOIDAL RULE.
  *
- * func IS INPUT AS A POINTER TO THE FUNCTION TO BE INTEGRATED BETWEEN 
- * LIMITS a AND b, ALSO INPUT. WHEN CALLED WITH n=1, THE ROUTINE RETURNS THE 
- * CRUDEST ESTIMATE OF \int_a^b f(R) R dR.  SUBSEQUENT CALLS WITH n=2,3,... 
- * (IN THAT SEQUENTIAL ORDER) WILL IMPROVE THE ACCURACY BY ADDING 2n-2 
- * ADDITIONAL INTERIOR POINTS. 
- * ADAPTED FROM NUMERICAL RECIPES BY AARON SKINNER 
+ * func IS INPUT AS A POINTER TO THE FUNCTION TO BE INTEGRATED BETWEEN
+ * LIMITS a AND b, ALSO INPUT. WHEN CALLED WITH n=1, THE ROUTINE RETURNS THE
+ * CRUDEST ESTIMATE OF \int_a^b f(R) R dR.  SUBSEQUENT CALLS WITH n=2,3,...
+ * (IN THAT SEQUENTIAL ORDER) WILL IMPROVE THE ACCURACY BY ADDING 2n-2
+ * ADDITIONAL INTERIOR POINTS.
+ * ADAPTED FROM NUMERICAL RECIPES BY AARON SKINNER
  */
-Real trapzd(Real (*func)(Real), const Real a, const Real b, const int n, 
+Real trapzd(Real (*func)(Real), const Real a, const Real b, const int n,
             const Real s)
 {
   Real x,tnm,sum,dx;
@@ -625,7 +625,7 @@ Real trapzd(Real (*func)(Real), const Real a, const Real b, const int n,
 
   if (n == 1) {
     return 0.5*(b-a)*(func(a)+func(b));
-  } 
+  }
   else {
     for (it=1,j=1; j<n-1; j++) it <<= 1;  /* it = 2^(n-2) */
     tnm = it;
@@ -638,19 +638,19 @@ Real trapzd(Real (*func)(Real), const Real a, const Real b, const int n,
 
 /*----------------------------------------------------------------------------*/
 /*! \fn Real qsimp(Real (*func)(Real), const Real a, const Real b)
- *  \brief RETURNS THE INTEGRAL OF THE FUNCTION func FROM a TO b. 
+ *  \brief RETURNS THE INTEGRAL OF THE FUNCTION func FROM a TO b.
  *
- * THE PARAMETER EPS 
- * CAN BE SET TO THE DESIRED FRACTIONAL ACCURACY AND JMAX SO THAT 2^(JMAX-1) 
- * IS THE MAXIMUM ALLOWED NUMBER OF STEPS.  INTEGRATION IS PERFORMED BY 
+ * THE PARAMETER EPS
+ * CAN BE SET TO THE DESIRED FRACTIONAL ACCURACY AND JMAX SO THAT 2^(JMAX-1)
+ * IS THE MAXIMUM ALLOWED NUMBER OF STEPS.  INTEGRATION IS PERFORMED BY
  * SIMPSON'S RULE.
- * ADAPTED FROM NUMERICAL RECIPES BY AARON SKINNER 
+ * ADAPTED FROM NUMERICAL RECIPES BY AARON SKINNER
  */
 
 #define EPS 1.0e-8
 #define JMAX 20
 
-Real qsimp(Real (*func)(Real), const Real a, const Real b) 
+Real qsimp(Real (*func)(Real), const Real a, const Real b)
 {
   int j;
   Real s,st,ost,os;
@@ -675,20 +675,20 @@ Real qsimp(Real (*func)(Real), const Real a, const Real b)
  *
  * RETURNS THE INTEGRAL OF A USER-SUPPLIED FUNCTION func OVER THE ONE-, TWO-,
  * OR THREE-DIMENSIONAL GRID CELL (i,j,k).  INTEGRATION IS PERFORMED USING qsimp.
- * ADAPTED FROM NUMERICAL RECIPES BY AARON SKINNER 
+ * ADAPTED FROM NUMERICAL RECIPES BY AARON SKINNER
  */
 static Real xsav,ysav,zsav,xmin,xmax,ymin,ymax,zmin,zmax;
 static Real (*nrfunc)(Real,Real,Real);
 
-/*! \fn Real avg1d(Real (*func)(Real, Real, Real), const GridS *pG, 
+/*! \fn Real avg1d(Real (*func)(Real, Real, Real), const GridS *pG,
  *                 const int i, const int j, const int k)
  *  \brief RETURNS THE INTEGRAL OF A USER-SUPPLIED FUNCTION func OVER THE ONE-
- * DIMENSIONAL GRID CELL (i,j,k).  
+ * DIMENSIONAL GRID CELL (i,j,k).
  *
  * INTEGRATION IS PERFORMED USING qsimp.
- * ADAPTED FROM NUMERICAL RECIPES BY AARON SKINNER 
+ * ADAPTED FROM NUMERICAL RECIPES BY AARON SKINNER
  */
-Real avg1d(Real (*func)(Real, Real, Real), const GridS *pG, 
+Real avg1d(Real (*func)(Real, Real, Real), const GridS *pG,
             const int i, const int j, const int k)
 {
   Real x1,x2,x3,dvol=pG->dx1;
@@ -707,15 +707,15 @@ Real avg1d(Real (*func)(Real, Real, Real), const GridS *pG,
   return qsimp(fx,xmin,xmax)/dvol;
 }
 
-/*! \fn Real avg2d(Real (*func)(Real, Real, Real), const GridS *pG, 
+/*! \fn Real avg2d(Real (*func)(Real, Real, Real), const GridS *pG,
  *                 const int i, const int j, const int k)
  *  \brief RETURNS THE INTEGRAL OF A USER-SUPPLIED FUNCTION func OVER THE TWO-
- * DIMENSIONAL GRID CELL (i,j,k).  
+ * DIMENSIONAL GRID CELL (i,j,k).
  *
  * INTEGRATION IS PERFORMED USING qsimp.
- * ADAPTED FROM NUMERICAL RECIPES BY AARON SKINNER 
+ * ADAPTED FROM NUMERICAL RECIPES BY AARON SKINNER
  */
-Real avg2d(Real (*func)(Real, Real, Real), const GridS *pG, 
+Real avg2d(Real (*func)(Real, Real, Real), const GridS *pG,
             const int i, const int j, const int k)
 {
   Real x1,x2,x3,dvol=pG->dx1*pG->dx2;
@@ -734,15 +734,15 @@ Real avg2d(Real (*func)(Real, Real, Real), const GridS *pG,
   return qsimp(fy,ymin,ymax)/dvol;
 }
 
-/*! \fn Real avg3d(Real (*func)(Real, Real, Real), const GridS *pG, 
+/*! \fn Real avg3d(Real (*func)(Real, Real, Real), const GridS *pG,
  *                 const int i, const int j, const int k)
  *  \brief RETURNS THE INTEGRAL OF A USER-SUPPLIED FUNCTION func OVER THE
- * THREE-DIMENSIONAL GRID CELL (i,j,k).  
+ * THREE-DIMENSIONAL GRID CELL (i,j,k).
  *
  * INTEGRATION IS PERFORMED USING qsimp.
  * ADAPTED FROM NUMERICAL RECIPES BY AARON SKINNER
  */
-Real avg3d(Real (*func)(Real, Real, Real), const GridS *pG, 
+Real avg3d(Real (*func)(Real, Real, Real), const GridS *pG,
             const int i, const int j, const int k)
 {
   Real x1,x2,x3,dvol=pG->dx1*pG->dx2*pG->dx3;

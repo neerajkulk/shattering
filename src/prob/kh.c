@@ -1,7 +1,7 @@
 #include "copyright.h"
 /*============================================================================*/
 /*! \file kh.c
- *  \brief Problem generator for KH instability. 
+ *  \brief Problem generator for KH instability.
  *
  * PURPOSE: Problem generator for KH instability.  Sets up two versions:
  * - iprob=1: slip surface with random perturbations
@@ -16,6 +16,16 @@
 #include "athena.h"
 #include "globals.h"
 #include "prototypes.h"
+
+#ifdef VISCOSITY
+Real nu_iso;
+Real nu_aniso;
+
+static Real nu_fun(const Real d, const Real T,
+                   const Real x1, const Real x2, const Real x3);
+
+#endif
+
 
 /*==============================================================================
  * PRIVATE FUNCTION PROTOTYPES:
@@ -68,7 +78,7 @@ void problem(DomainS *pDomain)
           pGrid->U[k][j][i].M2 = amp*(ran2(&iseed) - 0.5);
           pGrid->U[k][j][i].M3 = 0.0;
           if (fabs(x2) < 0.25) {
-  	    pGrid->U[k][j][i].d = drat;
+            pGrid->U[k][j][i].d = drat;
             pGrid->U[k][j][i].M1 = -drat*(vflow + amp*(ran2(&iseed) - 0.5));
             pGrid->U[k][j][i].M2 = drat*amp*(ran2(&iseed) - 0.5);
           }
@@ -143,6 +153,7 @@ void problem(DomainS *pDomain)
 #ifdef VISCOSITY
   nu_iso = par_getd_def("problem","nu_iso",0.0);
   nu_aniso = par_getd_def("problem","nu_aniso",0.0);
+  NuFun_a = nu_fun;
 #endif
 
 /* enroll new history variables, only once  */
@@ -247,7 +258,7 @@ void Userwork_after_loop(MeshS *pM)
  * values).  Call with idum = a negative integer to initialize;
  * thereafter, do not alter idum between successive deviates in a
  * sequence.  RNMX should appriximate the largest floating point value
- * that is less than 1. 
+ * that is less than 1.
 
  */
 double ran2(long int *idum){
@@ -325,3 +336,11 @@ static Real hst_Bz(const GridS *pG, const int i, const int j, const int k)
   return pG->U[k][j][i].B3c;
 }
 #endif
+
+#ifdef VISCOSITY
+static Real nu_fun(const Real d, const Real T,
+                   const Real x1, const Real x2, const Real x3)
+{
+  return nu_aniso;
+}
+#endif  /* VISCOSITY */

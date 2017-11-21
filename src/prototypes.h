@@ -1,5 +1,5 @@
 #ifndef PROTOTYPES_H
-#define PROTOTYPES_H 
+#define PROTOTYPES_H
 #include "copyright.h"
 /*============================================================================*/
 /*! \file prototypes.h
@@ -52,7 +52,7 @@ int ath_pout(const int level, const char *fmt, ...);
 /* ath_files.c */
 char *ath_fname(const char *path, const char *basename,
                 const char *levstr, const char *domstr,
-                const int dlen, const int idump, 
+                const int dlen, const int idump,
                 const char *id, const char *ext);
 
 /*----------------------------------------------------------------------------*/
@@ -102,7 +102,7 @@ void RemapVar(DomainS *pD, Real ***RemapVar, Real dt);
 void bvals_shear_init(MeshS *pM);
 void bvals_shear_destruct(void);
 void Fargo(DomainS *pD);
-#endif 
+#endif
 
 /*----------------------------------------------------------------------------*/
 /* cc_pos.c */
@@ -161,6 +161,7 @@ void data_output(MeshS *pM, const int flag);
 void add_rst_out(OutputS *new_out);
 void data_output_destruct(void);
 void dump_history_enroll(const ConsFun_t pfun, const char *label);
+void dump_history_enroll_alt(const ConsFun_t pfun, const char *label);
 Real ***OutData3(GridS *pGrid, OutputS *pOut, int *Nx1, int *Nx2, int *Nx3);
 Real  **OutData2(GridS *pGrid, OutputS *pOut, int *Nx1, int *Nx2);
 Real   *OutData1(GridS *pGrid, OutputS *pOut, int *Nx1);

@@ -3,7 +3,7 @@
 /*! \file strat.c
  *  \brief Problem generator for stratified 3D shearing sheet.
  *
- * PURPOSE:  Problem generator for stratified 3D shearing sheet.  Based on the 
+ * PURPOSE:  Problem generator for stratified 3D shearing sheet.  Based on the
  *   initial conditions described in "Three-dimensional Magnetohydrodynamic
  *   Simulations of Vertically Stratified Accretion Disks" by Stone, Hawley,
  *   Gammie & Balbus.
@@ -166,7 +166,7 @@ void problem(DomainS *pDomain)
       }
 
 /* Initialize d, M, and P.  For 3D shearing box M1=Vx, M2=Vy, M3=Vz
- * With FARGO do not initialize the background shear */ 
+ * With FARGO do not initialize the background shear */
 
       pGrid->U[k][j][i].d  = rd;
       pGrid->U[k][j][i].M1 = rd*rvx;
@@ -177,7 +177,7 @@ void problem(DomainS *pDomain)
       pGrid->U[k][j][i].M3 = rd*rvz;
 #ifdef ADIABATIC
       pGrid->U[k][j][i].E = rp/Gamma_1
-        + 0.5*(SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2) 
+        + 0.5*(SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2)
              + SQR(pGrid->U[k][j][i].M3))/rd;
 #endif
 
@@ -366,7 +366,7 @@ void problem(DomainS *pDomain)
 
 /* enroll gravitational potential function */
 
-  StaticGravPot = VertGrav;
+  ExternalGravPot = VertGrav;
   ShearingBoxPot = UnstratifiedDisk;
 
 /* Enroll vertically stratified outflow boundaries */
@@ -437,7 +437,7 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 
 /* enroll gravitational potential function */
 
-  StaticGravPot = VertGrav;
+  ExternalGravPot = VertGrav;
   ShearingBoxPot = UnstratifiedDisk;
 
 /* enroll new history variables */
@@ -561,7 +561,7 @@ void Userwork_after_loop(MeshS *pM)
 
 /*! \fn double ran2(long int *idum)
  *  \brief Extracted from the Numerical Recipes in C (version 2) code.  Modified
- *   to use doubles instead of floats. -- T. A. Gardiner -- Aug. 12, 2003 
+ *   to use doubles instead of floats. -- T. A. Gardiner -- Aug. 12, 2003
  *
  * Long period (> 2 x 10^{18}) random number generator of L'Ecuyer
  * with Bays-Durham shuffle and added safeguards.  Returns a uniform
@@ -661,14 +661,14 @@ static Real VertGrav(const Real x1, const Real x2, const Real x3)
 }
 
 /*! \fn static void strat_ix3(GridS *pG)
- *  \brief  Here is the lower z outflow boundary. 
+ *  \brief  Here is the lower z outflow boundary.
             The basic idea is that the pressure and density
-            are exponentially extrapolated in the ghost zones 
+            are exponentially extrapolated in the ghost zones
             assuming a constant temperature there (i.e., an
             isothermal atmosphere). The z velocity (NOT the
             momentum) are set to zero in the ghost zones in the
             case of the last lower physical zone having an inward
-            flow.  All other variables are extrapolated into the 
+            flow.  All other variables are extrapolated into the
             ghost zones with zero slope.
 */
 
@@ -772,14 +772,14 @@ static void strat_ix3(GridS *pG)
 }
 
 /*! \fn static void strat_ox3(GridS *pG)
- *  \brief  Here is the upper z outflow boundary. 
+ *  \brief  Here is the upper z outflow boundary.
             The basic idea is that the pressure and density
-            are exponentially extrapolated in the ghost zones 
+            are exponentially extrapolated in the ghost zones
             assuming a constant temperature there (i.e., an
             isothermal atmosphere). The z velocity (NOT the
             momentum) are set to zero in the ghost zones in the
             case of the last upper physical zone having an inward
-            flow.  All other variables are extrapolated into the 
+            flow.  All other variables are extrapolated into the
             ghost zones with zero slope.
 */
 
@@ -834,7 +834,7 @@ static void strat_ox3(GridS *pG)
           pG->U[ke+k][j][i].B3c = pG->B3i[ke+k][j][i];
         }
       }
-    }  
+    }
   }
 #endif /* MHD */
 
@@ -887,9 +887,9 @@ static void strat_ox3(GridS *pG)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn static Real expr_dV2(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_dV2(const GridS *pG, const int i, const int j,
  *			     const int k)
- *  \brief Computes delta(Vy) 
+ *  \brief Computes delta(Vy)
  */
 static Real expr_dV2(const GridS *pG, const int i, const int j, const int k)
 {
@@ -903,9 +903,9 @@ static Real expr_dV2(const GridS *pG, const int i, const int j, const int k)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn static Real expr_beta(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_beta(const GridS *pG, const int i, const int j,
  *			      const int k)
- *  \brief Computes beta=P/(B^2/8pi)  
+ *  \brief Computes beta=P/(B^2/8pi)
  */
 static Real expr_beta(const GridS *pG, const int i, const int j, const int k)
 {
@@ -928,7 +928,7 @@ static Real expr_beta(const GridS *pG, const int i, const int j, const int k)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn static Real expr_ME(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_ME(const GridS *pG, const int i, const int j,
  *			    const int k)
  *  \brief  Computes B^2/8pi
  */
@@ -946,7 +946,7 @@ static Real expr_ME(const GridS *pG, const int i, const int j, const int k)
 #endif
 }
 /*----------------------------------------------------------------------------*/
-/*! \fn static Real expr_KE(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_KE(const GridS *pG, const int i, const int j,
  *			    const int k)
  *  \brief Computes dens*(Vx^2+Vy^2+Vz^2)/2
  */
@@ -972,7 +972,7 @@ static Real expr_KE(const GridS *pG, const int i, const int j, const int k)
  * hst_rho_dVy2: KE in y-velocity fluctuations
  * hst_E_total: total energy (including tidal potential).
  */
-/*! \fn static Real hst_rho_Vx_dVy(const GridS *pG,const int i,const int j, 
+/*! \fn static Real hst_rho_Vx_dVy(const GridS *pG,const int i,const int j,
  *				  const int k)
  *  \brief Reynolds stress, added as history variable. */
 static Real hst_rho_Vx_dVy(const GridS *pG,const int i,const int j, const int k)
@@ -987,7 +987,7 @@ static Real hst_rho_Vx_dVy(const GridS *pG,const int i,const int j, const int k)
 #endif
 }
 
-/*! \fn static Real hst_rho_dVy2(const GridS *pG, const int i, const int j, 
+/*! \fn static Real hst_rho_dVy2(const GridS *pG, const int i, const int j,
  *				const int k)
  *  \brief KE in y-velocity fluctuations */
 static Real hst_rho_dVy2(const GridS *pG, const int i, const int j, const int k)
@@ -1003,7 +1003,7 @@ static Real hst_rho_dVy2(const GridS *pG, const int i, const int j, const int k)
 }
 
 #ifdef ADIABATIC
-/*! \fn static Real hst_E_total(const GridS *pG, const int i, const int j, 
+/*! \fn static Real hst_E_total(const GridS *pG, const int i, const int j,
  *				const int k)
  *  \brief total energy (including tidal potential). */
 static Real hst_E_total(const GridS *pG, const int i, const int j, const int k)
@@ -1029,14 +1029,14 @@ static Real hst_Bx(const GridS *pG, const int i, const int j, const int k)
   return pG->U[k][j][i].B1c;
 }
 
-/*! \fn static Real hst_By(const GridS *pG,const int i,const int j,const int k) 
+/*! \fn static Real hst_By(const GridS *pG,const int i,const int j,const int k)
  *  \brief y-component of magnetic field */
 static Real hst_By(const GridS *pG, const int i, const int j, const int k)
 {
   return pG->U[k][j][i].B2c;
 }
 
-/*! \fn static Real hst_Bz(const GridS *pG, const int i, const int j, 
+/*! \fn static Real hst_Bz(const GridS *pG, const int i, const int j,
  *			  const int k)
  *  \brief z-component of magnetic field */
 static Real hst_Bz(const GridS *pG, const int i, const int j, const int k)
@@ -1044,7 +1044,7 @@ static Real hst_Bz(const GridS *pG, const int i, const int j, const int k)
   return pG->U[k][j][i].B3c;
 }
 
-/*! \fn static Real hst_BxBy(const GridS *pG, const int i, const int j, 
+/*! \fn static Real hst_BxBy(const GridS *pG, const int i, const int j,
  *			     const int k)
  *  \brief Maxwell stress */
 static Real hst_BxBy(const GridS *pG, const int i, const int j, const int k)
@@ -1220,7 +1220,7 @@ static void output_1d(MeshS *pM, OutputS *pOut)
 /* The parent sums the scal[] array.
  * Note that this assumes (dx1,dx2,dx3) = const. */
 
-#ifdef MPI_PARALLEL 
+#ifdef MPI_PARALLEL
   for(i1d=0; i1d<tot1d; i1d++){
     for (k=0; k<nzmx; k++) {
       my_out1d[k] = out1d[k][i1d];
@@ -1319,4 +1319,3 @@ static void output_1d(MeshS *pM, OutputS *pOut)
 
 return;
 }
-

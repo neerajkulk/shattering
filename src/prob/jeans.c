@@ -1,12 +1,12 @@
 #include "copyright.h"
 /*============================================================================*/
 /*! \file jeans.c
- *  \brief Problem generator for simple self-gravity test.  
+ *  \brief Problem generator for simple self-gravity test.
  *
- * PURPOSE: Problem generator for simple self-gravity test.  
+ * PURPOSE: Problem generator for simple self-gravity test.
  *
- * SELF_GRAVITY must be defined; use --with-gravity=fft 
- *               and for fft method, --enable-fft   
+ * SELF_GRAVITY must be defined; use --with-gravity=fft
+ *               and for fft method, --enable-fft
  *
  * B-field (when present) lies along direction perpendicular to wavevector.
  * Wavevector is along chosen direction (1, 2, or 3). */
@@ -126,7 +126,7 @@ printf("4piG=%e, lambda=%e, period=%e\n",four_pi_G, lambda, (2.0*PI/omega));
   }
     pGrid->U[k][j][i].d = d0*(1.0 + amp*sinkx);
 #ifndef ISOTHERMAL
-    pGrid->U[k][j][i].E = (p0/Gamma_1)*(1.0+Gamma*amp*sinkx) + 
+    pGrid->U[k][j][i].E = (p0/Gamma_1)*(1.0+Gamma*amp*sinkx) +
                 b0*b0*(0.5+amp*sinkx);
 #endif /* ISOTHERMAL */
   switch(kdir){

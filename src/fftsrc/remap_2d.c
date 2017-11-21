@@ -6,7 +6,7 @@
 
    Copyright (2003) Sandia Corporation.  Under the terms of Contract
    DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-   certain rights in this software.  This software is distributed under 
+   certain rights in this software.  This software is distributed under
    the GNU General Public License.
 
    See the README file in the top-level directory of the distribution.
@@ -33,9 +33,9 @@
    my subsection must not overlap with any other proc's subsection,
      i.e. the union of all proc's input (or output) subsections must
      exactly tile the global Nfast x Nslow data set
-   when called from C, all subsection indices are 
+   when called from C, all subsection indices are
      C-style from 0 to N-1 where N = Nfast or Nslow
-   when called from F77, all subsection indices are 
+   when called from F77, all subsection indices are
      F77-style from 1 to N where N = Nfast or Nslow
    a proc can own 0 elements on input or output
      by specifying hi index < lo index
@@ -54,15 +54,15 @@
                   will be placed (can be same as in)
    buf          extra memory required for remap
                 if memory=0 was used in call to remap_2d_create_plan
-		  then buf must be big enough to hold output result
-		  i.e. nqty * (out_ihi-out_ilo+1) * (out_jhi-out_jlo+1)
-		if memory=1 was used in call to remap_2d_create_plan
-		  then buf is not used, can just be a dummy pointer
+                  then buf must be big enough to hold output result
+                  i.e. nqty * (out_ihi-out_ilo+1) * (out_jhi-out_jlo+1)
+                if memory=1 was used in call to remap_2d_create_plan
+                  then buf is not used, can just be a dummy pointer
    plan         plan returned by previous call to remap_2d_create_plan
 */
 
 void remap_2d(double *in, double *out, double *buf,
-	      struct remap_plan_2d *plan)
+              struct remap_plan_2d *plan)
 
 {
   MPI_Status status;
@@ -78,17 +78,17 @@ void remap_2d(double *in, double *out, double *buf,
 
   for (irecv = 0; irecv < plan->nrecv; irecv++)
     MPI_Irecv(&scratch[plan->recv_bufloc[irecv]],plan->recv_size[irecv],
-	      MPI_DOUBLE,plan->recv_proc[irecv],0,
-	      plan->comm,&plan->request[irecv]);
+              MPI_DOUBLE,plan->recv_proc[irecv],0,
+              plan->comm,&plan->request[irecv]);
 
 /* send all messages to other procs */
 
   for (isend = 0; isend < plan->nsend; isend++) {
     plan->pack(&in[plan->send_offset[isend]],
-	       plan->sendbuf,&plan->packplan[isend]);
+               plan->sendbuf,&plan->packplan[isend]);
     MPI_Send(plan->sendbuf,plan->send_size[isend],MPI_DOUBLE,
-	     plan->send_proc[isend],0,plan->comm);
-  }       
+             plan->send_proc[isend],0,plan->comm);
+  }
 
 /* copy in -> scratch -> out for self data */
 
@@ -96,10 +96,10 @@ void remap_2d(double *in, double *out, double *buf,
     isend = plan->nsend;
     irecv = plan->nrecv;
     plan->pack(&in[plan->send_offset[isend]],
-	       &scratch[plan->recv_bufloc[irecv]],
-	       &plan->packplan[isend]);
+               &scratch[plan->recv_bufloc[irecv]],
+               &plan->packplan[isend]);
     plan->unpack(&scratch[plan->recv_bufloc[irecv]],
-		 &out[plan->recv_offset[irecv]],&plan->unpackplan[irecv]);
+                 &out[plan->recv_offset[irecv]],&plan->unpackplan[irecv]);
   }
 
 /* unpack all messages from scratch -> out */
@@ -107,7 +107,7 @@ void remap_2d(double *in, double *out, double *buf,
   for (i = 0; i < plan->nrecv; i++) {
     MPI_Waitany(plan->nrecv,plan->request,&irecv,&status);
     plan->unpack(&scratch[plan->recv_bufloc[irecv]],
-		 &out[plan->recv_offset[irecv]],&plan->unpackplan[irecv]);
+                 &out[plan->recv_offset[irecv]],&plan->unpackplan[irecv]);
   }
 }
 
@@ -124,13 +124,13 @@ void remap_2d(double *in, double *out, double *buf,
    nqty                 # of datums per element
    permute              permutation in storage order of indices on output
                           0 = no permutation
-			  1 = permute = slow->fast, fast->slow
+                          1 = permute = slow->fast, fast->slow
    memory               user provides buffer memory for remap or system does
                           0 = user provides memory
-			  1 = system provides memory
+                          1 = system provides memory
    precision            precision of data
                           1 = single precision (4 bytes per datum)
-			  2 = double precision (8 bytes per datum)
+                          2 = double precision (8 bytes per datum)
 */
 
 struct remap_plan_2d *remap_2d_create_plan(
@@ -187,7 +187,7 @@ struct remap_plan_2d *remap_2d_create_plan(
   if (array == NULL) return NULL;
 
   MPI_Allgather(&out,sizeof(struct extent_2d),MPI_BYTE,
-		array,sizeof(struct extent_2d),MPI_BYTE,comm);
+                array,sizeof(struct extent_2d),MPI_BYTE,comm);
 
 /* count send collides, including self */
 
@@ -210,11 +210,11 @@ struct remap_plan_2d *remap_2d_create_plan(
     plan->send_offset = (int *) malloc(nsend*sizeof(int));
     plan->send_size = (int *) malloc(nsend*sizeof(int));
     plan->send_proc = (int *) malloc(nsend*sizeof(int));
-    plan->packplan = (struct pack_plan_2d *) 
+    plan->packplan = (struct pack_plan_2d *)
       malloc(nsend*sizeof(struct pack_plan_2d));
 
-    if (plan->send_offset == NULL || plan->send_size == NULL || 
-	plan->send_proc == NULL || plan->packplan == NULL) return NULL;
+    if (plan->send_offset == NULL || plan->send_size == NULL ||
+        plan->send_proc == NULL || plan->packplan == NULL) return NULL;
   }
 
 /* store send info, with self as last entry */
@@ -226,8 +226,8 @@ struct remap_plan_2d *remap_2d_create_plan(
     if (iproc == nprocs) iproc = 0;
     if (remap_2d_collide(&in,&array[iproc],&overlap)) {
       plan->send_proc[nsend] = iproc;
-      plan->send_offset[nsend] = nqty * ((overlap.jlo-in.jlo)*in.isize + 
-					(overlap.ilo-in.ilo));
+      plan->send_offset[nsend] = nqty * ((overlap.jlo-in.jlo)*in.isize +
+                                        (overlap.ilo-in.ilo));
       plan->packplan[nsend].nfast = nqty*overlap.isize;
       plan->packplan[nsend].nslow = overlap.jsize;
       plan->packplan[nsend].nstride = nqty*in.isize;
@@ -247,7 +247,7 @@ struct remap_plan_2d *remap_2d_create_plan(
 /* combine input extents across all procs */
 
   MPI_Allgather(&in,sizeof(struct extent_2d),MPI_BYTE,
-		array,sizeof(struct extent_2d),MPI_BYTE,comm);
+                array,sizeof(struct extent_2d),MPI_BYTE,comm);
 
 /* count recv collides, including self */
 
@@ -258,29 +258,29 @@ struct remap_plan_2d *remap_2d_create_plan(
     if (iproc == nprocs) iproc = 0;
     nrecv += remap_2d_collide(&out,&array[iproc],&overlap);
   }
-  
+
 /* malloc space for recv info */
 
   if (nrecv) {
     if (precision == 1) {
       if (permute == 0)
-	plan->unpack = NULL;
+        plan->unpack = NULL;
       else if (nqty == 1)
-	plan->unpack = NULL;
+        plan->unpack = NULL;
       else if (nqty == 2)
-	plan->unpack = NULL;
+        plan->unpack = NULL;
       else
-	plan->unpack = NULL;
+        plan->unpack = NULL;
     }
     else if (precision == 2) {
       if (permute == 0)
-	plan->unpack = unpack_2d;
+        plan->unpack = unpack_2d;
       else if (nqty == 1)
-	plan->unpack = unpack_2d_permute_1;
+        plan->unpack = unpack_2d_permute_1;
       else if (nqty == 2)
-	plan->unpack = unpack_2d_permute_2;
+        plan->unpack = unpack_2d_permute_2;
       else
-	plan->unpack = unpack_2d_permute_n;
+        plan->unpack = unpack_2d_permute_n;
     }
 
     plan->recv_offset = (int *) malloc(nrecv*sizeof(int));
@@ -288,12 +288,12 @@ struct remap_plan_2d *remap_2d_create_plan(
     plan->recv_proc = (int *) malloc(nrecv*sizeof(int));
     plan->recv_bufloc = (int *) malloc(nrecv*sizeof(int));
     plan->request = (MPI_Request *) malloc(nrecv*sizeof(MPI_Request));
-    plan->unpackplan = (struct pack_plan_2d *) 
+    plan->unpackplan = (struct pack_plan_2d *)
       malloc(nrecv*sizeof(struct pack_plan_2d));
 
-    if (plan->recv_offset == NULL || plan->recv_size == NULL || 
-	plan->recv_proc == NULL || plan->recv_bufloc == NULL ||
-	plan->request == NULL || plan->unpackplan == NULL) return NULL;
+    if (plan->recv_offset == NULL || plan->recv_size == NULL ||
+        plan->recv_proc == NULL || plan->recv_bufloc == NULL ||
+        plan->request == NULL || plan->unpackplan == NULL) return NULL;
   }
 
 /* store recv info, with self as last entry */
@@ -310,20 +310,20 @@ struct remap_plan_2d *remap_2d_create_plan(
       plan->recv_bufloc[nrecv] = ibuf;
 
       if (permute == 0) {
-	plan->recv_offset[nrecv] = nqty * ((overlap.jlo-out.jlo)*out.isize + 
-					  (overlap.ilo-out.ilo));
-	plan->unpackplan[nrecv].nfast = nqty*overlap.isize;
-	plan->unpackplan[nrecv].nslow = overlap.jsize;
-	plan->unpackplan[nrecv].nstride = nqty*out.isize;
-	plan->unpackplan[nrecv].nqty = nqty;
+        plan->recv_offset[nrecv] = nqty * ((overlap.jlo-out.jlo)*out.isize +
+                                          (overlap.ilo-out.ilo));
+        plan->unpackplan[nrecv].nfast = nqty*overlap.isize;
+        plan->unpackplan[nrecv].nslow = overlap.jsize;
+        plan->unpackplan[nrecv].nstride = nqty*out.isize;
+        plan->unpackplan[nrecv].nqty = nqty;
       }
       else {
-	plan->recv_offset[nrecv] = nqty * ((overlap.ilo-out.ilo)*out.jsize + 
-					  (overlap.jlo-out.jlo));
-	plan->unpackplan[nrecv].nfast = overlap.isize;
-	plan->unpackplan[nrecv].nslow = overlap.jsize;
-	plan->unpackplan[nrecv].nstride = nqty*out.jsize;
-	plan->unpackplan[nrecv].nqty = nqty;
+        plan->recv_offset[nrecv] = nqty * ((overlap.ilo-out.ilo)*out.jsize +
+                                          (overlap.jlo-out.jlo));
+        plan->unpackplan[nrecv].nfast = overlap.isize;
+        plan->unpackplan[nrecv].nslow = overlap.jsize;
+        plan->unpackplan[nrecv].nstride = nqty*out.jsize;
+        plan->unpackplan[nrecv].nqty = nqty;
       }
 
       plan->recv_size[nrecv] = nqty*overlap.isize*overlap.jsize;
@@ -376,10 +376,10 @@ struct remap_plan_2d *remap_2d_create_plan(
   if (memory == 1) {
     if (nrecv > 0) {
       if (precision == 1)
-	plan->scratch = NULL;
+        plan->scratch = NULL;
       else
-	plan->scratch =
-	  (double *) malloc(nqty*out.isize*out.jsize*sizeof(double));
+        plan->scratch =
+          (double *) malloc(nqty*out.isize*out.jsize*sizeof(double));
       if (plan->scratch == NULL) return NULL;
     }
   }
@@ -441,14 +441,14 @@ void remap_2d_destroy_plan(struct remap_plan_2d *plan)
    return 0 if they do not overlap */
 
 int remap_2d_collide(struct extent_2d *block1, struct extent_2d *block2,
-		     struct extent_2d *overlap)
+                     struct extent_2d *overlap)
 
 {
   overlap->ilo = MAX(block1->ilo,block2->ilo);
   overlap->ihi = MIN(block1->ihi,block2->ihi);
   overlap->jlo = MAX(block1->jlo,block2->jlo);
   overlap->jhi = MIN(block1->jhi,block2->jhi);
-  
+
   if (overlap->ilo > overlap->ihi || overlap->jlo > overlap->jhi) return 0;
 
   overlap->isize = overlap->ihi - overlap->ilo + 1;

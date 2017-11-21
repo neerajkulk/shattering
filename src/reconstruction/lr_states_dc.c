@@ -8,7 +8,7 @@
  * - W_{L,i-1/2} is denoted by Wl[i  ];   W_{R,i-1/2} is denoted by Wr[i  ]
  * - W_{L,i+1/2} is denoted by Wl[i+1];   W_{R,i+1/2} is denoted by Wr[i+1]
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - lr_states()          - computes L/R states
  * - lr_states_init()     - NoOp function in this case
  * - lr_states_destruct() - NoOp function in this case			      */
@@ -28,7 +28,7 @@
 /*! \fn void lr_states(const GridS *pG, const Prim1DS W[], const Real Bxc[],
  *               const Real dt, const Real dx, const int il, const int iu,
  *               Prim1DS Wl[], Prim1DS Wr[], const enum DIRECTION dir)
- * \brief Computes L/R states 
+ * \brief Computes L/R states
  *
  * Input Arguments:
  * - W = PRIMITIVE variables at cell centers along 1-D slice
@@ -44,7 +44,7 @@
 void lr_states(const GridS *pG __attribute__((unused)),
                const Prim1DS W[], const Real Bxc[],
                const Real dt, const Real dx, const int il, const int iu,
-               Prim1DS Wl[], Prim1DS Wr[], 
+               Prim1DS Wl[], Prim1DS Wr[],
                const int dir __attribute__((unused)))
 {
   int i;

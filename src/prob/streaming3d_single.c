@@ -185,10 +185,10 @@ void problem(DomainS *pDomain)
   if (ipert == 2) {
     Kxn   =  6.0;
     Kzn   =  6.0;
-    Reux  = -0.0174121*amp; 
-    Imux  = -0.2770347*amp; 
+    Reux  = -0.0174121*amp;
+    Imux  = -0.2770347*amp;
     Reuy  =  0.2767976*amp;
-    Imuy  = -0.0187568*amp; 
+    Imuy  = -0.0187568*amp;
     Reuz  =  0.0174130*amp;
     Imuz  =  0.2770423*amp;
     Rerho = -0.0000067*amp;
@@ -210,7 +210,7 @@ void problem(DomainS *pDomain)
   grproperty[0].m = rho0*mratio/Npar3;
 #endif
 
-  /* Adjust code units */ 
+  /* Adjust code units */
   if ((ipert == 1) || (ipert == 2))
   {
     if (Lx != Lz)
@@ -460,7 +460,7 @@ void problem_read_restart(MeshS *pM, FILE *fp)
   return;
 }
 
-/*! \fn static Real expr_rhodif(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_rhodif(const GridS *pG, const int i, const int j,
  *			        const int k)
  *  \brief difd */
 static Real expr_rhodif(const GridS *pG, const int i, const int j, const int k)
@@ -470,7 +470,7 @@ static Real expr_rhodif(const GridS *pG, const int i, const int j, const int k)
   return pG->U[k][j][i].d - rho0;
 }
 
-/*! \fn static Real expr_dVx(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_dVx(const GridS *pG, const int i, const int j,
  *			     const int k)
  *  \brief dVx */
 static Real expr_dVx(const GridS *pG, const int i, const int j, const int k)
@@ -480,7 +480,7 @@ static Real expr_dVx(const GridS *pG, const int i, const int j, const int k)
   return pG->U[k][j][i].M1/pG->U[k][j][i].d - uxNSH;
 }
 
-/*! \fn static Real expr_dVy(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_dVy(const GridS *pG, const int i, const int j,
  *			     const int k)
  *  \brief dVy */
 static Real expr_dVy(const GridS *pG, const int i, const int j, const int k)
@@ -494,7 +494,7 @@ static Real expr_dVy(const GridS *pG, const int i, const int j, const int k)
 #endif
 }
 
-/*! \fn static Real expr_rhopardif(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_rhopardif(const GridS *pG, const int i, const int j,
  *				   const int k)
  *  \brief difdpar */
 static Real expr_rhopardif(const GridS *pG, const int i, const int j, const int k)
@@ -504,7 +504,7 @@ static Real expr_rhopardif(const GridS *pG, const int i, const int j, const int 
 return pG->Coup[k][j][i].grid_d - rho0*mratio;
 }
 
-/*! \fn static Real expr_dVxpar(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_dVxpar(const GridS *pG, const int i, const int j,
  *				const int k)
  *  \brief dVxpar */
 static Real expr_dVxpar(const GridS *pG, const int i, const int j, const int k)
@@ -514,7 +514,7 @@ static Real expr_dVxpar(const GridS *pG, const int i, const int j, const int k)
   return expr_V1par(pG,i,j,k) - wxNSH;
 }
 
-/*! \fn static Real expr_dVypar(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_dVypar(const GridS *pG, const int i, const int j,
  *			        const int k)
  *  \brief dVypar */
 static Real expr_dVypar(const GridS *pG, const int i, const int j, const int k)
@@ -584,7 +584,7 @@ void Userwork_after_loop(MeshS *pM)
 {
   return;
 }
- 
+
 
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 /*--------------------------------------------------------------------------- */

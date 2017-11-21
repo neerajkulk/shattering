@@ -12,7 +12,7 @@
 #include "globals.h"
 #include "prototypes.h"
 
-/*============================================================================* 
+/*============================================================================*
  * PRIVATE FUNCTION PROTOTYPES:
  *============================================================================*/
 
@@ -72,7 +72,7 @@ void problem(DomainS *pDomain)
     fprintf(stdout,"[collapse3d]: bx0       = %13.5e\n",bx0);
     fprintf(stdout,"[collapse3d]: by0       = %13.5e\n",by0);
     fprintf(stdout,"[collapse3d]: bz0       = %13.5e\n",bz0);
-#endif  
+#endif
     fprintf(stdout,"[collapse3d]: x10       = %13.5e\n",x10);
     fprintf(stdout,"[collapse3d]: x20       = %13.5e\n",x20);
     fprintf(stdout,"[collapse3d]: x30       = %13.5e\n",x30);
@@ -86,7 +86,7 @@ void problem(DomainS *pDomain)
   is = pGrid->is; ie = pGrid->ie;
   js = pGrid->js; je = pGrid->je;
   ks = pGrid->ks; ke = pGrid->ke;
-  nx1 = (ie-is)+1; 
+  nx1 = (ie-is)+1;
   nx2 = (je-js)+1;
   nx3 = (ke-ks)+1;
   ndim = 1;
@@ -137,7 +137,7 @@ void problem(DomainS *pDomain)
         for (i=is; i<=ie; i++) {
           /* these are cell centers */
           cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-          r2  = sqrt(SQR(x1-x10)+SQR(x2-x20)+SQR(x3-x30));          
+          r2  = sqrt(SQR(x1-x10)+SQR(x2-x20)+SQR(x3-x30));
           switch (iwhich) {
           case 0: {
             pGrid->U[k][j][i].d = d0 +
@@ -149,7 +149,7 @@ void problem(DomainS *pDomain)
              (0.75*d0/(PI*radius*radius*radius))*pow((1.0+SQR(r2/radius)),-2.5);
             break;
           }
-	  default: ath_error("[collapse3d]: invalid iwhich\n");
+          default: ath_error("[collapse3d]: invalid iwhich\n");
           }
           pGrid->U[k][j][i].M1 = 0.0;
           pGrid->U[k][j][i].M2 = 0.0;
@@ -162,10 +162,10 @@ void problem(DomainS *pDomain)
         } /* i */
       } /* j */
     } /* k */
-    if (myid == 0) 
+    if (myid == 0)
       fprintf(stdout,"[collapse3d]: 3D setup finished\n");
   }
- 
+
 /* boundary conditions on interface B */
 #ifdef MHD
   for (k=ks; k<=ke; k++) {
@@ -230,7 +230,7 @@ void problem_write_restart(MeshS *pM, FILE *fp)
   return;
 }
 
-/* problem restart needs to enroll cooling function and boundary conditions. 
+/* problem restart needs to enroll cooling function and boundary conditions.
  */
 
 void problem_read_restart(MeshS *pM, FILE *fp)

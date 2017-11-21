@@ -5,7 +5,7 @@
  *
  * PURPOSE: Problem generator for two interacting blast waves test.
  *
- * REFERENCE: P. Woodward & P. Colella, "The numerical simulation of 
+ * REFERENCE: P. Woodward & P. Colella, "The numerical simulation of
  *   two-dimensional fluid flow with strong shocks", JCP, 54, 115, sect. IVa  */
 /*============================================================================*/
 
@@ -45,24 +45,24 @@ void problem(DomainS *pDomain)
 /* setup dependent variables in X1-direction */
     for (k=ks; k<=ke; k++) {
       for (j=js; j<=je; j++) {
-	for (i=is; i<=ie; i++) {
+        for (i=is; i<=ie; i++) {
 /* Calculate the cell center position of the cell i,j,k */
-	  cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+          cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
 
-	  pGrid->U[k][j][i].d = 1.0;
-	  pGrid->U[k][j][i].M1 = 0.0;
-	  pGrid->U[k][j][i].M2 = 0.0;
-	  pGrid->U[k][j][i].M3 = 0.0;
-	  if (x1 < 0.1) {
-	    pGrid->U[k][j][i].E = 1.0e3/Gamma_1 ;
-	  }
-	  else if (x1 > 0.9) {
-	    pGrid->U[k][j][i].E = 1.0e2/Gamma_1 ;
-	  }
-	  else {
-	    pGrid->U[k][j][i].E = 0.01/Gamma_1 ;
-	  }
-	}
+          pGrid->U[k][j][i].d = 1.0;
+          pGrid->U[k][j][i].M1 = 0.0;
+          pGrid->U[k][j][i].M2 = 0.0;
+          pGrid->U[k][j][i].M3 = 0.0;
+          if (x1 < 0.1) {
+            pGrid->U[k][j][i].E = 1.0e3/Gamma_1 ;
+          }
+          else if (x1 > 0.9) {
+            pGrid->U[k][j][i].E = 1.0e2/Gamma_1 ;
+          }
+          else {
+            pGrid->U[k][j][i].E = 0.01/Gamma_1 ;
+          }
+        }
       }
     }
   }
@@ -70,24 +70,24 @@ void problem(DomainS *pDomain)
 /* setup dependent variables in X2-direction */
     for (k=ks; k<=ke; k++) {
       for (j=js; j<=je; j++) {
-	for (i=is; i<=ie; i++) {
+        for (i=is; i<=ie; i++) {
 /* Calculate the cell center position of the cell i,j,k */
-	  cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+          cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
 
-	  pGrid->U[k][j][i].d = 1.0;
-	  pGrid->U[k][j][i].M1 = 0.0;
-	  pGrid->U[k][j][i].M2 = 0.0;
-	  pGrid->U[k][j][i].M3 = 0.0;
-	  if (x2 < 0.1) {
-	    pGrid->U[k][j][i].E = 1.0e3/Gamma_1 ;
-	  }
-	  else if (x2 > 0.9) {
-	    pGrid->U[k][j][i].E = 1.0e2/Gamma_1 ;
-	  }
-	  else {
-	    pGrid->U[k][j][i].E = 0.01/Gamma_1 ;
-	  }
-	}
+          pGrid->U[k][j][i].d = 1.0;
+          pGrid->U[k][j][i].M1 = 0.0;
+          pGrid->U[k][j][i].M2 = 0.0;
+          pGrid->U[k][j][i].M3 = 0.0;
+          if (x2 < 0.1) {
+            pGrid->U[k][j][i].E = 1.0e3/Gamma_1 ;
+          }
+          else if (x2 > 0.9) {
+            pGrid->U[k][j][i].E = 1.0e2/Gamma_1 ;
+          }
+          else {
+            pGrid->U[k][j][i].E = 0.01/Gamma_1 ;
+          }
+        }
       }
     }
   }
@@ -95,24 +95,24 @@ void problem(DomainS *pDomain)
 /* setup dependent variables in X3-direction */
     for (k=ks; k<=ke; k++) {
       for (j=js; j<=je; j++) {
-	for (i=is; i<=ie; i++) {
+        for (i=is; i<=ie; i++) {
 /* Calculate the cell center position of the cell i,j,k */
-	  cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+          cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
 
-	  pGrid->U[k][j][i].d = 1.0;
-	  pGrid->U[k][j][i].M1 = 0.0;
-	  pGrid->U[k][j][i].M2 = 0.0;
-	  pGrid->U[k][j][i].M3 = 0.0;
-	  if (x3 < 0.1) {
-	    pGrid->U[k][j][i].E = 1.0e3/Gamma_1 ;
-	  }
-	  else if (x3 > 0.9) {
-	    pGrid->U[k][j][i].E = 1.0e2/Gamma_1 ;
-	  }
-	  else {
-	    pGrid->U[k][j][i].E = 0.01/Gamma_1 ;
-	  }
-	}
+          pGrid->U[k][j][i].d = 1.0;
+          pGrid->U[k][j][i].M1 = 0.0;
+          pGrid->U[k][j][i].M2 = 0.0;
+          pGrid->U[k][j][i].M3 = 0.0;
+          if (x3 < 0.1) {
+            pGrid->U[k][j][i].E = 1.0e3/Gamma_1 ;
+          }
+          else if (x3 > 0.9) {
+            pGrid->U[k][j][i].E = 1.0e2/Gamma_1 ;
+          }
+          else {
+            pGrid->U[k][j][i].E = 0.01/Gamma_1 ;
+          }
+        }
       }
     }
   }

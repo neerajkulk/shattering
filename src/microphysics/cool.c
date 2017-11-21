@@ -1,22 +1,22 @@
 #include "../copyright.h"
 /*============================================================================*/
 /*! \file cool.c
- *  \brief Implements various optically thin cooling functions.  
+ *  \brief Implements various optically thin cooling functions.
  *
  *  These can be
  *  enrolled by setting CoolingFunc=NAME in the problem generator, where NAME
  *  is one of the functions in this file.
  *
- *  Each cooling function returns the cooling rate per volume.  The total 
+ *  Each cooling function returns the cooling rate per volume.  The total
  *  (or equivalently the internal) energy then evolves as
  *   -   dE/dt = de/dt = - CoolingFunc
  *
  *  Some of these cooling functions return the cooling rate per volume in
  *  cgs units [ergs/cm^{3}/s].  Thus, to use these functions, the entire
  *  calculation must be in cgs, or else the cooling rate has to scaled
- *  appropriately in the calling function. 
+ *  appropriately in the calling function.
  *
- *  To add a new cooling function, implement it below and add the name to 
+ *  To add a new cooling function, implement it below and add the name to
  *  src/microphysics/prototypes.h.  Note the argument list must be (d,P,dt).
  *
  * CONTAINS PUBLIC FUNCTIONS:
@@ -49,11 +49,11 @@ Real KoyInut(const Real dens, const Real Press, const Real dt)
 {
   Real n,coolrate=0.0;
   Real T,coolratepp,MaxdT,dT;
-	Real Teq, logn, lognT;
+        Real Teq, logn, lognT;
 
 /* Compute number density and Temperature */
   n = dens/mbar;
-	logn = log10(n);
+        logn = log10(n);
   T = MAX((Press/(n*kb)),Tmin);
 
 /* Compute the minimun Temperature*/

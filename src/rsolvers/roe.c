@@ -11,7 +11,7 @@
  * - P. Roe, "Approximate Riemann solvers, parameter vectors, and difference
  *   schemes", JCP, 43, 357 (1981).
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - fluxes() - all Riemann solvers in Athena must have this function name and
  *              use the same argument list as defined in rsolvers/prototypes.h
  * - HLLE_FUNCTION - since the HLLE solver is requird in conjunction with the
@@ -153,7 +153,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 #endif /* MHD */
 
 /*--- Step 4. ------------------------------------------------------------------
- * Compute L/R fluxes 
+ * Compute L/R fluxes
  */
 
   Fl.d  = Ul.Mx;
@@ -185,7 +185,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 
   Fl.My -= Bxi*Wl.By;
   Fr.My -= Bxi*Wr.By;
-    
+
   Fl.Mz -= Bxi*Wl.Bz;
   Fr.Mz -= Bxi*Wr.Bz;
 
@@ -260,19 +260,19 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
   for (n=0; n<NWAVE-1; n++) {
     for (m=0; m<NWAVE; m++) u_inter[m] += a[n]*rem[m][n];
     if(ev[n+1] > ev[n]) {
-      if (u_inter[0] <= 0.0) {
-	hlle_flag=1;
-	break;
+      if (u_inter[0] != u_inter[0] || u_inter[0] <= 0.0) {
+        hlle_flag=1;
+        break;
       }
 #ifdef ADIABATIC
       p_inter = u_inter[4] - 0.5*
-	(SQR(u_inter[1])+SQR(u_inter[2])+SQR(u_inter[3]))/u_inter[0];
+        (SQR(u_inter[1])+SQR(u_inter[2])+SQR(u_inter[3]))/u_inter[0];
 #ifdef MHD
       p_inter -= 0.5*(SQR(u_inter[NWAVE-2])+SQR(u_inter[NWAVE-1])+SQR(Bxi));
 #endif
-      if (p_inter < 0.0) {
-	hlle_flag=2;
-	break;
+      if (p_inter != p_inter || p_inter < 0.0) {
+        hlle_flag=2;
+        break;
       }
 #endif
     }
@@ -290,7 +290,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 
   pFl = (Real *)&(Fl);
   pFr = (Real *)&(Fr);
-  pF  = (Real *)(pFlux); 
+  pF  = (Real *)(pFlux);
 
   for (m=0; m<NWAVE; m++) {
     coeff[m] = 0.5*MAX(fabs(ev[m]),etah)*a[m];
@@ -331,6 +331,23 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 
   pFlux->Pflux = Eint*Gamma_1 + Emag;
 #endif /* CYLINDRICAL && NOT BAROTROPIC */
+
+  /* added by mkmcc */
+  if ((pFlux->d != pFlux->d)
+      || (pFlux->Mx != pFlux->Mx)
+      || (pFlux->My != pFlux->My)
+      || (pFlux->Mz != pFlux->Mz)
+#ifndef BAROTROPIC
+      || (pFlux->E != pFlux->E)
+#endif
+#ifdef MHD
+      || (pFlux->By != pFlux->By)
+      || (pFlux->Bz != pFlux->Bz)
+#endif
+      ) {
+      flux_hlle(Ul,Ur,Wl,Wr,Bxi,pFlux);
+      return;
+      }
 
   return;
 }

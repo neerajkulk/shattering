@@ -20,12 +20,12 @@
  *   First rotate about the y axis:
  *   - x' = x*cos(ang_2) - z*sin(ang_2)
  *   - y' = y
- *   - z' = x*sin(ang_2) + z*cos(ang_2) 
+ *   - z' = x*sin(ang_2) + z*cos(ang_2)
  *
  *   Next rotate about the z' axis:
  *   - x = x'*cos(ang_3) - y'*sin(ang_3)
  *   - y = x'*sin(ang_3) + y'*cos(ang_3)
- *   - z = z' 
+ *   - z = z'
  *
  *   Expanding this out we get:
  *   - x1 = x*cos(ang_2)*cos(ang_3) - y*sin(ang_3) - z*sin(ang_2)*cos(ang_3)
@@ -141,7 +141,7 @@ void problem(DomainS *pDomain)
 
   tlim = par_getd("time","tlim");
 
-  x1size = pDomain->RootMaxX[0] - pDomain->RootMinX[0]; 
+  x1size = pDomain->RootMaxX[0] - pDomain->RootMinX[0];
   x2size = pDomain->RootMaxX[1] - pDomain->RootMinX[1];
   x3size = pDomain->RootMaxX[2] - pDomain->RootMinX[2];
 
@@ -150,16 +150,16 @@ void problem(DomainS *pDomain)
  *  For wavevector along grid diagonal, do not input values for ang_2/ang_3.
  *  Code below will automatically calculate these imposing periodicity and
  *  exactly one wavelength along each grid direction */
-  
+
 /* User should never input -999.9 in angles */
   if (ang_3 == -999.9) ang_3 = atan(x1size/x2size);
   sin_a3 = sin(ang_3);
   cos_a3 = cos(ang_3);
-  
+
   if (ang_2 == -999.9) ang_2 = atan(0.5*(x1size*cos_a3 + x2size*sin_a3)/x3size);
-  sin_a2 = sin(ang_2); 
+  sin_a2 = sin(ang_2);
   cos_a2 = cos(ang_2);
-  
+
   x1 = x1size*cos_a2*cos_a3;
   x2 = x2size*cos_a2*sin_a3;
   x3 = x3size*sin_a2;
@@ -172,7 +172,7 @@ void problem(DomainS *pDomain)
 
 /* Initialize k_parallel */
   k_par = 2.0*PI/lambda;
-  
+
   den = 1.0;
   v_A    = b_par/sqrt((double)den);
   ath_pout(0,"va_parallel = %g\n",v_A);
@@ -207,13 +207,13 @@ void problem(DomainS *pDomain)
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie+1; i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-	x1 -= 0.5*dx1;
-	x2 -= 0.5*dx2;
-	x3 -= 0.5*dx3;
-	pGrid->B1i[k][j][i] = 
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        x1 -= 0.5*dx1;
+        x2 -= 0.5*dx2;
+        x3 -= 0.5*dx3;
+        pGrid->B1i[k][j][i] =
            (A3(x1,x2+dx2 ,x3+hdx3,0.0) - A3(x1,x2,x3+hdx3,0.0))/dx2 -
-	   (A2(x1,x2+hdx2,x3+dx3 ,0.0) - A2(x1,x2+hdx2,x3,0.0))/dx3;
+           (A2(x1,x2+hdx2,x3+dx3 ,0.0) - A2(x1,x2+hdx2,x3,0.0))/dx3;
       }
     }
   }
@@ -257,13 +257,13 @@ void problem(DomainS *pDomain)
         }
       }
     }
-  } else { 
+  } else {
     for (j=js; j<=je; j++) {
-      for (i=is; i<=ie; i++) { 
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-	x1 -= 0.5*dx1;
-	x2 -= 0.5*dx2;
-	x3 -= 0.5*dx3;
+      for (i=is; i<=ie; i++) {
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        x1 -= 0.5*dx1;
+        x2 -= 0.5*dx2;
+        x3 -= 0.5*dx3;
         pGrid->B3i[ks][j][i] =
            (A2(x1+dx1,x2+hdx2,x3,0.0) - A2(x1,x2+hdx2,x3,0.0))/dx1 -
            (A1(x1+hdx1,x2+dx2,x3,0.0) - A1(x1+hdx1,x2,x3,0.0))/dx2;
@@ -308,12 +308,12 @@ void problem(DomainS *pDomain)
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-	x = cos_a2*(x1*cos_a3 + x2*sin_a3) + x3*sin_a2;
-	sn = sin(k_par*x);
-	cs = fac*cos(k_par*x);
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        x = cos_a2*(x1*cos_a3 + x2*sin_a3) + x3*sin_a2;
+        sn = sin(k_par*x);
+        cs = fac*cos(k_par*x);
 
-	pGrid->U[k][j][i].d  = den;
+        pGrid->U[k][j][i].d  = den;
 
         Mx = den*v_par;
         My = -fac*den*v_perp*sn;
@@ -325,26 +325,26 @@ void problem(DomainS *pDomain)
 
 
 /*
-	pGrid->U[k][j][i].M1 = den*(v_par*cos_a2*cos_a3 +
-				    v_perp*sn*sin_a3 +
-				    v_perp*cs*sin_a2*cos_a3);
+        pGrid->U[k][j][i].M1 = den*(v_par*cos_a2*cos_a3 +
+                                    v_perp*sn*sin_a3 +
+                                    v_perp*cs*sin_a2*cos_a3);
 
-	pGrid->U[k][j][i].M2 = den*(v_par*cos_a2*sin_a3 -
-				    v_perp*sn*cos_a3 +
-				    v_perp*cs*sin_a2*sin_a3);
+        pGrid->U[k][j][i].M2 = den*(v_par*cos_a2*sin_a3 -
+                                    v_perp*sn*cos_a3 +
+                                    v_perp*cs*sin_a2*sin_a3);
 
-	pGrid->U[k][j][i].M3 = den*(v_par*sin_a2 -
-				    v_perp*cs*cos_a2);
+        pGrid->U[k][j][i].M3 = den*(v_par*sin_a2 -
+                                    v_perp*cs*cos_a2);
 */
 
 #ifndef ISOTHERMAL
-	pGrid->U[k][j][i].E = pres/Gamma_1 
-	  + 0.5*(SQR(pGrid->U[k][j][i].B1c) +
-		 SQR(pGrid->U[k][j][i].B2c) +
-		 SQR(pGrid->U[k][j][i].B3c) )
-	  + 0.5*(SQR(pGrid->U[k][j][i].M1) +
-		 SQR(pGrid->U[k][j][i].M2) +
-		 SQR(pGrid->U[k][j][i].M3) )/den;
+        pGrid->U[k][j][i].E = pres/Gamma_1
+          + 0.5*(SQR(pGrid->U[k][j][i].B1c) +
+                 SQR(pGrid->U[k][j][i].B2c) +
+                 SQR(pGrid->U[k][j][i].B3c) )
+          + 0.5*(SQR(pGrid->U[k][j][i].M1) +
+                 SQR(pGrid->U[k][j][i].M2) +
+                 SQR(pGrid->U[k][j][i].M3) )/den;
 #endif
 
       }
@@ -361,28 +361,28 @@ void problem(DomainS *pDomain)
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-	x1 -= 0.5*dx1;
-	x2 -= 0.5*dx2;
-	x3 -= 0.5*dx3;
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        x1 -= 0.5*dx1;
+        x2 -= 0.5*dx2;
+        x3 -= 0.5*dx3;
 
-	RootSoln[k][j][i].B1c = 0.5*(
+        RootSoln[k][j][i].B1c = 0.5*(
            (A3(x1,x2+dx2 ,x3+hdx3,vdt) - A3(x1,x2,x3+hdx3,vdt))/dx2 -
-	   (A2(x1,x2+hdx2,x3+dx3 ,vdt) - A2(x1,x2+hdx2,x3,vdt))/dx3 +
+           (A2(x1,x2+hdx2,x3+dx3 ,vdt) - A2(x1,x2+hdx2,x3,vdt))/dx3 +
            (A3(x1+dx1,x2+dx2 ,x3+hdx3,vdt) - A3(x1+dx1,x2,x3+hdx3,vdt))/dx2 -
-	   (A2(x1+dx1,x2+hdx2,x3+dx3 ,vdt) - A2(x1+dx1,x2+hdx2,x3,vdt))/dx3);
+           (A2(x1+dx1,x2+hdx2,x3+dx3 ,vdt) - A2(x1+dx1,x2+hdx2,x3,vdt))/dx3);
 
-	RootSoln[k][j][i].B2c = 0.5*(
+        RootSoln[k][j][i].B2c = 0.5*(
            (A1(x1+hdx1,x2,x3+dx3 ,vdt) - A1(x1+hdx1,x2,x3,vdt))/dx3 -
-	   (A3(x1+dx1 ,x2,x3+hdx3,vdt) - A3(x1,x2,x3+hdx3,vdt))/dx1 +
+           (A3(x1+dx1 ,x2,x3+hdx3,vdt) - A3(x1,x2,x3+hdx3,vdt))/dx1 +
            (A1(x1+hdx1,x2+dx2,x3+dx3 ,vdt) - A1(x1+hdx1,x2+dx2,x3,vdt))/dx3 -
-	   (A3(x1+dx1 ,x2+dx2,x3+hdx3,vdt) - A3(x1,x2+dx2,x3+hdx3,vdt))/dx1);
+           (A3(x1+dx1 ,x2+dx2,x3+hdx3,vdt) - A3(x1,x2+dx2,x3+hdx3,vdt))/dx1);
 
-	RootSoln[k][j][i].B3c = 0.5*(
+        RootSoln[k][j][i].B3c = 0.5*(
            (A2(x1+dx1,x2+hdx2,x3,vdt) - A2(x1,x2+hdx2,x3,vdt))/dx1 -
-	   (A1(x1+hdx1,x2+dx2,x3,vdt) - A1(x1+hdx1,x2,x3,vdt))/dx2 +
+           (A1(x1+hdx1,x2+dx2,x3,vdt) - A1(x1+hdx1,x2,x3,vdt))/dx2 +
            (A2(x1+dx1,x2+hdx2,x3+dx3,vdt) - A2(x1,x2+hdx2,x3+dx3,vdt))/dx1 -
-	   (A1(x1+hdx1,x2+dx2,x3+dx3,vdt) - A1(x1+hdx1,x2,x3+dx3,vdt))/dx2);
+           (A1(x1+hdx1,x2+dx2,x3+dx3,vdt) - A1(x1+hdx1,x2,x3+dx3,vdt))/dx2);
       }
     }
   }
@@ -392,12 +392,12 @@ void problem(DomainS *pDomain)
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-	x = cos_a2*(x1*cos_a3 + x2*sin_a3) + x3*sin_a2;
-	sn = sin(k_par*(x - vdt));
-	cs = fac*cos(k_par*(x - vdt));
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        x = cos_a2*(x1*cos_a3 + x2*sin_a3) + x3*sin_a2;
+        sn = sin(k_par*(x - vdt));
+        cs = fac*cos(k_par*(x - vdt));
 
-	RootSoln[k][j][i].d  = den;
+        RootSoln[k][j][i].d  = den;
 
         Mx = den*v_par;
         My = -fac*den*v_perp*sn;
@@ -408,26 +408,26 @@ void problem(DomainS *pDomain)
         RootSoln[k][j][i].M3 = Mx*sin_a2                    + Mz*cos_a2;
 
 /*
-	RootSoln[k][j][i].M1 = den*(v_par*cos_a2*cos_a3 +
-				    v_perp*sn*sin_a3 +
-				    v_perp*cs*sin_a2*cos_a3);
+        RootSoln[k][j][i].M1 = den*(v_par*cos_a2*cos_a3 +
+                                    v_perp*sn*sin_a3 +
+                                    v_perp*cs*sin_a2*cos_a3);
 
-	RootSoln[k][j][i].M2 = den*(v_par*cos_a2*sin_a3 -
-				    v_perp*sn*cos_a3 +
-				    v_perp*cs*sin_a2*sin_a3);
+        RootSoln[k][j][i].M2 = den*(v_par*cos_a2*sin_a3 -
+                                    v_perp*sn*cos_a3 +
+                                    v_perp*cs*sin_a2*sin_a3);
 
-	RootSoln[k][j][i].M3 = den*(v_par*sin_a2 -
-				    v_perp*cs*cos_a2);
+        RootSoln[k][j][i].M3 = den*(v_par*sin_a2 -
+                                    v_perp*cs*cos_a2);
 */
 
 #ifndef ISOTHERMAL
-	RootSoln[k][j][i].E = pres/Gamma_1 
-	  + 0.5*(SQR(RootSoln[k][j][i].B1c) +
-		 SQR(RootSoln[k][j][i].B2c) +
-		 SQR(RootSoln[k][j][i].B3c) )
-	  + 0.5*(SQR(RootSoln[k][j][i].M1) +
-		 SQR(RootSoln[k][j][i].M2) +
-		 SQR(RootSoln[k][j][i].M3) )/den;
+        RootSoln[k][j][i].E = pres/Gamma_1
+          + 0.5*(SQR(RootSoln[k][j][i].B1c) +
+                 SQR(RootSoln[k][j][i].B2c) +
+                 SQR(RootSoln[k][j][i].B3c) )
+          + 0.5*(SQR(RootSoln[k][j][i].M1) +
+                 SQR(RootSoln[k][j][i].M2) +
+                 SQR(RootSoln[k][j][i].M3) )/den;
 #endif
 
       }
@@ -447,7 +447,7 @@ void problem(DomainS *pDomain)
  * Userwork_in_loop        - problem specific work IN     main loop
  * Userwork_after_loop     - problem specific work AFTER  main loop
  *----------------------------------------------------------------------------*/
-        
+
 void problem_write_restart(MeshS *pM, FILE *fp)
 {
   return;
@@ -474,7 +474,7 @@ void get_eta_user(GridS *pG, int i, int j, int k,
   *eta_O = 0.0;
   *eta_H = 0.0;
   *eta_A = 0.0;
-  
+
   return;
 }
 #endif
@@ -541,7 +541,7 @@ void Userwork_after_loop(MeshS *pM)
       error.d   += fabs(pGrid->U[k][j][i].d   - RootSoln[k][j][i].d);
       error.M1  += fabs(pGrid->U[k][j][i].M1  - RootSoln[k][j][i].M1);
       error.M2  += fabs(pGrid->U[k][j][i].M2  - RootSoln[k][j][i].M2);
-      error.M3  += fabs(pGrid->U[k][j][i].M3  - RootSoln[k][j][i].M3); 
+      error.M3  += fabs(pGrid->U[k][j][i].M3  - RootSoln[k][j][i].M3);
       error.B1c += fabs(pGrid->U[k][j][i].B1c - RootSoln[k][j][i].B1c);
       error.B2c += fabs(pGrid->U[k][j][i].B2c - RootSoln[k][j][i].B2c);
       error.B3c += fabs(pGrid->U[k][j][i].B3c - RootSoln[k][j][i].B3c);
@@ -573,10 +573,10 @@ void Userwork_after_loop(MeshS *pM)
 #endif
   count = Nx1*Nx2*Nx3;
 
-#ifdef MPI_PARALLEL 
+#ifdef MPI_PARALLEL
 /* Now we have to use an All_Reduce to get the total error over all the MPI
  * grids.  Begin by copying the error into the err[] array */
-  
+
   err[0] = total_error.d;
   err[1] = total_error.M1;
   err[2] = total_error.M2;
@@ -614,7 +614,7 @@ void Userwork_after_loop(MeshS *pM)
 
   rms_error = SQR(total_error.d) + SQR(total_error.M1) + SQR(total_error.M2)
                 + SQR(total_error.M3);
-  rms_error += SQR(total_error.B1c) + SQR(total_error.B2c) 
+  rms_error += SQR(total_error.B1c) + SQR(total_error.B2c)
                + SQR(total_error.B3c);
 #ifndef ISOTHERMAL
   rms_error += SQR(total_error.E);
@@ -630,7 +630,7 @@ void Userwork_after_loop(MeshS *pM)
     printf("WARNING: rms_error=%e exceeds estimate\n",rms_error);
 
 /* Print error to file "cpaw-errors.dat" */
-  
+
 #ifdef MPI_PARALLEL
   fname = "../cpaw-errors.dat";
 #else
@@ -661,17 +661,17 @@ void Userwork_after_loop(MeshS *pM)
 
   fprintf(fp,"%d  %d  %d  %e",Nx1,Nx2,Nx3,rms_error);
   fprintf(fp,"  %e  %e  %e  %e",
-	  (total_error.d/(double)count),
-	  (total_error.M1/(double)count),
-	  (total_error.M2/(double)count),
-	  (total_error.M3/(double)count) );
+          (total_error.d/(double)count),
+          (total_error.M1/(double)count),
+          (total_error.M2/(double)count),
+          (total_error.M3/(double)count) );
 #ifndef ISOTHERMAL
   fprintf(fp,"  %e",(total_error.E/(double)count) );
 #endif /* ISOTHERMAL */
   fprintf(fp,"  %e  %e  %e",
-	  (total_error.B1c/(double)count),
-	  (total_error.B2c/(double)count),
-	  (total_error.B3c/(double)count));
+          (total_error.B1c/(double)count),
+          (total_error.B2c/(double)count),
+          (total_error.B3c/(double)count));
   fprintf(fp,"\n");
 
   fclose(fp);
@@ -680,7 +680,7 @@ void Userwork_after_loop(MeshS *pM)
 }
 
 /*=========================== PRIVATE FUNCTIONS ==============================*/
-  
+
 /*----------------------------------------------------------------------------*/
 /*! \fn static Real A1(const Real x1,const Real x2,const Real x3,const Real vdt)
  *  \brief A1: 1-component of vector potential, using a gauge such that Ax = 0,

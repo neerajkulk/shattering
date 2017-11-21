@@ -78,7 +78,7 @@ void get_eta(GridS *pG)
   for (j=jl; j<=ju; j++) {
   for (i=il; i<=iu; i++) {
 
-     get_myeta(pG, i,j,k, &(pG->eta_Ohm[k][j][i]), 
+     get_myeta(pG, i,j,k, &(pG->eta_Ohm[k][j][i]),
                           &(pG->eta_Hall[k][j][i]), &(pG->eta_AD[k][j][i]));
 
   }}}

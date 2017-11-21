@@ -89,7 +89,7 @@ void problem(DomainS *pDomain)
   iprob  = par_geti("problem", "iprob");
   mm = par_geti("problem","m");
   nn = par_geti("problem","n");
-  
+
   if ((lambda = (double *)malloc(nn*sizeof(double))) == NULL)
     ath_error("[problem] Error initializing lambda array");
   if ((ierr = (int *)malloc(nn*sizeof(int))) == NULL)
@@ -148,7 +148,7 @@ void problem(DomainS *pDomain)
   }
 */
 
-#ifdef RESISTIVITY 
+#ifdef RESISTIVITY
   eta_Ohm = par_getd("problem","eta_Ohm");
   Q_AD    = 0.0;
   Q_Hall  = 0.0;
@@ -179,7 +179,7 @@ void problem_write_restart(MeshS *pM, FILE *fp)
 
 void problem_read_restart(MeshS *pM, FILE *fp)
 {
-#ifdef RESISTIVITY 
+#ifdef RESISTIVITY
   eta_Ohm = par_getd("problem","eta_Ohm");
   Q_AD    = 0.0;
   Q_Hall  = 0.0;
@@ -304,7 +304,7 @@ void cyldiff_ix1(GridS *pG)
         cc_pos(pG,is-i,j,k,&x1c,&x2c,&x3c);
         fc_pos(pG,is-i,j,k,&x1f,&x2f,&x3f);
         switch(iprob){
-          case 1:        
+          case 1:
 #ifdef MHD
 
             pG->U[k][j][is-i].B3c = jn(mm,lambdamn*x1c)*cos(mm*x2c)*exp(-om_diff*pG->time);
@@ -346,7 +346,7 @@ void cyldiff_ox1(GridS *pG)
     for (j=js; j<=je; j++) {
       for (i=1; i<=nghost; i++) {
         switch(iprob){
-          case 1:        
+          case 1:
 #ifdef MHD
             pG->U[k][j][ie+i].B3c = 0.;
             pG->B3i[k][j][ie+i]   = 0.;
@@ -383,7 +383,7 @@ void cyldiff_ix2(GridS *pG)
       for (j=1; j<=nghost; j++) {
         cc_pos(pG,i,js-j,k,&x1,&x2,&x3);
         switch(iprob){
-          case 1:        
+          case 1:
 #ifdef MHD
             pG->U[k][js-j][i].B3c = 0.;
             pG->B3i[k][js-j][i]   = 0.;
@@ -421,7 +421,7 @@ void cyldiff_ox2(GridS *pG)
       for (j=1; j<=nghost; j++) {
         cc_pos(pG,i,je+j,k,&x1,&x2,&x3);
         switch(iprob){
-          case 1:        
+          case 1:
 #ifdef MHD
             pG->U[k][je+j][i].B3c = 0.;
             pG->B3i[k][je+j][i]   = 0.;
@@ -523,7 +523,7 @@ void ROOTJ(int N, int NK, double *JZERO, int *IER)  {
 // ------------------------------------------------------------------------------
 void SECANT(int N,int NITMX, double TOL, double *ZEROJ, int *IER)  {
     //Labels: e5,e10,e15,e20
-    
+
   double P0,P1,Q0,Q1,DP,P;
   double C[3];
   int IT,NEV,NTRY;

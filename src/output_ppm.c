@@ -7,7 +7,7 @@
  *   dumps are made for all levels and domains, unless nlevel and ndomain are
  *   specified in <output> block.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - output_ppm()
  *
  * PRIVATE FUNCTION PROTOTYPES:
@@ -26,7 +26,7 @@ static Real **data=NULL;
 
 /*==============================================================================
  * PRIVATE FUNCTION PROTOTYPES:
- *   compute_rgb()  
+ *   compute_rgb()
  *============================================================================*/
 
 static void compute_rgb(double data, double min, double max, int *pR, int *pG,
@@ -34,7 +34,7 @@ static void compute_rgb(double data, double min, double max, int *pR, int *pG,
 
 /*=========================== PUBLIC FUNCTIONS ===============================*/
 /*----------------------------------------------------------------------------*/
-/*! \fn void output_ppm(MeshS *pM, OutputS *pOut) 
+/*! \fn void output_ppm(MeshS *pM, OutputS *pOut)
  *  \brief Output PPM image */
 void output_ppm(MeshS *pM, OutputS *pOut)
 {
@@ -56,7 +56,7 @@ void output_ppm(MeshS *pM, OutputS *pOut)
   for (nl=0; nl<(pM->NLevels); nl++){
     for (nd=0; nd<(pM->DomainsPerLevel[nl]); nd++){
       if (pM->Domain[nl][nd].Grid != NULL){
-    
+
 /* write files if domain and level match input, or are not specified (-1) */
       if ((pOut->nlevel == -1 || pOut->nlevel == nl) &&
           (pOut->ndomain == -1 || pOut->ndomain == nd)){
@@ -99,7 +99,7 @@ void output_ppm(MeshS *pM, OutputS *pOut)
 
           fprintf(pfile,"P6\n");
           fprintf(pfile,"# dmin= %.7e, dmax= %.7e, gmin= %.7e, gmax= %.7e\n",
-  	  dmin,dmax,pOut->gmin,pOut->gmax);
+          dmin,dmax,pOut->gmin,pOut->gmax);
           fprintf(pfile,"%d %d\n255\n",nx1,nx2);
 
 /* Override auto-scale? */
@@ -128,7 +128,7 @@ void output_ppm(MeshS *pM, OutputS *pOut)
 /*----------------------------------------------------------------------------*/
 /* compute_rgb: converts data into RGB values using palette in Output struct  */
 
-/*! \fn static void compute_rgb(double data, double min, double max, int *pR, 
+/*! \fn static void compute_rgb(double data, double min, double max, int *pR,
  *			        int *pG, int *pB, OutputS *p);
  *  \brief Converts data into RGB values using palette in Output struct  */
 static void compute_rgb(double data, double min, double max,
@@ -138,12 +138,12 @@ static void compute_rgb(double data, double min, double max,
   float x, *rgb = pOut->rgb, *der = pOut->der;
 
   if (rgb == 0) {
-    *R = *G = *B = (data > max ? 255 : 0);    
+    *R = *G = *B = (data > max ? 255 : 0);
     return;
   }
 
   if (min==max) {
-    *R = *G = *B = (data > max ? 255 : 0);    
+    *R = *G = *B = (data > max ? 255 : 0);
     return;
   }
 #if 1

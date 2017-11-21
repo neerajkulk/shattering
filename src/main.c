@@ -22,8 +22,8 @@
  *                     relativity, cylindrical coordinates
  * - v4.0 [Jul 2010] - static mesh refinement with MPI
  *
- * See the GNU General Public License for usage restrictions. 
- *									        
+ * See the GNU General Public License for usage restrictions.
+ *
  * PRIVATE FUNCTION PROTOTYPES:
  * - change_rundir() - creates and outputs data to new directory
  * - usage()         - outputs help message and terminates execution	      */
@@ -58,12 +58,12 @@ static void usage(const char *prog);
 /* Maximum number of mkdir() and chdir() file operations that will be executed
  * at once in the change_rundir() function when running in parallel, passed to
  * baton_start() and baton_end().
- */ 
+ */
 #define MAX_FILE_OP 256
 
 /*----------------------------------------------------------------------------*/
-/*! \fn int main(int argc, char *argv[]) 
- *  \brief Athena main program  
+/*! \fn int main(int argc, char *argv[])
+ *  \brief Athena main program
  *
  * Steps in main:
  * - 1 - check for command line options and respond
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   char level_dir[80];     /* names of directories for levels > 0 */
   FILE *fp;               /* file pointer for data outputs */
   int nflag=0;            /* set to 1 if -n argument is given on command line */
-  int i,nlim;             /* cycle index and limit */
+  int i,j,nlim;             /* cycle index and limit */
   Real tlim;              /* time limit (in code units) */
 
   int out_level, err_level, lazy; /* diagnostic output & error log levels */
@@ -146,38 +146,38 @@ int main(int argc, char *argv[])
     if(*argv[i] == '-'  && *(argv[i]+1) != '\0' && *(argv[i]+2) == '\0'){
       switch(*(argv[i]+1)) {
       case 'i':                      /* -i <file>   */
-	athinput = argv[++i];
-	break;
+        athinput = argv[++i];
+        break;
       case 'r':                      /* -r <file>   */
-	ires = 1;
-	res_file = argv[++i];
+        ires = 1;
+        res_file = argv[++i];
 /* If input file is not set on command line, use the restart file */
-	if(athinput == definput) athinput = res_file;
-	break;
+        if(athinput == definput) athinput = res_file;
+        break;
       case 'd':                      /* -d <directory>   */
-	rundir = argv[++i];
-	break;
+        rundir = argv[++i];
+        break;
       case 'n':                      /* -n */
-	nflag = 1;
-	break;
+        nflag = 1;
+        break;
       case 'h':                      /* -h */
-	usage(argv[0]);
-	break;
+        usage(argv[0]);
+        break;
       case 'c':                      /* -c */
-	show_config();
-	exit(0);
-	break;
+        show_config();
+        exit(0);
+        break;
 #ifdef MPI_PARALLEL
       case 't':                      /* -t hh:mm:ss */
-	use_wtlim = 1; /* Logical to use a wall time limit */
-	sscanf(argv[++i],"%d:%d:%d",&h,&m,&s);
-	wtend = MPI_Wtime() + s + 60*(m + 60*h);
-	printf("Wall time limit: %d hrs, %d min, %d sec\n",h,m,s);
-	break;
+        use_wtlim = 1; /* Logical to use a wall time limit */
+        sscanf(argv[++i],"%d:%d:%d",&h,&m,&s);
+        wtend = MPI_Wtime() + s + 60*(m + 60*h);
+        printf("Wall time limit: %d hrs, %d min, %d sec\n",h,m,s);
+        break;
 #else
       default:
-	usage(argv[0]);
-	break;
+        usage(argv[0]);
+        break;
 #endif /* MPI_PARALLEL */
       }
     }
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
  * broadcasts the contents of the (updated) parameter file to the children. */
 
   if(myID_Comm_world == 0){
-    par_open(athinput);   /* for restarts, default is athinput=resfile */ 
+    par_open(athinput);   /* for restarts, default is athinput=resfile */
     par_cmdline(argc,argv);
   }
   par_dist_mpi(myID_Comm_world,MPI_COMM_WORLD);
@@ -221,13 +221,13 @@ int main(int argc, char *argv[])
   if(MPI_SUCCESS != MPI_Bcast(&ires, 1, MPI_INT, 0, MPI_COMM_WORLD))
     ath_error("[main]: Error on calling MPI_Bcast\n");
 
-/* rank=0 needs to send the restart file name to the children.  This requires 
+/* rank=0 needs to send the restart file name to the children.  This requires
  * sending the length of the restart filename string, the string, and then
  * having each child add my_id to the name so it opens the appropriate file */
 
 /* Parent finds length of restart filename */
 
-  if(ires){ 
+  if(ires){
     if(myID_Comm_world == 0)
       len = 1 + (int)strlen(res_file);
 
@@ -256,14 +256,14 @@ int main(int argc, char *argv[])
     do{ /* Position the char pointer at the first period */
       pc--;
       if(pc == new_name)
-	ath_error("[main]: Bad Restart filename: %s\n",new_name);
+        ath_error("[main]: Bad Restart filename: %s\n",new_name);
     }while(*pc != '.');
 
 /* Only children add myID_Comm_world to the filename */
 
     if(myID_Comm_world == 0) {
       strcpy(new_name, res_file);
-    } else {       
+    } else {
       suffix = ath_strdup(pc);
       sprintf(pc,"-id%d%s",myID_Comm_world,suffix);
       free(suffix);
@@ -273,8 +273,8 @@ int main(int argc, char *argv[])
 
 /* Quit MPI_PARALLEL job if code was run with -n option. */
 
-  if(nflag){          
-    par_dump(0,stdout);   
+  if(nflag){
+    par_dump(0,stdout);
     par_close();
     MPI_Finalize();
     return 0;
@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
 /*--- Step 3. ----------------------------------------------------------------*/
 /* set up the simulation log files */
 
-/* Open <problem_id>.out and <problem_id>.err files if file_open=1 in the 
+/* Open <problem_id>.out and <problem_id>.err files if file_open=1 in the
  * <log> block of the input file.  Otherwise, diagnositic output will go to
  * stdout and stderr streams. */
 
@@ -365,12 +365,16 @@ int main(int argc, char *argv[])
   four_pi_G = -1.0;
 #endif
 
+  /* moved from definition below -- MAY BE A DANGEROUS HACK!! */
+  /* in particular, THIS WILL BREAK CUSTOM BCs DEFINED IN PROBLEM() */
+  bvals_mhd_init(&Mesh);
+
   if(ires) {
     restart_grids(res_file, &Mesh);  /*  Restart */
     nstep_start = Mesh.nstep;
   } else {                           /* New problem */
-    for (nl=0; nl<(Mesh.NLevels); nl++){ 
-      for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){  
+    for (nl=0; nl<(Mesh.NLevels); nl++){
+      for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){
         if (Mesh.Domain[nl][nd].Grid != NULL) problem(&(Mesh.Domain[nl][nd]));
       }
     }
@@ -390,7 +394,7 @@ int main(int argc, char *argv[])
  * set boundary conditions for initial conditions.  With SMR, this includes
  * a prolongation step to set ghost zones at internal fine/coarse boundaries  */
 
-  bvals_mhd_init(&Mesh);
+/*   bvals_mhd_init(&Mesh);	/\* moved to before problem() -- MAY BE A DANGEROUS HACK!! *\/ */
 
 #ifdef SELF_GRAVITY
   bvals_grav_init(&Mesh);
@@ -403,8 +407,8 @@ int main(int argc, char *argv[])
   exchange_gpcouple_init(&Mesh);
 #endif
 
-  for (nl=0; nl<(Mesh.NLevels); nl++){ 
-    for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){  
+  for (nl=0; nl<(Mesh.NLevels); nl++){
+    for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){
       if (Mesh.Domain[nl][nd].Grid != NULL){
         bvals_mhd(&(Mesh.Domain[nl][nd]));
 #ifdef PARTICLES
@@ -432,13 +436,13 @@ int main(int argc, char *argv[])
  * Initialize gravitational potential for new runs
  * Allocate temporary arrays */
 
-  init_output(&Mesh); 
+  init_output(&Mesh);
   lr_states_init(&Mesh);
   Integrate = integrate_init(&Mesh);
 #ifdef SELF_GRAVITY
   SelfGrav = selfg_init(&Mesh);
-  for (nl=0; nl<(Mesh.NLevels); nl++){ 
-    for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){  
+  for (nl=0; nl<(Mesh.NLevels); nl++){
+    for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){
       if (Mesh.Domain[nl][nd].Grid != NULL){
         (*SelfGrav)(&(Mesh.Domain[nl][nd]));
         bvals_grav(&(Mesh.Domain[nl][nd]));
@@ -500,18 +504,25 @@ int main(int argc, char *argv[])
 
 #if defined(RESISTIVITY) || defined(VISCOSITY) || defined(THERMAL_CONDUCTION)
 #ifdef STS
-    ath_pout(0,"Next N_STS = %d\n", N_STS);
+    ath_pout(0,"Next N_STS = %d with ncycle= %d \n", N_STS,ncycle);
+#else
+    ath_pout(0,"running %d diffusion subcycles \n", ncycle);
+#endif  /* STS */
+    for (j=0; j<ncycle; j++){
+#ifdef STS
     for (i=0; i<N_STS; i++) {
+#endif  /* STS */
+#ifdef STS
       STS_dt = Mesh.diff_dt/(1.0+nu_STS-(1.0-nu_STS)
                *cos(0.5*PI*(2.0*i+1.0)/(Real)(N_STS)));
-#endif
+#endif  /* STS */
       integrate_diff(&Mesh);
 
 #ifdef STATIC_MESH_REFINEMENT
       RestrictCorrect(&Mesh);
 #endif
-      for (nl=0; nl<(Mesh.NLevels); nl++){ 
-        for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){  
+      for (nl=0; nl<(Mesh.NLevels); nl++){
+        for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){
           if (Mesh.Domain[nl][nd].Grid != NULL){
             bvals_mhd(&(Mesh.Domain[nl][nd]));
           }
@@ -521,14 +532,15 @@ int main(int argc, char *argv[])
 #endif
 #ifdef STS
     }
-#endif
+#endif  /* STS */
+    }
 #endif /* Explicit diffusion */
 
 /*--- Step 9c. ---------------------------------------------------------------*/
 /* Loop over all Domains and call Integrator */
 
-    for (nl=0; nl<(Mesh.NLevels); nl++){ 
-      for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){  
+    for (nl=0; nl<(Mesh.NLevels); nl++){
+      for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){
         if (Mesh.Domain[nl][nd].Grid != NULL){
           (*Integrate)(&(Mesh.Domain[nl][nd]));
 #ifdef FARGO
@@ -558,8 +570,8 @@ int main(int argc, char *argv[])
  * correction to fluxes for accelerations due to self-gravity. */
 
 #ifdef SELF_GRAVITY
-    for (nl=0; nl<(Mesh.NLevels); nl++){ 
-      for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){  
+    for (nl=0; nl<(Mesh.NLevels); nl++){
+      for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){
         if (Mesh.Domain[nl][nd].Grid != NULL){
           (*SelfGrav)(&(Mesh.Domain[nl][nd]));
           bvals_grav(&(Mesh.Domain[nl][nd]));
@@ -588,8 +600,8 @@ int main(int argc, char *argv[])
 /* Boundary values must be set after time is updated for t-dependent BCs.
  * With SMR, ghost zones at internal fine/coarse boundaries set by Prolongate */
 
-    for (nl=0; nl<(Mesh.NLevels); nl++){ 
-      for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){  
+    for (nl=0; nl<(Mesh.NLevels); nl++){
+      for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){
         if (Mesh.Domain[nl][nd].Grid != NULL){
           bvals_mhd(&(Mesh.Domain[nl][nd]));
 #ifdef PARTICLES
@@ -621,7 +633,7 @@ int main(int argc, char *argv[])
 /* Print diagnostic message, flush message buffers, and continue... */
 
     ath_pout(0,"cycle=%i time=%e next dt=%e last dt=%e\n",
-	     Mesh.nstep,Mesh.time,Mesh.dt,dt_done);
+             Mesh.nstep,Mesh.time,Mesh.dt,dt_done);
 
     if(nflush == Mesh.nstep){
       ath_flush_out();
@@ -661,8 +673,8 @@ int main(int argc, char *argv[])
 /* Calculate and print the zone-cycles/cpu-second on this processor */
 
   zones = 0;
-  for (nl=0; nl<(Mesh.NLevels); nl++){ 
-  for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){  
+  for (nl=0; nl<(Mesh.NLevels); nl++){
+  for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){
     if (Mesh.Domain[nl][nd].Grid != NULL) {
       zones += (Mesh.Domain[nl][nd].Grid->Nx[0])*
                (Mesh.Domain[nl][nd].Grid->Nx[1])*
@@ -686,8 +698,8 @@ int main(int argc, char *argv[])
 /* Calculate and print total zone-cycles/wall-second on all processors */
 #ifdef MPI_PARALLEL
   zones = 0;
-  for (nl=0; nl<(Mesh.NLevels); nl++){ 
-  for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){  
+  for (nl=0; nl<(Mesh.NLevels); nl++){
+  for (nd=0; nd<(Mesh.DomainsPerLevel[nl]); nd++){
     zones += (Mesh.Domain[nl][nd].Nx[0])*
                (Mesh.Domain[nl][nd].Nx[1])*
                (Mesh.Domain[nl][nd].Nx[2]);
@@ -735,7 +747,7 @@ int main(int argc, char *argv[])
 
 /*============================================================================*/
 /*----------------------------------------------------------------------------*/
-/*! \fn void change_rundir(const char *name) 
+/*! \fn void change_rundir(const char *name)
  *  \brief Change run directory;  create it if it does not exist yet
  */
 

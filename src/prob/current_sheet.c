@@ -1,10 +1,10 @@
 #include "copyright.h"
 /*============================================================================*/
 /*! \file current_sheet.c
- *  \brief Problem generator for current sheet test. 
+ *  \brief Problem generator for current sheet test.
  *
  * PURPOSE: Problem generator for current sheet test.  This version only allows
- *   current sheet in X-Y plane, with Bz=0.  
+ *   current sheet in X-Y plane, with Bz=0.
  *
  * REFERENCE: */
 /*============================================================================*/
@@ -53,7 +53,7 @@ void problem(DomainS *pDomain)
         W.Vx = uflow*cos(PI*x2);
         U1d = Prim1D_to_Cons1D(&(W), &Bx);
         pGrid->U[k][j][i].d  = U1d.d;
-        pGrid->U[k][j][i].M1 = U1d.Mx; 
+        pGrid->U[k][j][i].M1 = U1d.Mx;
         pGrid->U[k][j][i].M2 = U1d.My;
         pGrid->U[k][j][i].M3 = U1d.Mz;
 #ifndef ISOTHERMAL

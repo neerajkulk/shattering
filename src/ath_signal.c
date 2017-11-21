@@ -8,7 +8,7 @@
  *   variable which will be checked and reset if necessary -- TAG 8/19/2004
  *
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - ath_sig_init()
  * - ath_sig_act()
  *
@@ -44,7 +44,7 @@ void ath_sig_init(void)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn int ath_sig_act(int *piquit)
- *  \brief Handles response to any received signals.  
+ *  \brief Handles response to any received signals.
  *
  *  At the moment, only response to SIGTERM is implemented.   */
 int ath_sig_act(int *piquit)

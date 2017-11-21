@@ -6,7 +6,7 @@
  * PURPOSE: Function for creating descriptive output filenames with form:
  *  -     [path]<basename>[-lev#][-dom#][.idump][.id].<ext>
  *
- *   where 
+ *   where
  *     -   path     = optional path
  *     -   basename = basename of file (usually problem name, e.g. "Sod")
  *     -   lev#     = level number of dump, only included when level > 0
@@ -18,7 +18,7 @@
  *     -   id       = optional additional identifier set in <input> block
  *     -   ext      = file extension, e.g. ".tab", ".bin", ".dx", ".vtk"
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  *   ath_fname()							      */
 /*============================================================================*/
 #include <stdio.h>
@@ -28,12 +28,12 @@
 
 /*----------------------------------------------------------------------------*/
 /*! \fn char *ath_fname(const char *path, const char *basename,
- *                      const char *levstr, const char *domstr, 
+ *                      const char *levstr, const char *domstr,
  *                      const int dlen, const int idump,
  *                      const char *id, const char *ext)
  *  \brief Creates descriptive output filenames.
  *
- *   Creates filenames with form 
+ *   Creates filenames with form
  *    - [path]<basename>[-lev#][-dom#][.idump][.id].<ext>
  *
  *   Used by most of the dump_*() and output_*() functions.

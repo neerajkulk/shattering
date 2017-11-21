@@ -248,7 +248,7 @@ void problem(DomainS *pDomain)
         rbz = -0.320324e-7;
         rbz *= cos((double)(kx*x1 + ky*x2 + kz*(x3-0.5*pGrid->dx3) - PI/4.));;
         rbz += (sqrt(15.0)/16.0)*(Omega_0/kz);
-      } 
+      }
       if (ipert == 6) {
         ifield = 0;
         rd = den + 5.48082e-6*cos((double)(kx*x1 + ky*x2 + kz*x3));
@@ -280,7 +280,7 @@ void problem(DomainS *pDomain)
       }
 
 /* Initialize d, M, and P.  For 3D shearing box M1=Vx, M2=Vy, M3=Vz
- * With FARGO do not initialize the background shear */ 
+ * With FARGO do not initialize the background shear */
 
       pGrid->U[k][j][i].d  = rd;
       pGrid->U[k][j][i].M1 = rd*rvx;
@@ -291,12 +291,12 @@ void problem(DomainS *pDomain)
       pGrid->U[k][j][i].M3 = rd*rvz;
 #ifdef ADIABATIC
       pGrid->U[k][j][i].E = rp/Gamma_1
-        + 0.5*(SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2) 
+        + 0.5*(SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2)
              + SQR(pGrid->U[k][j][i].M3))/rd;
 #endif
 
 /* Initialize magnetic field.  For 3D shearing box B1=Bx, B2=By, B3=Bz
- *  ifield = 0 - 
+ *  ifield = 0 -
  *  ifield = 1 - Bz=B0 sin(x1) field with zero-net-flux [default]
  *  ifield = 2 - uniform Bz
  *  ifield = 3 - B=(0,B0cos(kx*x1),B0sin(kx*x1))= zero-net flux w helicity
@@ -723,9 +723,9 @@ static Real UnstratifiedDisk(const Real x1, const Real x2, const Real x3)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn static Real expr_dV2(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_dV2(const GridS *pG, const int i, const int j,
  *			     const int k)
- *  \brief Computes delta(Vy) 
+ *  \brief Computes delta(Vy)
  */
 static Real expr_dV2(const GridS *pG, const int i, const int j, const int k)
 {
@@ -739,7 +739,7 @@ static Real expr_dV2(const GridS *pG, const int i, const int j, const int k)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn static Real expr_Jsq(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_Jsq(const GridS *pG, const int i, const int j,
  *			     const int k)
  *  \brief Computes current density square
  */
@@ -764,7 +764,7 @@ static Real expr_Jsq(const GridS *pG, const int i, const int j, const int k)
  * hst_E_total: total energy (including tidal potential).
  */
 
-/*! \fn static Real hst_rho_Vx_dVy(const GridS *pG,const int i,const int j, 
+/*! \fn static Real hst_rho_Vx_dVy(const GridS *pG,const int i,const int j,
  *				   const int k)
  *  \brief Reynolds stress, added as history variable.*/
 static Real hst_rho_Vx_dVy(const GridS *pG,const int i,const int j, const int k)
@@ -779,7 +779,7 @@ static Real hst_rho_Vx_dVy(const GridS *pG,const int i,const int j, const int k)
 #endif
 }
 
-/*! \fn static Real hst_rho_dVy2(const GridS *pG, const int i, const int j, 
+/*! \fn static Real hst_rho_dVy2(const GridS *pG, const int i, const int j,
  *				 const int k)
  *  \brief KE in y-velocity fluctuations */
 static Real hst_rho_dVy2(const GridS *pG, const int i, const int j, const int k)
@@ -795,7 +795,7 @@ static Real hst_rho_dVy2(const GridS *pG, const int i, const int j, const int k)
 }
 
 #ifdef ADIABATIC
-/*! \fn static Real hst_E_total(const GridS *pG, const int i, const int j, 
+/*! \fn static Real hst_E_total(const GridS *pG, const int i, const int j,
  *				const int k)
  *  \brief total energy (including tidal potential). */
 static Real hst_E_total(const GridS *pG, const int i, const int j, const int k)
@@ -835,7 +835,7 @@ static Real hst_Bz(const GridS *pG, const int i, const int j, const int k)
   return pG->U[k][j][i].B3c;
 }
 
-/*! \fn static Real hst_BxBy(const GridS *pG, const int i, const int j, 
+/*! \fn static Real hst_BxBy(const GridS *pG, const int i, const int j,
  *			     const int k)
  *  \brief Maxwell stress */
 static Real hst_BxBy(const GridS *pG, const int i, const int j, const int k)
@@ -851,11 +851,11 @@ static Real hst_dEw2(const GridS *pG, const int i, const int j, const int k)
   dVx = pG->U[k][j][i].M1/pG->U[k][j][i].d;
   dVy = pG->U[k][j][i].M2/pG->U[k][j][i].d + qshear*Omega_0*x1;
   dVz = pG->U[k][j][i].M3/pG->U[k][j][i].d;
-  
+
 /*  return (dVx*dVx + dVy*dVy + dVz*dVz + pG->U[k][j][i].B1c*pG->U[k][j][i].B1c
     + pG->U[k][j][i].B2c*pG->U[k][j][i].B2c + dBz*dBz); */
   return (pG->U[k][j][i].B1c*pG->U[k][j][i].B1c
-    + pG->U[k][j][i].B2c*pG->U[k][j][i].B2c + dBz*dBz); 
+    + pG->U[k][j][i].B2c*pG->U[k][j][i].B2c + dBz*dBz);
 }
 
 static Real hst_dBy(const GridS *pG, const int i, const int j, const int k)
@@ -879,4 +879,3 @@ static Real hst_dBy(const GridS *pG, const int i, const int j, const int k)
 }
 
 #endif /* MHD */
-

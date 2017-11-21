@@ -208,7 +208,7 @@ void problem(DomainS *pDomain)
         rvz = amp*cos((double)kx*(x1 + 3.0*x2));
       }
 
-/* Initialize d, M, and P.  For 2D shearing box M1=Vx, M2=Vz, M3=Vy */ 
+/* Initialize d, M, and P.  For 2D shearing box M1=Vx, M2=Vz, M3=Vy */
 
       pGrid->U[ks][j][i].d  = rd;
       pGrid->U[ks][j][i].M1 = rd*rvx;
@@ -253,7 +253,7 @@ void problem(DomainS *pDomain)
       if (ifield == 3) {
         pGrid->B1i[ks][j][i] = (az[j+1][i] - az[j][i])/pGrid->dx2;
         pGrid->B2i[ks][j][i] =-(az[j][i+1] - az[j][i])/pGrid->dx1;
-        if (i==ie) 
+        if (i==ie)
           pGrid->B1i[ks][j][ie+1] = (az[j+1][ie+1]-az[j][ie+1])/pGrid->dx2;
         if (j==je)
           pGrid->B2i[ks][je+1][i] =-(az[je+1][i+1]-az[je+1][i])/pGrid->dx1;
@@ -410,7 +410,7 @@ void Userwork_after_loop(MeshS *pM)
 /*! \fn double ran2(long int *idum)
  *  \brief Extracted from the Numerical Recipes in C (version 2) code.  Modified
  *   to use doubles instead of floats. -- T. A. Gardiner -- Aug. 12, 2003
- * 
+ *
  * Long period (> 2 x 10^{18}) random number generator of L'Ecuyer
  * with Bays-Durham shuffle and added safeguards.  Returns a uniform
  * random deviate between 0.0 and 1.0 (exclusive of the endpoint
@@ -471,7 +471,7 @@ double ran2(long int *idum)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn static Real UnstratifiedDisk(const Real x1, const Real x2,const Real x3)
- *  \brief  ShearingBoxPot 
+ *  \brief  ShearingBoxPot
  */
 static Real UnstratifiedDisk(const Real x1, const Real x2, const Real x3){
   Real phi=0.0;
@@ -482,9 +482,9 @@ static Real UnstratifiedDisk(const Real x1, const Real x2, const Real x3){
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn static Real expr_dV3(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_dV3(const GridS *pG, const int i, const int j,
  *			     const int k)
- *  \brief Computes delta(Vy) 
+ *  \brief Computes delta(Vy)
  */
 static Real expr_dV3(const GridS *pG, const int i, const int j, const int k)
 {
@@ -498,7 +498,7 @@ static Real expr_dV3(const GridS *pG, const int i, const int j, const int k)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn static Real hst_rho_Vx_dVy(const GridS *pG, const int i, const int j, 
+/*! \fn static Real hst_rho_Vx_dVy(const GridS *pG, const int i, const int j,
  *				   const int k)
  *  \brief Reynolds stress, added as history variable.
  */
@@ -514,7 +514,7 @@ static Real hst_rho_Vx_dVy(const GridS *pG, const int i, const int j, const int 
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn static Real hst_dEk(const GridS *pG, const int i, const int j, 
+/*! \fn static Real hst_dEk(const GridS *pG, const int i, const int j,
  *			    const int k)
  *  \brief computes 0.5*(Vx^2 + 4(\delta Vy)^2), which for epicyclic motion
  *   is a constant, added as history variable */
@@ -537,7 +537,7 @@ static Real hst_dEk(const GridS *pG, const int i, const int j, const int k)
  * hst_E_total: total energy (including tidal potential).
  */
 
-/*! \fn static Real hst_E_total(const GridS *pG, const int i, const int j, 
+/*! \fn static Real hst_E_total(const GridS *pG, const int i, const int j,
  *			        const int k)
  *  \brief Total energy, including tidal potential */
 static Real hst_E_total(const GridS *pG, const int i, const int j, const int k)
@@ -579,7 +579,7 @@ static Real hst_Bz(const GridS *pG, const int i, const int j, const int k)
   return pG->U[pG->ks][j][i].B3c;
 }
 
-/*! \fn static Real hst_BxBy(const GridS *pG, const int i, const int j, 
+/*! \fn static Real hst_BxBy(const GridS *pG, const int i, const int j,
  *			     const int k)
  *  \brief Maxwell stress */
 static Real hst_BxBy(const GridS *pG, const int i, const int j, const int k)

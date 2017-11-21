@@ -2,7 +2,7 @@
 /*============================================================================*/
 /*! \file selfg_fft.c
  *  \brief Contains functions to solve Poisson's equation for self-gravity in
- *   1D, 2D and 3D using FFTs (actually, the 1D algorithm uses Forward 
+ *   1D, 2D and 3D using FFTs (actually, the 1D algorithm uses Forward
  *   Elimination followed by Back Substitution: FEBS).
  *
  *   These functions require PERIODIC BCs and use the Jeans swindle.
@@ -51,7 +51,7 @@ static ath_fft_data *work=NULL;
  *  \brief  This algorithm taken from pp.35-38 of Hockney & Eastwood
  *
  *   Actually uses forward elimination - back substituion!!
- *   Only works for uniform grid, periodic boundary conditions 
+ *   Only works for uniform grid, periodic boundary conditions
  */
 
 void selfg_fft_1d(DomainS *pD)
@@ -81,7 +81,7 @@ void selfg_fft_1d(DomainS *pD)
   pG->Phi[ks][js][is+1] = 2.0*pG->Phi[ks][js][is] + four_pi_G*dx_sq*drho;
   for (i=is+2; i<=ie; i++) {
     drho = (pG->U[ks][js][i-1].d - grav_mean_rho);
-    pG->Phi[ks][js][i] = four_pi_G*dx_sq*drho 
+    pG->Phi[ks][js][i] = four_pi_G*dx_sq*drho
       + 2.0*pG->Phi[ks][js][i-1] - pG->Phi[ks][js][i-2];
   }
 
@@ -237,7 +237,7 @@ void selfg_fft_2d_xy(DomainS *pD)
   for (j=js; j<=je; j++){
     for (i=is; i<=ie; i++){
 #ifdef SHEARING_BOX
-      UnRollPhi[ks][i][j] = 
+      UnRollPhi[ks][i][j] =
         work[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][0]
         / bplan2d->gcnt;
 #else
@@ -413,7 +413,7 @@ void selfg_fft_3d(DomainS *pD)
   for (k=ks; k<=ke; k++){
   for (j=js; j<=je; j++){
     for (i=is; i<=ie; i++){
-      work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] = 
+      work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] =
 #ifdef SHEARING_BOX
         RollDen[k][i][j] - grav_mean_rho;
 #else
@@ -423,15 +423,15 @@ void selfg_fft_3d(DomainS *pD)
     }
   }}
 
-#ifndef SHEARING_BOX 
+#ifndef SHEARING_BOX
 #ifdef STAR_PARTICLE
-   assign_starparticles_3d(pD,work); 
+   assign_starparticles_3d(pD,work);
 #endif /* STAR_PARTICLE */
 #endif /* SHEARING_BOX  */
 
-    
+
    ath_3d_fft(fplan3d, work);
-     
+
 /* Compute potential in Fourier space.  Multiple loops are used to avoid divide
  * by zero at i=is,j=js,k=ks, and to avoid if statement in loop   */
 /* To compute kx,ky,kz, note that indices relative to whole Domain are needed */
@@ -525,7 +525,7 @@ void selfg_fft_3d(DomainS *pD)
   for (j=js; j<=je; j++){
     for (i=is; i<=ie; i++){
 #ifdef SHEARING_BOX
-      UnRollPhi[k][i][j] = 
+      UnRollPhi[k][i][j] =
        four_pi_G*work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0]
         / bplan3d->gcnt;
 #else
@@ -556,8 +556,8 @@ void selfg_fft_3d(DomainS *pD)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void selfg_fft_2d_init(MeshS *pM)
- *  \brief Initializes plans for forward/backward FFTs, and allocates memory 
- *  needed by FFTW.  
+ *  \brief Initializes plans for forward/backward FFTs, and allocates memory
+ *  needed by FFTW.
  */
 
 void selfg_fft_2d_init(MeshS *pM)
@@ -578,7 +578,7 @@ void selfg_fft_2d_init(MeshS *pM)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void selfg_fft_3d_init(MeshS *pM)
- *  \brief Initializes plans for forward/backward FFTs, and allocates memory 
+ *  \brief Initializes plans for forward/backward FFTs, and allocates memory
  *  needed by FFTW.
  */
 

@@ -21,7 +21,7 @@ static Real q, r0, rhomax, r_in, rho0, e0, dcut, beta, seed;
 // Derived quantities
 static Real f, C, Kbar, n;
 
-/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3) 
+/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3)
  *  \brief Gravitational potential */
 static Real grav_pot(const Real x1, const Real x2, const Real x3) {
   Real rad;
@@ -37,10 +37,10 @@ static Real grav_acc(const Real x1, const Real x2, const Real x3) {
   rad = sqrt( SQR(x1) + SQR(x3) );
   return (1.0/(SQR(rad-2.0)))*(x1/rad);
 }
- 
+
 //Private functions (x1,x2,x3) = (R,p,z)
 
-/*! \fn Real density(Real x1, Real x2, Real x3) 
+/*! \fn Real density(Real x1, Real x2, Real x3)
  *  \brief Calculates the density at x1, x2, x3*/
 Real density(Real x1, Real x2, Real x3) {
   Real rad, temp, d;
@@ -53,7 +53,7 @@ Real density(Real x1, Real x2, Real x3) {
   return d;
 }
 
-/*! \fn Real Volume(Grid *pG, int i, int j, int k) 
+/*! \fn Real Volume(Grid *pG, int i, int j, int k)
  *  \brief Calculates the volume of cell (i,j,k) */
 Real Volume(Grid *pG, int i, int j, int k) {
   Real x1,x2,x3;
@@ -109,7 +109,7 @@ Real divB=0.0, maxdivB=0.0;
   r_in   = par_getd("problem","r_in");
   rho0   = par_getd("problem","rho0");
   e0     = par_getd("problem","e0");
-	seed   = par_getd("problem","seed");
+        seed   = par_getd("problem","seed");
 
 #ifdef MHD
   dcut = par_getd("problem","dcut");
@@ -162,14 +162,14 @@ Real divB=0.0, maxdivB=0.0;
         if ( (x1 >= r_in) && (rad <= T) ) { //Checks to see if cell is in torus
           rhoa = density(x1, x2, x3);
           IntE = pow(rhoa,Gamma)*Kbar/((n+1.0)*Gamma_1);
-					// Add pressure fluctuations to seed instability
-					IntE = IntE*(1.0 - seed*sin(x2));
+                                        // Add pressure fluctuations to seed instability
+                                        IntE = IntE*(1.0 - seed*sin(x2));
           if ((IntE >= e0) && (rhoa >= rho0)) {
-						//If the values are above cutoff, set up the cell
+                                                //If the values are above cutoff, set up the cell
             pG->U[k][j][i].d = rhoa;
             pG->U[k][j][i].M2 = VP(x1)*pG->U[k][j][i].d;
             pG->U[k][j][i].E = IntE;
-						
+
             //Note, at this point, E holds only the internal energy.  This must
             //be fixed later
           }
@@ -285,7 +285,7 @@ Real divB=0.0, maxdivB=0.0;
   for (k=kl; k<=ku; k++) {
     for (j=jl; j<=ju; j++) {
       for (i=il; i<=iu; i++) {
-        KinE = 0.5*(SQR(pG->U[k][j][i].M1) + SQR(pG->U[k][j][i].M2) 
+        KinE = 0.5*(SQR(pG->U[k][j][i].M1) + SQR(pG->U[k][j][i].M2)
                 + SQR(pG->U[k][j][i].M3))/(pG->U[k][j][i].d);
         MagE = 0.0;
 #ifdef MHD
@@ -297,7 +297,7 @@ Real divB=0.0, maxdivB=0.0;
     }
   }
   /* Enroll the gravitational function and radial BC */
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
   x1GravAcc = grav_acc;
   set_bvals_fun(left_x1,disk_ir_bc);
   set_bvals_fun(right_x1,disk_or_bc);
@@ -331,7 +331,7 @@ void problem_read_restart(Grid *pG, Domain *pD, FILE *fp)
   r_in = par_getd("problem","r_in");
   rho0 = par_getd("problem","rho0");
   e0 = par_getd("problem","e0");
-	seed = par_getd("problem","seed");
+        seed = par_getd("problem","seed");
 
 #ifdef MHD
   dcut = par_getd("problem","dcut");
@@ -339,7 +339,7 @@ void problem_read_restart(Grid *pG, Domain *pD, FILE *fp)
 #endif
 
   /* Enroll the gravitational function and radial BC */
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
   x1GravAcc = grav_acc;
   set_bvals_fun(left_x1,disk_ir_bc);
   set_bvals_fun(right_x1,disk_or_bc);
@@ -358,7 +358,7 @@ Gasfun_t get_usr_expr(const char *expr)
 void Userwork_in_loop(Grid *pG, Domain *pDomain)
 {
   int i,j,k,is,ie,js,je,ks,ke, nx1, nx2, nx3, il, iu, jl,ju,kl,ku;
-	int prote, protd;
+        int prote, protd;
   Real IntE, KinE, MagE=0.0, x1, x2, x3, DivB;
   static Real TotMass=0.0;
 
@@ -375,12 +375,12 @@ void Userwork_in_loop(Grid *pG, Domain *pDomain)
   ju = je + nghost*(je > js);
   ku = ke + nghost*(ke > ks);
 
-	// Verify divB
+        // Verify divB
   protd = 0;
   prote = 0;
 #ifdef MHD
   DivB = compute_div_b(pG);
-#endif 
+#endif
 
 
   for (k=kl; k<=ku; k++) {
@@ -391,7 +391,7 @@ void Userwork_in_loop(Grid *pG, Domain *pDomain)
           printf("At pos (%f,%f,%f), Den = %f, E = %f\n", x1,x2,x3,pG->U[k][j][i].d, pG->U[k][j][i].E);
         }
 
-        KinE = 0.5*(SQR(pG->U[k][j][i].M1) + SQR(pG->U[k][j][i].M2) 
+        KinE = 0.5*(SQR(pG->U[k][j][i].M1) + SQR(pG->U[k][j][i].M2)
                 + SQR(pG->U[k][j][i].M3))/(pG->U[k][j][i].d);
 #ifdef MHD
         MagE = 0.5*(SQR(pG->U[k][j][i].B1c) + SQR(pG->U[k][j][i].B2c)
@@ -409,15 +409,15 @@ void Userwork_in_loop(Grid *pG, Domain *pDomain)
           IntE = e0;  // Set this as well to keep c_s reasonable
 
           pG->U[k][j][i].E = IntE + KinE + MagE;
-					protd++;
-					prote++;
+                                        protd++;
+                                        prote++;
         }
 
 
 
         else if (IntE < e0) {
           pG->U[k][j][i].E = e0 + KinE + MagE;
-					prote++;
+                                        prote++;
         }
         IntE = pG->U[k][j][i].E - KinE - MagE;
 
@@ -426,19 +426,19 @@ void Userwork_in_loop(Grid *pG, Domain *pDomain)
   }
 
 #ifdef MPI_PARALLEL
-	if (pG->my_id == 0) {
-  	printf("\tDivergence @ Orbit %2.3f = %e\n",(pG->time)/61.6, DivB);
-    	if ((protd+prote) > 0) {
-      	printf("\tProtection enforced (D=%d,E=%d), Cumulative Mass = %2.5f\n", protd, prote,TotMass);
+        if (pG->my_id == 0) {
+        printf("\tDivergence @ Orbit %2.3f = %e\n",(pG->time)/61.6, DivB);
+        if ((protd+prote) > 0) {
+        printf("\tProtection enforced (D=%d,E=%d), Cumulative Mass = %2.5f\n", protd, prote,TotMass);
       }
   }
 #else
   printf("\tDivergence @ Orbit %2.3f = %e\n",(pG->time)/61.6, DivB);
   if ((protd+prote) > 0) {
-     	printf("\tProtection enforced (D=%d,E=%d), Cumulative Mass = %2.5f\n", protd, prote,TotMass);
+        printf("\tProtection enforced (D=%d,E=%d), Cumulative Mass = %2.5f\n", protd, prote,TotMass);
   }
 #endif //PARALLEL
-	
+
 
 }
 

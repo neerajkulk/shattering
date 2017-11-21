@@ -16,7 +16,7 @@
  *   This inverts to:
  *   -  x1 = x*cos(ang_3) - y*sin(ang_3)
  *   -  x2 = x*sin(ang_3) + y*cos(ang_3)
- *   -  x3 = z								  
+ *   -  x3 = z
  *
  * If error_test=1 in the <problem> block, then the L1 error in the final
  * solution will be computed for the Sod shocktube (hydrodynamics) or the RJ2a
@@ -122,8 +122,8 @@ void problem(DomainS *pDomain)
   Lx = pDomain->RootMaxX[0] - pDomain->RootMinX[0];
   Ly = pDomain->RootMaxX[1] - pDomain->RootMinX[1];
 
-  rootdx1 = pGrid->dx1*((double)(irefine)); 
-  rootdx2 = pGrid->dx2*((double)(irefine)); 
+  rootdx1 = pGrid->dx1*((double)(irefine));
+  rootdx2 = pGrid->dx2*((double)(irefine));
 
   nx1 = (int)(Lx/rootdx1);
   nx2 = (int)(Ly/rootdx2);
@@ -138,13 +138,13 @@ void problem(DomainS *pDomain)
   r1 = id.quot;
   if(id.rem != 0)
     ath_error("[shkset2d]: GCD failed, Remainder of %d / %d is %d\n",
-	      nx1,gcd,id.rem);
+              nx1,gcd,id.rem);
 
   id = div(nx2,gcd);
   r2 = id.quot;
   if(id.rem != 0)
     ath_error("[shkset2d]: GCD failed, Remainder of %d / %d is %d\n",
-	      nx2,gcd,id.rem);
+              nx2,gcd,id.rem);
 
   ath_pout(1,"The unit cell is (%d,1,%d) grid cells in size\n",r1,r2);
 
@@ -230,120 +230,120 @@ void problem(DomainS *pDomain)
     for (j=0; j<=je+nghost; j++) {
       ix2 = j + pGrid->Disp[1];
       for (i=0; i<=ie+nghost; i++) {
-	ix1 = i + pGrid->Disp[0];
+        ix1 = i + pGrid->Disp[0];
 
 /* cell is completely in the left state */
-	if((drr = r2*(ix1) + r1*(ix2) - gcd*r1*r2) <= 0){
-	  pGrid->U[k][j][i] = ql;
+        if((drr = r2*(ix1) + r1*(ix2) - gcd*r1*r2) <= 0){
+          pGrid->U[k][j][i] = ql;
 #ifdef MHD
-	  pGrid->B1i[k][j][i] = ql.B1c;
-	  pGrid->B2i[k][j][i] = ql.B2c;
-	  pGrid->B3i[k][j][i] = ql.B3c;
+          pGrid->B1i[k][j][i] = ql.B1c;
+          pGrid->B2i[k][j][i] = ql.B2c;
+          pGrid->B3i[k][j][i] = ql.B3c;
 #endif /* MHD */
-	}
+        }
 /* cell is completely in the right state */
-	else if((dll = r2*(ix1-1) + r1*(ix2-1) - gcd*r1*r2) >= 0){
-	  pGrid->U[k][j][i] = qr;
+        else if((dll = r2*(ix1-1) + r1*(ix2-1) - gcd*r1*r2) >= 0){
+          pGrid->U[k][j][i] = qr;
 #ifdef MHD
-	  pGrid->B1i[k][j][i] = qr.B1c;
-	  pGrid->B2i[k][j][i] = qr.B2c;
-	  pGrid->B3i[k][j][i] = qr.B3c;
+          pGrid->B1i[k][j][i] = qr.B1c;
+          pGrid->B2i[k][j][i] = qr.B2c;
+          pGrid->B3i[k][j][i] = qr.B3c;
 #endif /* MHD */
-	}
+        }
 /* The more complicated case of a cell  split by the interface boundary */
-	else{
-	  dlr = r2*(ix1-1) + r1*(ix2) - gcd*r1*r2;
+        else{
+          dlr = r2*(ix1-1) + r1*(ix2) - gcd*r1*r2;
 
-	  if(dlr < 0){ /* The boundary hits the right y-face */
-	    afl_lx = 1.0;
-	    afr_lx = 0.0;
-	    afl_ry = (Real)(-dlr)/(Real)(r2);
-	    afr_ry = 1.0 - afl_ry;
-	  }
-	  else if(dlr > 0){ /* The boundary hits the left x-face */
-	    afl_lx = (Real)(-dll)/(Real)(r1);
-	    afr_lx = 1.0 - afl_lx;
-	    afl_ry = 0.0;
-	    afr_ry = 1.0;
-	  }
-	  else{ /* dlr == 0.0, The boundary hits the grid cell corner */
-	    afl_lx = 1.0;
-	    afr_lx = 0.0;
-	    afl_ry = 0.0;
-	    afr_ry = 1.0;
-	  }
+          if(dlr < 0){ /* The boundary hits the right y-face */
+            afl_lx = 1.0;
+            afr_lx = 0.0;
+            afl_ry = (Real)(-dlr)/(Real)(r2);
+            afr_ry = 1.0 - afl_ry;
+          }
+          else if(dlr > 0){ /* The boundary hits the left x-face */
+            afl_lx = (Real)(-dll)/(Real)(r1);
+            afr_lx = 1.0 - afl_lx;
+            afl_ry = 0.0;
+            afr_ry = 1.0;
+          }
+          else{ /* dlr == 0.0, The boundary hits the grid cell corner */
+            afl_lx = 1.0;
+            afr_lx = 0.0;
+            afl_ry = 0.0;
+            afr_ry = 1.0;
+          }
 
-	  drl = r2*(ix1) + r1*(ix2-1) - gcd*r1*r2;
+          drl = r2*(ix1) + r1*(ix2-1) - gcd*r1*r2;
 
-	  if(drl < 0){ /* The boundary hits the right x-face */
-	    afl_rx = (Real)(-drl)/(Real)(r1);
-	    afr_rx = 1.0 - afl_rx;
-	    afl_ly = 1.0;
-	    afr_ly = 0.0;
-	  }
-	  else if(drl > 0){ /* The boundary hits the left y-face */
-	    afl_rx = 0.0;
-	    afr_rx = 1.0;
-	    afl_ly = (Real)(-dll)/(Real)(r2);
-	    afr_ly = 1.0 - afl_ly;
-	  }
-	  else{ /* drl == 0.0, The boundary hits the grid cell corner */
-	    afl_rx = 0.0;
-	    afr_rx = 1.0;
-	    afl_ly = 1.0;
-	    afr_ly = 0.0;
-	  }
+          if(drl < 0){ /* The boundary hits the right x-face */
+            afl_rx = (Real)(-drl)/(Real)(r1);
+            afr_rx = 1.0 - afl_rx;
+            afl_ly = 1.0;
+            afr_ly = 0.0;
+          }
+          else if(drl > 0){ /* The boundary hits the left y-face */
+            afl_rx = 0.0;
+            afr_rx = 1.0;
+            afl_ly = (Real)(-dll)/(Real)(r2);
+            afr_ly = 1.0 - afl_ly;
+          }
+          else{ /* drl == 0.0, The boundary hits the grid cell corner */
+            afl_rx = 0.0;
+            afr_rx = 1.0;
+            afl_ly = 1.0;
+            afr_ly = 0.0;
+          }
 
 /* The boundary hits both x-interfaces */
-	  if(dlr > 0 && drl < 0){ 
-	    vfl = 0.5*(afl_lx + afl_rx);
-	    vfr = 1.0 - vfl;
-	  }
+          if(dlr > 0 && drl < 0){
+            vfl = 0.5*(afl_lx + afl_rx);
+            vfr = 1.0 - vfl;
+          }
 /* The boundary hits both y-interfaces */
-	  else if(dlr < 0 && drl > 0){ 
-	    vfl = 0.5*(afl_ly + afl_ry);
-	    vfr = 1.0 - vfl;
-	  }
+          else if(dlr < 0 && drl > 0){
+            vfl = 0.5*(afl_ly + afl_ry);
+            vfr = 1.0 - vfl;
+          }
 /* The boundary hits both grid cell corners */
-	  else if(dlr == 0 && drl == 0){ 
-	    vfl = vfr = 0.5;
-	  }
+          else if(dlr == 0 && drl == 0){
+            vfl = vfr = 0.5;
+          }
 /* The boundary hits the left x- and left y-interface */
-	  else if(dlr > 0 && drl > 0){
-	    vfl = 0.5*afl_lx*afl_ly;
-	    vfr = 1.0 - vfl;
-	  }
+          else if(dlr > 0 && drl > 0){
+            vfl = 0.5*afl_lx*afl_ly;
+            vfr = 1.0 - vfl;
+          }
 /* dlr<0 && drl<0:  The boundary hits the right x- and right y-interface */
-	  else{ 
-	    vfr = 0.5*afr_rx*afr_ry;
-	    vfl = 1.0 - vfr;
-	  }
+          else{
+            vfr = 0.5*afr_rx*afr_ry;
+            vfl = 1.0 - vfr;
+          }
 
 /* Initialize the x- and y-interface magnetic fields */
 #ifdef MHD
-	  pGrid->B1i[k][j][i] = afl_lx*ql.B1c + afr_lx*qr.B1c;
-	  B1r              = afl_rx*ql.B1c + afr_rx*qr.B1c;
+          pGrid->B1i[k][j][i] = afl_lx*ql.B1c + afr_lx*qr.B1c;
+          B1r              = afl_rx*ql.B1c + afr_rx*qr.B1c;
 
-	  pGrid->B2i[k][j][i] = afl_ly*ql.B2c + afr_ly*qr.B2c;
-	  B2r              = afl_ry*ql.B2c + afr_ry*qr.B2c;
+          pGrid->B2i[k][j][i] = afl_ly*ql.B2c + afr_ly*qr.B2c;
+          B2r              = afl_ry*ql.B2c + afr_ry*qr.B2c;
 
-	  pGrid->B3i[k][j][i] = vfl*ql.B3c + vfr*qr.B3c;
+          pGrid->B3i[k][j][i] = vfl*ql.B3c + vfr*qr.B3c;
 #endif /* MHD */
 
 /* Initialize the volume averaged quantities */
-	  pGrid->U[k][j][i].d  = vfl*ql.d + vfr*qr.d;
-	  pGrid->U[k][j][i].M1 = vfl*ql.M1 + vfr*qr.M1;
-	  pGrid->U[k][j][i].M2 = vfl*ql.M2 + vfr*qr.M2;
-	  pGrid->U[k][j][i].M3 = vfl*ql.M3 + vfr*qr.M3;
+          pGrid->U[k][j][i].d  = vfl*ql.d + vfr*qr.d;
+          pGrid->U[k][j][i].M1 = vfl*ql.M1 + vfr*qr.M1;
+          pGrid->U[k][j][i].M2 = vfl*ql.M2 + vfr*qr.M2;
+          pGrid->U[k][j][i].M3 = vfl*ql.M3 + vfr*qr.M3;
 #ifdef MHD
-	  pGrid->U[k][j][i].B1c = 0.5*(pGrid->B1i[k][j][i] + B1r);
-	  pGrid->U[k][j][i].B2c = 0.5*(pGrid->B2i[k][j][i] + B2r);
-	  pGrid->U[k][j][i].B3c = vfl*ql.B3c + vfr*qr.B3c;
+          pGrid->U[k][j][i].B1c = 0.5*(pGrid->B1i[k][j][i] + B1r);
+          pGrid->U[k][j][i].B2c = 0.5*(pGrid->B2i[k][j][i] + B2r);
+          pGrid->U[k][j][i].B3c = vfl*ql.B3c + vfr*qr.B3c;
 #endif /* MHD */
 #ifndef ISOTHERMAL
-	  pGrid->U[k][j][i].E  = vfl*ql.E + vfr*qr.E;
+          pGrid->U[k][j][i].E  = vfl*ql.E + vfr*qr.E;
 #endif
-	}
+        }
       }
     }
   }
@@ -362,7 +362,7 @@ void problem(DomainS *pDomain)
   if (err_test == 1) {
 
 /* wave speeds for Sod test */
-#ifdef HYDRO 
+#ifdef HYDRO
     vs = 1.7522; xs = vs*tlim;
     vc = 0.92745; xc = vc*tlim;
     vf = -0.07027; xf = vf*tlim;
@@ -613,7 +613,7 @@ void Userwork_after_loop(MeshS *pM)
       error.d   += fabs(pGrid->U[k][j][i].d   - RootSoln[k][j][i].d );
       error.M1  += fabs(pGrid->U[k][j][i].M1  - RootSoln[k][j][i].M1);
       error.M2  += fabs(pGrid->U[k][j][i].M2  - RootSoln[k][j][i].M2);
-      error.M3  += fabs(pGrid->U[k][j][i].M3  - RootSoln[k][j][i].M3); 
+      error.M3  += fabs(pGrid->U[k][j][i].M3  - RootSoln[k][j][i].M3);
 #ifdef MHD
       error.B1c += fabs(pGrid->U[k][j][i].B1c - RootSoln[k][j][i].B1c);
       error.B2c += fabs(pGrid->U[k][j][i].B2c - RootSoln[k][j][i].B2c);
@@ -649,7 +649,7 @@ void Userwork_after_loop(MeshS *pM)
 #endif
   count = Nx1*Nx2*Nx3;
 
-#ifdef MPI_PARALLEL 
+#ifdef MPI_PARALLEL
 /* Now we have to use an All_Reduce to get the total error over all the MPI
  * grids.  Begin by copying the error into the err[] array */
 
@@ -696,7 +696,7 @@ void Userwork_after_loop(MeshS *pM)
   rms_error = SQR(total_error.d) + SQR(total_error.M1) + SQR(total_error.M2)
                 + SQR(total_error.M3);
 #ifdef MHD
-  rms_error += SQR(total_error.B1c) + SQR(total_error.B2c) 
+  rms_error += SQR(total_error.B1c) + SQR(total_error.B2c)
                + SQR(total_error.B3c);
 #endif /* MHD */
 #ifndef ISOTHERMAL
@@ -754,10 +754,10 @@ void Userwork_after_loop(MeshS *pM)
   fprintf(fp,"%d  %d  %d  %e",Nx1,Nx2,Nx3,rms_error);
 
   fprintf(fp,"  %e  %e  %e  %e",
-	  (total_error.d/(double)count),
-	  (total_error.M1/(double)count),
-	  (total_error.M2/(double)count),
-	  (total_error.M3/(double)count) );
+          (total_error.d/(double)count),
+          (total_error.M1/(double)count),
+          (total_error.M2/(double)count),
+          (total_error.M3/(double)count) );
 
 #ifndef ISOTHERMAL
   fprintf(fp,"  %e",(total_error.E/(double)count) );
@@ -765,9 +765,9 @@ void Userwork_after_loop(MeshS *pM)
 
 #ifdef MHD
   fprintf(fp,"  %e  %e  %e",
-	  (total_error.B1c/(double)count),
-	  (total_error.B2c/(double)count),
-	  (total_error.B3c/(double)count));
+          (total_error.B1c/(double)count),
+          (total_error.B2c/(double)count),
+          (total_error.B3c/(double)count));
 #endif /* MHD */
 
   fprintf(fp,"\n");
@@ -809,11 +809,11 @@ void shkset2d_iib(GridS *pGrid)
   for (k=kl; k<=ku; k++) {
     for (i=1; i<=nghost; i++) { /* Do NOT Change this loop ordering! */
       for (j=jl; j<=ju; j++) {
-	pGrid->U  [k][j][is-i] = pGrid->U  [k][j-r2][is-i+r1];
+        pGrid->U  [k][j][is-i] = pGrid->U  [k][j-r2][is-i+r1];
 #ifdef MHD
-	pGrid->B1i[k][j][is-i] = pGrid->B1i[k][j-r2][is-i+r1];
-	pGrid->B2i[k][j][is-i] = pGrid->B2i[k][j-r2][is-i+r1];
-	pGrid->B3i[k][j][is-i] = pGrid->B3i[k][j-r2][is-i+r1];
+        pGrid->B1i[k][j][is-i] = pGrid->B1i[k][j-r2][is-i+r1];
+        pGrid->B2i[k][j][is-i] = pGrid->B2i[k][j-r2][is-i+r1];
+        pGrid->B3i[k][j][is-i] = pGrid->B3i[k][j-r2][is-i+r1];
 #endif
       }
     }
@@ -853,11 +853,11 @@ void shkset2d_oib(GridS *pGrid)
   for (k=kl; k<=ku; k++) {
     for (i=1; i<=nghost; i++) { /* Do NOT Change this loop ordering! */
       for (j=jl; j<=ju; j++) {
-	pGrid->U[k][j][ie+i] = pGrid->U[k][j+r2][ie+i-r1];
+        pGrid->U[k][j][ie+i] = pGrid->U[k][j+r2][ie+i-r1];
 #ifdef MHD
-	if(i>1) pGrid->B1i[k][j][ie+i] = pGrid->B1i[k][j+r2][ie+i-r1];
-	pGrid->B2i[k][j][ie+i] = pGrid->B2i[k][j+r2][ie+i-r1];
-	pGrid->B3i[k][j][ie+i] = pGrid->B3i[k][j+r2][ie+i-r1];
+        if(i>1) pGrid->B1i[k][j][ie+i] = pGrid->B1i[k][j+r2][ie+i-r1];
+        pGrid->B2i[k][j][ie+i] = pGrid->B2i[k][j+r2][ie+i-r1];
+        pGrid->B3i[k][j][ie+i] = pGrid->B3i[k][j+r2][ie+i-r1];
 #endif
       }
     }
@@ -890,11 +890,11 @@ void shkset2d_ijb(GridS *pGrid)
   for (k=kl; k<=ku; k++) {
     for (j=1; j<=nghost; j++) {
       for (i=il; i<=iu; i++) {
-	pGrid->U  [k][js-j][i] = pGrid->U  [k][js-j+r2][i-r1];
+        pGrid->U  [k][js-j][i] = pGrid->U  [k][js-j+r2][i-r1];
 #ifdef MHD
-	pGrid->B1i[k][js-j][i] = pGrid->B1i[k][js-j+r2][i-r1];
-	pGrid->B2i[k][js-j][i] = pGrid->B2i[k][js-j+r2][i-r1];
-	pGrid->B3i[k][js-j][i] = pGrid->B3i[k][js-j+r2][i-r1];
+        pGrid->B1i[k][js-j][i] = pGrid->B1i[k][js-j+r2][i-r1];
+        pGrid->B2i[k][js-j][i] = pGrid->B2i[k][js-j+r2][i-r1];
+        pGrid->B3i[k][js-j][i] = pGrid->B3i[k][js-j+r2][i-r1];
 #endif
       }
     }
@@ -929,11 +929,11 @@ void shkset2d_ojb(GridS *pGrid)
   for (k=kl; k<=ku; k++) {
     for (j=1; j<=nghost; j++) {
       for (i=il; i<=iu; i++) {
-	pGrid->U[k][je+j][i] = pGrid->U[k][je+j-r2][i+r1];
+        pGrid->U[k][je+j][i] = pGrid->U[k][je+j-r2][i+r1];
 #ifdef MHD
-	pGrid->B1i[k][je+j][i] = pGrid->B1i[k][je+j-r2][i+r1];
-	if(j>1) pGrid->B2i[k][je+j][i] = pGrid->B2i[k][je+j-r2][i+r1];
-	pGrid->B3i[k][je+j][i] = pGrid->B3i[k][je+j-r2][i+r1];
+        pGrid->B1i[k][je+j][i] = pGrid->B1i[k][je+j-r2][i+r1];
+        if(j>1) pGrid->B2i[k][je+j][i] = pGrid->B2i[k][je+j-r2][i+r1];
+        pGrid->B3i[k][je+j][i] = pGrid->B3i[k][je+j-r2][i+r1];
 #endif
       }
     }

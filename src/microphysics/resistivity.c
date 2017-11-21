@@ -5,7 +5,7 @@
  * PURPOSE: Adds explicit resistivity terms to the induction and energy eqns,
  *      dB/dt = -Curl(E)
  *      dE/dt = Div(B X E)
- *   where E = eta_Ohm J + eta_Hall(J X B)/B + eta_AD J_perp = (emf) 
+ *   where E = eta_Ohm J + eta_Hall(J X B)/B + eta_AD J_perp = (emf)
  *         J = Curl(B) = current density
  *         eta_Ohm = Ohmic resistivity
  *         eta_Hall = Hall diffusion coefficient
@@ -337,8 +337,8 @@ void resistivity(DomainS *pD)
          0.5*(rsf*pG->U[ks][js][i].B2c + lsf*pG->U[ks][js][i-1].B2c)*emf[ks][js][i].x3
        - 0.5*(rsf*pG->U[ks][js][i].B3c + lsf*pG->U[ks][js][i-1].B3c)*emf[ks][js][i].x2;
     }
-  } 
-      
+  }
+
 /* 2D PROBLEM */
   if (ndim == 2){
     for (j=js; j<=je; j++) {
@@ -350,7 +350,7 @@ void resistivity(DomainS *pD)
                             (emf[ks][j][i].x3 + emf[ks][j+1][i].x3)
          - 0.5*(rsf*pG->U[ks][j][i].B3c + lsf*pG->U[ks][j][i-1].B3c)*emf[ks][j][i].x2;
     }}
-    
+
     for (j=js; j<=je+1; j++) {
     for (i=is; i<=ie; i++) {
 #ifdef CYLINDRICAL
@@ -365,7 +365,7 @@ void resistivity(DomainS *pD)
          0.25*(pG->U[ks][j][i].B1c + pG->U[ks][j-1][i].B1c)*
                 (lsf*emf[ks][j][i].x3 + rsf*emf[ks][j][i+1].x3);
     }}
-  }   
+  }
 
 /* 3D PROBLEM */
   if (ndim == 3){
@@ -493,7 +493,7 @@ void resistivity(DomainS *pD)
     }
     for (i=is; i<=ie; i++) {
       pG->B2i[ks][je+1][i] += dtodx1*(emf[ks][je+1][i+1].x3 -emf[ks][je+1][i].x3);
-    } 
+    }
 /* Set cell centered magnetic fields to average of face centered */
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
@@ -529,7 +529,7 @@ void resistivity(DomainS *pD)
         }
 #ifdef CYLINDRICAL
         dtodx2 = my_dt/(ri[ie+1]*pG->dx2);
-#endif  
+#endif
         pG->B1i[k][j][ie+1] +=
           dtodx3*(emf[k+1][j  ][ie+1].x2 - emf[k][j][ie+1].x2) -
           dtodx2*(emf[k  ][j+1][ie+1].x3 - emf[k][j][ie+1].x3);
@@ -617,7 +617,7 @@ void EField_Ohm(DomainS *pD)
 #endif
       eta_O = 0.5*(rsf*pG->eta_Ohm[ks][j][i] + lsf*pG->eta_Ohm[ks][j][i-1]);
 
-      emf[ks][j][i].x2 += eta_O * J[ks][j][i].x2; 
+      emf[ks][j][i].x2 += eta_O * J[ks][j][i].x2;
 
       eta_O = 0.25*(rsf*pG->eta_Ohm[ks][j][i  ] + rsf*pG->eta_Ohm[ks][j-1][i  ] +
                     lsf*pG->eta_Ohm[ks][j][i-1] + lsf*pG->eta_Ohm[ks][j-1][i-1]);
@@ -628,7 +628,7 @@ void EField_Ohm(DomainS *pD)
 
 
 /* 3D PROBLEM: */
-  
+
   if (ndim == 3){
 
     for (k=ks; k<=ke+1; k++) {
@@ -843,7 +843,7 @@ void EField_Hall(DomainS *pD)
 
     /* update the global emf */
     for (j=js-1; j<=je+1; j++) {
-    for (i=is-1; i<=ie+1; i++) { 
+    for (i=is-1; i<=ie+1; i++) {
       emf[ks][j][i].x1 += emfh[ks][j][i].x1;
       emf[ks][j][i].x2 += emfh[ks][j][i].x2;
       emf[ks][j][i].x3 += emfh[ks][j][i].x3;
@@ -1274,7 +1274,7 @@ void EField_AD(DomainS *pD)
 
 /*----------------------------------------------------------------------------*/
 /* hyper_diffusion: calculate the higher-order derivatives of J
- */  
+ */
 
 /* 4th order diffusion */
 void hyper_diffusion4(DomainS *pD, Real prefac)
@@ -1412,15 +1412,15 @@ void hyper_diffusion6(DomainS *pD, Real prefac)
   Real eta_H,eta_6,dx41,dy41=0.0,dz41=0.0;
   Real fac,fac2,fac3;
 
-  dx41 = 1.0/SQR(SQR(pG->dx1)); 
+  dx41 = 1.0/SQR(SQR(pG->dx1));
   if (pG->Nx[1]>1) {
     ndim++;
     dy41 = 1.0/SQR(SQR(pG->dx2));
     fac2 = SQR(pG->dx1/pG->dx2);
-  }   
+  }
   if (pG->Nx[2]>1) {
     ndim++;
-    dz41 = 1.0/SQR(SQR(pG->dx3)); 
+    dz41 = 1.0/SQR(SQR(pG->dx3));
     fac3 = SQR(pG->dx1/pG->dx3);
   }
   fac = prefac*SQR(my_dt/pG->dx1)*my_dt;
@@ -1534,7 +1534,7 @@ void resistivity_init(MeshS *pM)
 
   if (mycase == 1)
     /* standard (no small grain) prescription with constant coefficients */
-    get_myeta = eta_standard; 
+    get_myeta = eta_standard;
   else
     /* general prescription with user defined diffusivities */
     get_myeta = get_eta_user;

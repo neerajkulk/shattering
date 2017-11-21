@@ -20,16 +20,16 @@
  * - ShearingSheet_ox1() - shearing sheet BCs on ox1
  * - ShearingSheet_grav_ix1() - shearing sheet BCs for grav. pot. on ix1
  * - ShearingSheet_grav_ox1() - shearing sheet BCs for grav. pot. on ox1
- * - RemapFlx_ix1()     - sets fluxes at ix1 in integrator to keep U=const. 
- * - RemapFlx_ox1()     - sets fluxes at ox1 in integrator to keep U=const. 
- * - RemapEy_ix1()      - sets Ey at ix1 in resistivity.c 
- * - RemapEy_ox1()      - sets Ey at ox1 in resistivity.c 
+ * - RemapFlx_ix1()     - sets fluxes at ix1 in integrator to keep U=const.
+ * - RemapFlx_ox1()     - sets fluxes at ox1 in integrator to keep U=const.
+ * - RemapEy_ix1()      - sets Ey at ix1 in resistivity.c
+ * - RemapEy_ox1()      - sets Ey at ox1 in resistivity.c
  * - RemapJy_ix1()      - sets Jy at ix1 in resistivity.c
  * - RemapJy_ox1()      - sets Jy at ox1 in resistivity.c
  * - Fargo()            - implements FARGO algorithm for background flow
- * - RemapVar()         - remaps variable to the nearest periodic point. 
+ * - RemapVar()         - remaps variable to the nearest periodic point.
  * - bvals_shear_init() - allocates memory for arrays used here
- * - bvals_shear_destruct() - frees memory for arrays used here		      
+ * - bvals_shear_destruct() - frees memory for arrays used here
  *
  * PRIVATE FUNCTION PROTOTYPES:
  * - RemapFlux() - 2nd or 3rd order reconstruction for remap in ghost zones   */
@@ -72,7 +72,7 @@
 #endif
 
 /*! \struct Remap
- *  \brief Define structure which holds variables remapped 
+ *  \brief Define structure which holds variables remapped
  *  by shearing sheet BCs */
 typedef struct Remap_s{
   Real U[NREMAP];
@@ -133,7 +133,7 @@ void RemapFlux(const Real *U,const Real eps,const int ji,const int jo, Real *F);
 /*=========================== PUBLIC FUNCTIONS ===============================*/
 /*----------------------------------------------------------------------------*/
 /*! \fn void ShearingSheet_ix1(DomainS *pD)
- *  \brief 3D shearing-sheet BCs in x1.  
+ *  \brief 3D shearing-sheet BCs in x1.
  *
  * It applies a remap
  * in Y after the ghost cells have been set by the usual periodic BCs in X and
@@ -265,7 +265,7 @@ void ShearingSheet_ix1(DomainS *pD)
             GhstZns[k][i][j].U[n]  = GhstZnsBuf[k][i][jremap].U[n];
           }
 #if (NSCALARS > 0)
-          for (n=0; n<NSCALARS; n++) { 
+          for (n=0; n<NSCALARS; n++) {
             GhstZns[k][i][j].s[n] = GhstZnsBuf[k][i][jremap].s[n];
           }
 #endif
@@ -298,11 +298,11 @@ void ShearingSheet_ix1(DomainS *pD)
     if (joverlap != 0) {
 
       jproc = my_jproc + (Ngrids + 1);
-      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1]; 
+      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1];
       sendto_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
       jproc = my_jproc - (Ngrids + 1);
-      if (jproc < 0) jproc += pD->NGrid[1]; 
+      if (jproc < 0) jproc += pD->NGrid[1];
       getfrom_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
 /*--- Step 5b. -----------------------------------------------------------------
@@ -342,7 +342,7 @@ void ShearingSheet_ix1(DomainS *pD)
           for(i=0; i<nghost; i++){
             /* Get a pointer to the Remap structure */
             pRemap = &(GhstZns[k][i][j]);
-  
+
             for (n=0; n<NREMAP; n++) pRemap->U[n] = *(pRcv++);
 #if (NSCALARS > 0)
             for (n=0; n<NSCALARS; n++) pRemap->s[n] = *(pRcv++);
@@ -368,7 +368,7 @@ void ShearingSheet_ix1(DomainS *pD)
               GhstZns[k][i][j].U[n]  = GhstZnsBuf[k][i][jremap].U[n];
             }
 #if (NSCALARS > 0)
-            for (n=0; n<NSCALARS; n++) { 
+            for (n=0; n<NSCALARS; n++) {
               GhstZns[k][i][j].s[n] = GhstZnsBuf[k][i][jremap].s[n];
             }
 #endif
@@ -726,7 +726,7 @@ void ShearingSheet_ix1(DomainS *pD)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void ShearingSheet_ox1(DomainS *pD)
- *  \brief 3D shearing-sheet BCs in x1.  
+ *  \brief 3D shearing-sheet BCs in x1.
  *
  * It applies a remap
  * in Y after the ghost cells have been set by the usual periodic BCs in X and
@@ -859,7 +859,7 @@ void ShearingSheet_ox1(DomainS *pD)
             GhstZns[k][i][j].U[n]  = GhstZnsBuf[k][i][jremap].U[n];
           }
 #if (NSCALARS > 0)
-          for (n=0; n<NSCALARS; n++) { 
+          for (n=0; n<NSCALARS; n++) {
             GhstZns[k][i][j].s[n] = GhstZnsBuf[k][i][jremap].s[n];
           }
 #endif
@@ -892,11 +892,11 @@ void ShearingSheet_ox1(DomainS *pD)
     if (joverlap != 0) {
 
       jproc = my_jproc - (Ngrids + 1);
-      if (jproc < 0) jproc += pD->NGrid[1]; 
+      if (jproc < 0) jproc += pD->NGrid[1];
       sendto_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
       jproc = my_jproc + (Ngrids + 1);
-      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1]; 
+      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1];
       getfrom_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
 /*--- Step 5b. -----------------------------------------------------------------
@@ -938,7 +938,7 @@ void ShearingSheet_ox1(DomainS *pD)
           for(i=0; i<nghost; i++){
             /* Get a pointer to the Remap structure */
             pRemap = &(GhstZns[k][i][j]);
-  
+
             for (n=0; n<NREMAP; n++) pRemap->U[n] = *(pRcv++);
 #if (NSCALARS > 0)
             for (n=0; n<NSCALARS; n++) pRemap->s[n] = *(pRcv++);
@@ -964,7 +964,7 @@ void ShearingSheet_ox1(DomainS *pD)
               GhstZns[k][i][j].U[n]  = GhstZnsBuf[k][i][jremap].U[n];
             }
 #if (NSCALARS > 0)
-            for (n=0; n<NSCALARS; n++) { 
+            for (n=0; n<NSCALARS; n++) {
               GhstZns[k][i][j].s[n] = GhstZnsBuf[k][i][jremap].s[n];
             }
 #endif
@@ -1321,7 +1321,7 @@ void ShearingSheet_ox1(DomainS *pD)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void ShearingSheet_grav_ix1(DomainS *pD)
- *  \brief 3D shearing-sheet BCs for gravitational potential in x1.  
+ *  \brief 3D shearing-sheet BCs for gravitational potential in x1.
  *
  * It applies a remap
  * in Y after the ghost cells have been set by the usual periodic BCs in X and
@@ -1444,11 +1444,11 @@ void ShearingSheet_grav_ix1(DomainS *pD)
     if (joverlap != 0) {
 
       jproc = my_jproc + (Ngrids + 1);
-      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1]; 
+      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1];
       sendto_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
       jproc = my_jproc - (Ngrids + 1);
-      if (jproc < 0) jproc += pD->NGrid[1]; 
+      if (jproc < 0) jproc += pD->NGrid[1];
       getfrom_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
 /*--- Step 5b. -----------------------------------------------------------------
@@ -1664,7 +1664,7 @@ void ShearingSheet_grav_ix1(DomainS *pD)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void ShearingSheet_grav_ox1(DomainS *pD)
- *  \brief 3D shearing-sheet BCs for gravitational potential in x1.  
+ *  \brief 3D shearing-sheet BCs for gravitational potential in x1.
  *
  * It applies a remap
  * in Y after the ghost cells have been set by the usual periodic BCs in X and
@@ -1788,11 +1788,11 @@ void ShearingSheet_grav_ox1(DomainS *pD)
     if (joverlap != 0) {
 
       jproc = my_jproc - (Ngrids + 1);
-      if (jproc < 0) jproc += pD->NGrid[1]; 
+      if (jproc < 0) jproc += pD->NGrid[1];
       sendto_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
       jproc = my_jproc + (Ngrids + 1);
-      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1]; 
+      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1];
       getfrom_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
 /*--- Step 5b. -----------------------------------------------------------------
@@ -2060,7 +2060,7 @@ void RemapFlx_ix1(DomainS *pD, ConsS **Flxiib, ConsS **Flxoib, ConsS **rFlxiib)
 #ifdef MHD
    numvar = 5;
 #else
-   numvar = 4; 
+   numvar = 4;
 #endif
 
 /* NOTE: IN CODE BELOW ONLY By,d,M1,M2,M3 ARE REMAPPED */
@@ -2153,7 +2153,7 @@ void RemapFlx_ix1(DomainS *pD, ConsS **Flxiib, ConsS **Flxoib, ConsS **rFlxiib)
   }
 
 /*--- Step 2. ------------------------------------------------------------------
- * Apply periodic BC in x2 to temporary array.  Requires MPI calls if 
+ * Apply periodic BC in x2 to temporary array.  Requires MPI calls if
  * NGrid_x2 > 1 */
 
   if (pD->NGrid[1] == 1) {
@@ -2578,7 +2578,7 @@ void RemapFlx_ox1(DomainS *pD, ConsS **Flxiib, ConsS **Flxoib, ConsS **rFlxoib)
 #ifdef MHD
    numvar = 5;
 #else
-   numvar = 4; 
+   numvar = 4;
 #endif
 
 /* NOTE: IN CODE BELOW ONLY By,d,M1,M2,M3 ARE REMAPPED */
@@ -2670,7 +2670,7 @@ void RemapFlx_ox1(DomainS *pD, ConsS **Flxiib, ConsS **Flxoib, ConsS **rFlxoib)
   }
 
 /*--- Step 2. ------------------------------------------------------------------
- * Apply periodic BC in x2 to temporary array.  Requires MPI calls if 
+ * Apply periodic BC in x2 to temporary array.  Requires MPI calls if
  * NGrid_x2 > 1 */
 
   if (pD->NGrid[1] == 1) {
@@ -2811,7 +2811,7 @@ void RemapFlx_ox1(DomainS *pD, ConsS **Flxiib, ConsS **Flxoib, ConsS **rFlxoib)
       tFlxBuf[k][j].B2c = U[j] - (Flx[j+1] - Flx[j]);
     }
 #endif
- 
+
     for(j=js-3; j<=je+3; j++) {
       U[j] = rFlxoib[k][j].d;
     }
@@ -3139,7 +3139,7 @@ void RemapEy_ix1(DomainS *pD, Real ***emfy, Real **tEy)
   }
 
 /*--- Step 2. ------------------------------------------------------------------
- * Apply periodic BC in x2 to temporary array.  Requires MPI calls if 
+ * Apply periodic BC in x2 to temporary array.  Requires MPI calls if
  * NGrid_x2 > 1 */
 
   if (pD->NGrid[1] == 1) {
@@ -3470,7 +3470,7 @@ void RemapEy_ox1(DomainS *pD, Real ***emfy, Real **tEy)
   }
 
 /*--- Step 2. ------------------------------------------------------------------
- * Apply periodic BC in x2 to temporary array.  Requires MPI calls if 
+ * Apply periodic BC in x2 to temporary array.  Requires MPI calls if
  * NGrid_x2 > 1 */
 
   if (pD->NGrid[1] == 1) {
@@ -3794,7 +3794,7 @@ void RemapJy_ix1(DomainS *pD, Real ***J2, Real ***tJy, int nlayer)
   }
 
 /*--- Step 2. ------------------------------------------------------------------
- * Apply periodic BC in x2 to temporary array.  Requires MPI calls if 
+ * Apply periodic BC in x2 to temporary array.  Requires MPI calls if
  * NGrid_x2 > 1 */
 
   if (pD->NGrid[1] == 1) {
@@ -4022,9 +4022,9 @@ void RemapJy_ix1(DomainS *pD, Real ***J2, Real ***tJy, int nlayer)
   } /* end of step 5 - MPI decomposition in Y */
 
 /*--- Step 6. ------------------------------------------------------------------
- * Apply periodic BC in x2 to temporary array.  Requires MPI calls if 
+ * Apply periodic BC in x2 to temporary array.  Requires MPI calls if
  * NGrid_x2 > 1 */
-                   
+
   if (pD->NGrid[1] == 1) {
 
     for(n=0; n<nlayer; n++){
@@ -4033,12 +4033,12 @@ void RemapJy_ix1(DomainS *pD, Real ***J2, Real ***tJy, int nlayer)
         tJy[n][k][js-j] = tJy[n][k][je-(j-1)];
         tJy[n][k][je+j] = tJy[n][k][js+(j-1)];
       }}}
-      
+
 #ifdef MPI_PARALLEL
   } else {
-      
+
 /* MPI calls to swap data */
-  
+
     cnt = nghost*nlayer*(pG->Nx[2]+2*nlayer-1);
 /* Post a non-blocking receive for the input data from the left grid */
     ierr = MPI_Irecv(recv_buf, cnt, MPI_DOUBLE, pG->lx2_id,
@@ -4192,7 +4192,7 @@ void RemapJy_ox1(DomainS *pD, Real ***J2, Real ***tJy, int nlayer)
   }
 
 /*--- Step 2. ------------------------------------------------------------------
- * Apply periodic BC in x2 to temporary array.  Requires MPI calls if 
+ * Apply periodic BC in x2 to temporary array.  Requires MPI calls if
  * NGrid_x2 > 1 */
 
   if (pD->NGrid[1] == 1) {
@@ -4422,9 +4422,9 @@ void RemapJy_ox1(DomainS *pD, Real ***J2, Real ***tJy, int nlayer)
   } /* end of step 5 - MPI decomposition in Y */
 
 /*--- Step 6. ------------------------------------------------------------------
- * Apply periodic BC in x2 to temporary array.  Requires MPI calls if 
+ * Apply periodic BC in x2 to temporary array.  Requires MPI calls if
  * NGrid_x2 > 1 */
-                   
+
   if (pD->NGrid[1] == 1) {
 
     for(n=0; n<nlayer; n++){
@@ -4433,12 +4433,12 @@ void RemapJy_ox1(DomainS *pD, Real ***J2, Real ***tJy, int nlayer)
         tJy[n][k][js-j] = tJy[n][k][je-(j-1)];
         tJy[n][k][je+j] = tJy[n][k][js+(j-1)];
       }}}
-      
+
 #ifdef MPI_PARALLEL
   } else {
-      
+
 /* MPI calls to swap data */
-  
+
     cnt = nlayer*nghost*(pG->Nx[2]+2*nlayer-1);
 /* Post a non-blocking receive for the input data from the left grid */
     ierr = MPI_Irecv(recv_buf, cnt, MPI_DOUBLE, pG->lx2_id,
@@ -4506,8 +4506,8 @@ void RemapJy_ox1(DomainS *pD, Real ***J2, Real ***tJy, int nlayer)
  *  \brief Remaps variable (density or potential) to the nearest periodic point.
  *   MPI decompostion in Y-dir. is not allowed.
  *
- * This is a public function called in the selfg_fft() or selfg_fft_disk() 
- * (inside a SHEARING_BOX macro).					      
+ * This is a public function called in the selfg_fft() or selfg_fft_disk()
+ * (inside a SHEARING_BOX macro).
  * Written by C.-G. Kim 						      */
 /*----------------------------------------------------------------------------*/
 
@@ -4652,7 +4652,7 @@ void RemapVar(DomainS *pD, Real ***RemapVar, Real dt)
 
 /*--- Step 4. ------------------------------------------------------------------
  * If no MPI decomposition in Y, apply shift over integer number of
- * grid cells during copy from buffer back into GhstZns.  
+ * grid cells during copy from buffer back into GhstZns.
  * Remap for the integer part of grid cell
  */
 
@@ -4668,11 +4668,11 @@ void RemapVar(DomainS *pD, Real ***RemapVar, Real dt)
       joffset = (int)(yshear/pG->dx2);
 
       for(j=js; j<=je; j++){
- 
+
         jremap = j - joffset;
         if (jremap < (int)js) jremap += pG->Nx[1];
         if (jremap > (int)je) jremap -= pG->Nx[1];
- 
+
         RemapVar[k][i][j]  = RemapVarBuf[k][i][jremap];
       }
     }
@@ -4708,11 +4708,11 @@ void RemapVar(DomainS *pD, Real ***RemapVar, Real dt)
 
     if (joverlap != 0) {
       jproc = my_jproc + (Ngrids + 1);
-      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1]; 
+      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1];
       sendto_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
       jproc = my_jproc - (Ngrids + 1);
-      if (jproc < 0) jproc += pD->NGrid[1]; 
+      if (jproc < 0) jproc += pD->NGrid[1];
       getfrom_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
 /*--- Step 5b. -----------------------------------------------------------------
@@ -4827,11 +4827,11 @@ void RemapVar(DomainS *pD, Real ***RemapVar, Real dt)
     if (joverlap != 0) {
 
       jproc = my_jproc - (Ngrids + 1);
-      if (jproc < 0) jproc += pD->NGrid[1]; 
+      if (jproc < 0) jproc += pD->NGrid[1];
       sendto_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
       jproc = my_jproc + (Ngrids + 1);
-      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1]; 
+      if (jproc > (pD->NGrid[1]-1)) jproc -= pD->NGrid[1];
       getfrom_id = pD->GData[my_kproc][jproc][my_iproc].ID_Comm_Domain;
 
 /*--- Step 5b. -----------------------------------------------------------------
@@ -5005,8 +5005,8 @@ void Fargo(DomainS *pD)
         pG->U[k][jj][i].E -= qom_dt*pG->U[k][jj][i].B1c*
          (pG->U[k][jj][i].B2c - (qom_dt/2.)*pG->U[k][jj][i].B1c);
 #endif /* MHD */
-	pG->U[k][jj][i].E += qom_dt*pG->U[k][jj][i].M1*
-	  pG->U[k][jj][i].M2/pG->U[k][jj][i].d;
+        pG->U[k][jj][i].E += qom_dt*pG->U[k][jj][i].M1*
+          pG->U[k][jj][i].M2/pG->U[k][jj][i].d;
         FargoVars[k][i][j].U[4] = pG->U[k][jj][i].E;
 #endif /* ADIABATIC */
 /* Only store Bz and Bx in that order.  This is to match order in FargoFlx:
@@ -5245,7 +5245,7 @@ void Fargo(DomainS *pD)
       if((FargoFlx[k][i][jfs].U[0] != FargoFlx[k][i][je-js+jfs+1].U[0]) ||
          (FargoFlx[k][i][jfs].U[1] != FargoFlx[k][i][je-js+jfs+1].U[1]) ||
          (FargoFlx[k][i][jfs].U[2] != FargoFlx[k][i][je-js+jfs+1].U[2]) ||
-         (FargoFlx[k][i][jfs].U[3] != FargoFlx[k][i][je-js+jfs+1].U[3])) 
+         (FargoFlx[k][i][jfs].U[3] != FargoFlx[k][i][je-js+jfs+1].U[3]))
       ath_error("[bvals_shear]: FARGO fluxes not periodic in Y\n");
 **********************/
       for(i=is; i<=ie; i++){
@@ -5394,7 +5394,7 @@ void bvals_shear_init(MeshS *pM)
   Real xmin,xmax,x2,x3;
 #endif
 #ifdef CYLINDRICAL
-	Real MachKep;
+        Real MachKep;
 #endif
 
 #if defined(CYLINDRICAL) && defined(FARGO)
@@ -5577,7 +5577,7 @@ void RemapFlux(const Real *U, const Real eps,
         lim_slope = MIN(fabs(dUl),fabs(dUr));
         dUm = SIGN(dUc)*MIN(0.5*fabs(dUc),2.0*lim_slope);
       }
- 
+
     if (eps > 0.0) { /* eps always > 0 for inner i boundary */
       Flux[j+1] = eps*(U[j] + 0.5*(1.0 - eps)*dUm);
     } else {         /* eps always < 0 for outer i boundary */
@@ -5594,7 +5594,7 @@ void RemapFlux(const Real *U, const Real eps,
 /*----------------------------------------------------------------------------*/
 /*! \fn void RemapFlux(const Real *U, const Real eps,
  *             const int jinner, const int jouter, Real *Flux)
- *  \brief third order reconstruction for conservative remap 
+ *  \brief third order reconstruction for conservative remap
  *   using Colella & Sekora extremum preserving algorithm (PPME)
  */
 

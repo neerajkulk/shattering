@@ -4,7 +4,7 @@
  *  \brief Computes 1D fluxes using simple two-shock Riemann solver.
  *
  * PURPOSE: Computes 1D fluxes using simple two-shock Riemann solver.
- *   Currently only isothermal hydrodynamics has been implemented.  
+ *   Currently only isothermal hydrodynamics has been implemented.
  *
  * REFERENCES:
  * - E.F. Toro, "Riemann Solvers and numerical methods for fluid dynamics",
@@ -59,7 +59,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 
   if(!(Ul.d > 0.0)||!(Ur.d > 0.0))
     ath_error("[two-shock flux]: Non-positive densities: dl = %e  dr = %e\n",
-	      Ul.d, Ur.d);
+              Ul.d, Ur.d);
 
 /*--- Step 1. ------------------------------------------------------------------
  * Convert left- and right- states in conserved to primitive variables.

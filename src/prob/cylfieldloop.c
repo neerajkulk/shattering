@@ -2,7 +2,7 @@
 /*============================================================================*/
 /*! \file cylfieldloop.c
  *  \brief Problem generator for advection of a field loop test in cylindrical
- *   coordinates. 
+ *   coordinates.
  *
  * PURPOSE: Problem generator for advection of a field loop test in cylindrical
  *   coordinates.  Can only be run in 2D or 3D.  Input parameters are:
@@ -117,12 +117,12 @@ void problem(DomainS *pDomain)
         lsf = (x1 - 0.5*pG->dx1)/x1;
         rsf = (x1 + 0.5*pG->dx1)/x1;
 
-        if (i < iu) 
+        if (i < iu)
           pG->U[k][j][i].B1c = 0.5*(lsf*pG->B1i[k][j][i] + rsf*pG->B1i[k][j][i+1]);
         else
           pG->U[k][j][i].B1c = 0.5*(lsf*pG->B1i[k][j][i] + rsf*vecpot2b1i(NULL,A3,pG,i+1,j,k));
 
-        if (j < ju) 
+        if (j < ju)
           pG->U[k][j][i].B2c = 0.5*(pG->B2i[k][j][i] + pG->B2i[k][j+1][i]);
         else
           pG->U[k][j][i].B2c = 0.5*(pG->B2i[k][j][i] + vecpot2b2i(NULL,A3,pG,i,j+1,k));
@@ -136,7 +136,7 @@ void problem(DomainS *pDomain)
           pG->U[k][j][i].B3c = pG->B3i[k][j][i];
 
 #ifndef ISOTHERMAL
-        pG->U[k][j][i].E = 1.0/Gamma_1 
+        pG->U[k][j][i].E = 1.0/Gamma_1
           + 0.5*(SQR(pG->U[k][j][i].B1c) + SQR(pG->U[k][j][i].B2c) + SQR(pG->U[k][j][i].B3c))
           + 0.5*(SQR(pG->U[k][j][i].M1) + SQR(pG->U[k][j][i].M2) + SQR(pG->U[k][j][i].M3))/pG->U[k][j][i].d;
 #endif /* ISOTHERMAL */
@@ -149,7 +149,7 @@ void problem(DomainS *pDomain)
 
   printf("Initial Max divB = %1.10e\n", compute_div_b(pG));
 
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
 #ifdef FARGO
   OrbitalProfile = Omega;
   ShearProfile = Shear;
@@ -202,13 +202,13 @@ void Userwork_after_loop(MeshS *pM)
 
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 
-/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3) 
+/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3)
  *  \brief Gravitatioinal potential */
 static Real grav_pot(const Real x1, const Real x2, const Real x3) {
   return 0.5*SQR(x1*omega0);
 }
 
-/*! \fn Real A3(const Real x1, const Real x2, const Real x3) 
+/*! \fn Real A3(const Real x1, const Real x2, const Real x3)
  *  \brief 3-component of vector potential */
 Real A3(const Real x1, const Real x2, const Real x3) {
   Real X0,X,Y0,Y,dist;

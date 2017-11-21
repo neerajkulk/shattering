@@ -2,7 +2,7 @@
 /*============================================================================*/
 /*! \file lr_states_ppm.c
  *  \brief Third order (piecewise parabolic) spatial reconstruction using
- *   characteristic interpolation in the primitive variables.  
+ *   characteristic interpolation in the primitive variables.
  *
  * PURPOSE: Third order (piecewise parabolic) spatial reconstruction using
  *   characteristic interpolation in the primitive variables.  With the CTU
@@ -70,7 +70,7 @@ static Real **pW=NULL, **dWm=NULL, **Wim1h=NULL;
 void lr_states(const GridS* pG __attribute__((unused)),
                const Prim1DS W[], const Real Bxc[],
                const Real dt, const Real dx, const int il, const int iu,
-               Prim1DS Wl[], Prim1DS Wr[], 
+               Prim1DS Wl[], Prim1DS Wr[],
                const int dir __attribute__((unused)))
 {
   int i,n,m;
@@ -163,10 +163,10 @@ void lr_states(const GridS* pG __attribute__((unused)),
       dar[n] = lem[n][0]*dWr[0];
       dag[n] = lem[n][0]*dWg[0];
       for (m=1; m<NWAVE; m++) {
-	dac[n] += lem[n][m]*dWc[m];
-	dal[n] += lem[n][m]*dWl[m];
-	dar[n] += lem[n][m]*dWr[m];
-	dag[n] += lem[n][m]*dWg[m];
+        dac[n] += lem[n][m]*dWc[m];
+        dal[n] += lem[n][m]*dWl[m];
+        dar[n] += lem[n][m]*dWr[m];
+        dag[n] += lem[n][m]*dWg[m];
       }
     }
 
@@ -215,10 +215,10 @@ void lr_states(const GridS* pG __attribute__((unused)),
  * Limit velocity so momentum is always TVD (using only minmod limiter)
  * CURRENTLY NOT USED.  Was added to make code more robust for turbulence
  * simulations, but found it added noise to Noh shocktube.
- */ 
+ */
 
 #ifdef H_CORRECTION
-/* 
+/*
 #ifdef ISOTHERMAL
     qa = Iso_csound;
 #else
@@ -227,7 +227,7 @@ void lr_states(const GridS* pG __attribute__((unused)),
     dWm[i][1] = SIGN(dWm[i][1])*MIN(fabs(dWm[i][1]),qa);
 */
 #endif /* H_CORRECTION */
-/* 
+/*
     qa = W[i  ].Vx*W[i  ].d - W[i-1].Vx*W[i-1].d;
     qb = W[i+1].Vx*W[i+1].d - W[i  ].Vx*W[i  ].d;
     qc = W[i+1].Vx*W[i+1].d - W[i-1].Vx*W[i-1].d;
@@ -397,7 +397,7 @@ void lr_states(const GridS* pG __attribute__((unused)),
  */
 
 #ifdef H_CORRECTION
-/* 
+/*
 #ifdef ISOTHERMAL
     qa = Iso_csound;
 #else
@@ -406,7 +406,7 @@ void lr_states(const GridS* pG __attribute__((unused)),
     dWm[i+1][1] = SIGN(dWm[i+1][1])*MIN(fabs(dWm[i+1][1]),qa);
 */
 #endif /* H_CORRECTION */
-/* 
+/*
     qa = W[i+1].Vx*W[i+1].d - W[i  ].Vx*W[i  ].d;
     qb = W[i+2].Vx*W[i+2].d - W[i+1].Vx*W[i+1].d;
     qc = W[i+2].Vx*W[i+2].d - W[i  ].Vx*W[i  ].d;
@@ -439,7 +439,7 @@ void lr_states(const GridS* pG __attribute__((unused)),
     for (n=0; n<(NWAVE+NSCALARS); n++) {
 #ifdef CYLINDRICAL
       if (dir==1) {
-        Wim1h[i+1][n] = (0.5*(pW[i+1][n]*r[i+1] + pW[i][n]*r[i]) 
+        Wim1h[i+1][n] = (0.5*(pW[i+1][n]*r[i+1] + pW[i][n]*r[i])
                       - (dWm[i+1][n]*r[i+1] - dWm[i][n]*r[i])/6.0)/ri[i+1];
       }
       else
@@ -503,7 +503,7 @@ void lr_states(const GridS* pG __attribute__((unused)),
     pWl = (Real *) &(Wl[i+1]);
     pWr = (Real *) &(Wr[i]);
 
-#ifndef CTU_INTEGRATOR 
+#ifndef CTU_INTEGRATOR
 
     for (n=0; n<(NWAVE+NSCALARS); n++) {
       pWl[n] = Wrv[n];
@@ -515,7 +515,7 @@ void lr_states(const GridS* pG __attribute__((unused)),
     qx1  = 0.5*MAX(ev[NWAVE-1],0.0)*dtodx;
     qxx1 = 0.0;
 #ifdef CYLINDRICAL
-    if (dir==1) 
+    if (dir==1)
       qxx1 = SQR(qx1)*dx/(3.0*(ri[i+1]-dx*qx1));
 #endif
     for (n=0; n<(NWAVE+NSCALARS); n++) {
@@ -526,7 +526,7 @@ void lr_states(const GridS* pG __attribute__((unused)),
     qx2  = -0.5*MIN(ev[0],0.0)*dtodx;
     qxx2 = 0.0;
 #ifdef CYLINDRICAL
-    if (dir==1) 
+    if (dir==1)
       qxx2 = SQR(qx2)*dx/(3.0*(ri[i]+dx*qx2));
 #endif
     for (n=0; n<(NWAVE+NSCALARS); n++) {
@@ -607,7 +607,7 @@ void lr_states(const GridS* pG __attribute__((unused)),
         qa = 0.0;
         qx1 = 0.5*dtodx*ev[NWAVE-1];
         qx2 = 0.5*dtodx*ev[n];
-#ifdef CYLINDRICAL 
+#ifdef CYLINDRICAL
         if (dir==1) {
           qx1 *= 1.0 - dx*qx1/(3.0*(ri[i]-dx*qx1));
           qx2 *= 1.0 - dx*qx2/(3.0*(ri[i]-dx*qx2));

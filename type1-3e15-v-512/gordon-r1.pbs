@@ -1,0 +1,18 @@
+#!/bin/bash
+#PBS -N type1-3e15-v-512
+#PBS -l nodes=64:ppn=16:native
+#PBS -l walltime=48:00:00
+#PBS -j oe
+#PBS -M mkmcc@astro.berkeley.edu
+#PBS -m abe
+#PBS -q normal
+#PBS -A ucb125
+#PBS -o out-gordon-r
+#PBS -V
+
+cd /oasis/scratch/$USER/$PBS_JOBID
+cp $PBS_O_WORKDIR/athena-gordon ./
+cp $PBS_O_WORKDIR/athinput ./
+cp $PBS_O_WORKDIR/*.dat ./
+cp $PBS_O_WORKDIR/rst/*.rst ./
+mpirun_rsh -np 1024 -hostfile $PBS_NODEFILE athena-gordon -r cluster.0005.rst

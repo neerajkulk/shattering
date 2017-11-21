@@ -1,0 +1,14 @@
+#!/bin/bash
+#SBATCH -J join-vtk
+#SBATCH -o merged.o%j
+#SBATCH -n 1               # total number of processors requested
+#SBATCH -p development      # queue -- normal or development
+#SBATCH -t 02:00:00         # run time (hh:mm:ss)
+#SBATCH -A TG-AST140083
+#SBATCH --mail-user=neeraj.k@me.com
+#SBATCH --mail-type=begin   # email me when the job starts
+#SBATCH --mail-type=end     # email me when the job finishes
+
+# join shit here
+ruby ./join-vtk.rb
+

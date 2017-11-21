@@ -1,7 +1,7 @@
 /*============================================================================*/
 /*! \file palette.h
  *  \brief Look-up tables (palettes) for inclusion in ppm images written by
- *   output_ppm(). 
+ *   output_ppm().
  *
  * PURPOSE: Look-up tables (palettes) for inclusion in ppm images written by
  *   output_ppm().  Images of the 7 tables included here can be found in the
@@ -275,12 +275,12 @@ static float jh_colors[256*3] = {
    5.470588e-01 , 0.000000e+00 , 0.000000e+00 ,
    5.313725e-01 , 0.000000e+00 , 0.000000e+00 ,
    5.156863e-01 , 0.000000e+00 , 0.000000e+00 ,
-   5.000000e-01 , 0.000000e+00 , 0.000000e+00 
+   5.000000e-01 , 0.000000e+00 , 0.000000e+00
 };
 /*! \var static float step8[256*3]
  *  \brief Rainbow in 8 steps.
  *  Automatically generated from NEMO's lut2c script - do not edit */
-static float step8[256*3] = { 
+static float step8[256*3] = {
    0.00000 , 0.00000 , 0.00000 ,
    0.19608 , 0.19608 , 0.19608 ,
    0.19608 , 0.19608 , 0.19608 ,
@@ -541,7 +541,7 @@ static float step8[256*3] = {
 /*! \var static float heat[256*3]
  *  \brief White to black through shades of red.
  *   Automatically generated from NEMO's lut2c script - do not edit */
-static float heat[256*3] = { 
+static float heat[256*3] = {
    0.00000 , 0.00000 , 0.00000 ,
    0.01176 , 0.00392 , 0.00000 ,
    0.02353 , 0.00784 , 0.00000 ,
@@ -799,10 +799,10 @@ static float heat[256*3] = {
    1.00000 , 0.99608 , 1.00000 ,
    1.00000 , 1.00000 , 1.00000 ,
 };
-/*! \var static float idl1[256*3] 
+/*! \var static float idl1[256*3]
  *  \brief Red-Blue-Black
  *   Automatically generated from NEMO's lut2c script - do not edit */
-static float idl1[256*3] = { 
+static float idl1[256*3] = {
    0.00000 , 0.00000 , 0.00000 ,
    0.00000 , 0.00392 , 0.00392 ,
    0.00000 , 0.00784 , 0.00784 ,
@@ -1063,7 +1063,7 @@ static float idl1[256*3] = {
 /*! \var static float idl2[256*3]
  *  \brief Black-Blue-Red-Black
  *  Automatically generated from NEMO's lut2c script - do not edit */
-static float idl2[256*3] = { 
+static float idl2[256*3] = {
    0.00000 , 0.00000 , 0.00000 ,
    0.01176 , 0.00000 , 0.00000 ,
    0.02745 , 0.00000 , 0.00000 ,
@@ -1321,10 +1321,10 @@ static float idl2[256*3] = {
    0.00000 , 0.00000 , 0.01961 ,
    0.00000 , 0.00000 , 0.00000 ,
 };
-/*! \var static float rainbow[256*3] 
+/*! \var static float rainbow[256*3]
  *  \brief Red-Blue-Black
  *   Automatically generated from NEMO's lut2c script - do not edit */
-static float rainbow[256*3] = { 
+static float rainbow[256*3] = {
    0.00000 , 0.00000 , 0.16471 ,
    0.02745 , 0.00000 , 0.18431 ,
    0.05882 , 0.00000 , 0.20000 ,
@@ -1585,7 +1585,7 @@ static float rainbow[256*3] = {
 /*! \var static float step32[256*3]
  *  \brief Rainbow in 32 steps
  *   Automatically generated from NEMO's lut2c script - do not edit */
-static float step32[256*3] = { 
+static float step32[256*3] = {
    0.00000 , 0.00000 , 0.16471 ,
    0.00000 , 0.00000 , 0.16471 ,
    0.00000 , 0.00000 , 0.16471 ,
@@ -1844,7 +1844,7 @@ static float step32[256*3] = {
    0.78824 , 0.00000 , 0.00000 ,
 };
 
-/*! \struct RGB 
+/*! \struct RGB
  *  \brief Structure typedef containing RGB color tables. */
 typedef struct RGB_s {
    char *name;

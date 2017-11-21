@@ -11,7 +11,7 @@
  *   Also adds gravitational source terms, self-gravity, and the H-correction
  *   of Sanders et al.
  *
- * REFERENCE: 
+ * REFERENCE:
  * - J.M Stone & T.A. Gardiner, "A simple, unsplit Godunov method
  *   for multidimensional MHD", NewA 14, 139 (2009)
  *
@@ -19,7 +19,7 @@
  *   upwind schemes: stability and applications to gas dynamics", JCP, 145, 511
  *   (1998)
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - integrate_2d_vl()
  * - integrate_destruct_2d()
  * - integrate_init_2d() */
@@ -84,8 +84,8 @@ static Real **eta1=NULL, **eta2=NULL;
 #endif
 
 /*==============================================================================
- * PRIVATE FUNCTION PROTOTYPES: 
- *   integrate_emf3_corner() - the upwind CT method of Gardiner & Stone (2005) 
+ * PRIVATE FUNCTION PROTOTYPES:
+ *   integrate_emf3_corner() - the upwind CT method of Gardiner & Stone (2005)
  *   FixCell() - apply first-order correction to one cell
  *============================================================================*/
 #ifdef MHD
@@ -98,7 +98,7 @@ static void FixCell(GridS *pG, Int3Vect);
 /*=========================== PUBLIC FUNCTIONS ===============================*/
 /*----------------------------------------------------------------------------*/
 /*! \fn void integrate_2d_vl(DomainS *pD)
- *  \brief van Leer unsplit integrator in 2D. 
+ *  \brief van Leer unsplit integrator in 2D.
  *
  *   The numbering of steps follows the numbering in the 3D version.
  *   NOT ALL STEPS ARE NEEDED IN 2D.
@@ -146,8 +146,8 @@ void integrate_2d_vl(DomainS *pD)
       Uhalf[j][i] = pG->U[ks][j][i];
       W[j][i] = Cons_to_Prim(&(pG->U[ks][j][i]));
 #ifdef MHD
-      B1_x1Face[j][i] = pG->B1i[ks][j][i]; 
-      B2_x2Face[j][i] = pG->B2i[ks][j][i]; 
+      B1_x1Face[j][i] = pG->B1i[ks][j][i];
+      B2_x2Face[j][i] = pG->B2i[ks][j][i];
 #endif /* MHD */
 #ifdef USE_ENTROPY_FIX
       S[j][i] = W[j][i].P * pow(W[j][i].d,1.0-Gamma);
@@ -380,7 +380,7 @@ void integrate_2d_vl(DomainS *pD)
           (x1Flux[j][i].My != x1Flux[j][i].My) ||
           (x1Flux[j][i].Mz != x1Flux[j][i].Mz)) {
         NaNFlux++;
-      }          
+      }
       if ((x2Flux[j][i].d  != x2Flux[j][i].d)  ||
 #ifndef BAROTROPIC
           (x2Flux[j][i].E  != x2Flux[j][i].E)  ||
@@ -419,21 +419,21 @@ void integrate_2d_vl(DomainS *pD)
  *    S_{M} = -(\rho) Grad(Phi);   S_{E} = -(\rho v) Grad{Phi}
  */
 
-  if (StaticGravPot != NULL){
+  if (ExternalGravPot != NULL){
     for (j=jl; j<=ju; j++) {
       for (i=il; i<=iu; i++) {
         cc_pos(pG,i,j,ks,&x1,&x2,&x3);
-        phic = (*StaticGravPot)( x1,             x2,x3);
-        phir = (*StaticGravPot)((x1+0.5*pG->dx1),x2,x3);
-        phil = (*StaticGravPot)((x1-0.5*pG->dx1),x2,x3);
+        phic = (*ExternalGravPot)( x1,             x2,x3, pG->time + 0.5*pG->dt);
+        phir = (*ExternalGravPot)((x1+0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+        phil = (*ExternalGravPot)((x1-0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
 
         Uhalf[j][i].M1 -= hdtodx1*(phir-phil)*pG->U[ks][j][i].d;
 #ifndef BAROTROPIC
         Uhalf[j][i].E -= hdtodx1*(x1Flux[j][i  ].d*(phic - phil)
                            + x1Flux[j][i+1].d*(phir - phic));
 #endif
-        phir = (*StaticGravPot)(x1,(x2+0.5*pG->dx2),x3);
-        phil = (*StaticGravPot)(x1,(x2-0.5*pG->dx2),x3);
+        phir = (*ExternalGravPot)(x1,(x2+0.5*pG->dx2),x3, pG->time + 0.5*pG->dt);
+        phil = (*ExternalGravPot)(x1,(x2-0.5*pG->dx2),x3, pG->time + 0.5*pG->dt);
 
         Uhalf[j][i].M2 -= hdtodx2*(phir-phil)*pG->U[ks][j][i].d;
 #ifndef BAROTROPIC
@@ -446,15 +446,15 @@ void integrate_2d_vl(DomainS *pD)
 
 
 /*=== STEP 7: Conserved->Primitive variable inversion at t^{n+1/2} ===========*/
-        
-/* Invert conserved variables at t^{n+1/2} to primitive variables. With FOFC, 
+
+/* Invert conserved variables at t^{n+1/2} to primitive variables. With FOFC,
  * check if cell-centered d < 0, P< 0, or v^2 > 1. With Entropy fix, correct
  * by computing new primitive state using the entropy variable, otherwise
  * correct by switching back to values at beginning of step, rendering update
  * first order in time for that cell.
  */
 
-#ifdef FIRST_ORDER_FLUX_CORRECTION        
+#ifdef FIRST_ORDER_FLUX_CORRECTION
   negd = 0;
   negP = 0;
   superl = 0;
@@ -463,7 +463,7 @@ void integrate_2d_vl(DomainS *pD)
   for (j=js-nghost; j<=je+nghost; j++) {
     for (i=is-nghost; i<=ie+nghost; i++) {
       Whalf[j][i] = check_Prim(&(Uhalf[j][i]));
-#ifdef FIRST_ORDER_FLUX_CORRECTION   
+#ifdef FIRST_ORDER_FLUX_CORRECTION
       if (Whalf[j][i].d < 0.0) {
         flag_cell = 1;
         negd++;
@@ -479,33 +479,33 @@ void integrate_2d_vl(DomainS *pD)
       }
       if (flag_cell != 0) {
 #ifdef USE_ENTROPY_FIX
-	Wcheck = entropy_fix (&(Uhalf[j][i]),&(Shalf[j][i]));
-	Vsq = SQR(Wcheck.V1) + SQR(Wcheck.V2) + SQR(Wcheck.V3);
-	if (Wcheck.d > 0.0 && Wcheck.P > 0.0 && Vsq < 1.0){
-	  entropy++;
-	  Whalf[j][i].d = Wcheck.d;
-	  Whalf[j][i].P = Wcheck.P;
-	  Whalf[j][i].V1 = Wcheck.V1;
-	  Whalf[j][i].V2 = Wcheck.V2;
-	  Whalf[j][i].V3 = Wcheck.V3;
-	  flag_cell=0;
-	} else {
+        Wcheck = entropy_fix (&(Uhalf[j][i]),&(Shalf[j][i]));
+        Vsq = SQR(Wcheck.V1) + SQR(Wcheck.V2) + SQR(Wcheck.V3);
+        if (Wcheck.d > 0.0 && Wcheck.P > 0.0 && Vsq < 1.0){
+          entropy++;
+          Whalf[j][i].d = Wcheck.d;
+          Whalf[j][i].P = Wcheck.P;
+          Whalf[j][i].V1 = Wcheck.V1;
+          Whalf[j][i].V2 = Wcheck.V2;
+          Whalf[j][i].V3 = Wcheck.V3;
+          flag_cell=0;
+        } else {
 #endif /* USE_ENTROPY_FIX */
-	  Whalf[j][i].d = W[j][i].d;
-	  Whalf[j][i].V1 = W[j][i].V1;
-	  Whalf[j][i].V2 = W[j][i].V2;
-	  Whalf[j][i].V3 = W[j][i].V3;
-	  Whalf[j][i].P = W[j][i].P;
-	  flag_cell=0;
+          Whalf[j][i].d = W[j][i].d;
+          Whalf[j][i].V1 = W[j][i].V1;
+          Whalf[j][i].V2 = W[j][i].V2;
+          Whalf[j][i].V3 = W[j][i].V3;
+          Whalf[j][i].P = W[j][i].P;
+          flag_cell=0;
 #ifdef USE_ENTROPY_FIX
-	}
+        }
 #endif /* USE_ENTROPY_FIX */
       }
 #endif
     }
   }
 
-#ifdef FIRST_ORDER_FLUX_CORRECTION  
+#ifdef FIRST_ORDER_FLUX_CORRECTION
   if (negd > 0 || negP > 0 || superl > 0){
     printf("[Step7]: %i cells had d<0; %i cells had P<0\n",negd,negP);
     printf("[Step7]: %i cells had v>1 at t_half\n",superl);
@@ -513,7 +513,7 @@ void integrate_2d_vl(DomainS *pD)
     printf("[Step7]: %i cells fixed using entropy at t_half\n",entropy);
 #endif /* USE_ENTROPY_FIX */
   }
-#endif 
+#endif
 
 /*=== STEP 8: Compute second-order L/R x1-interface states ===================*/
 
@@ -682,8 +682,8 @@ void integrate_2d_vl(DomainS *pD)
 
 #ifdef USE_ENTROPY_FIX
       entropy_flux(Ul[i],          Ur[i],
-		   Wl_x1Face[j][i],Wr_x1Face[j][i],
-		   Bx,             &x1FluxS[j][i]);
+                   Wl_x1Face[j][i],Wr_x1Face[j][i],
+                   Bx,             &x1FluxS[j][i]);
 #endif
 
 #ifdef FIRST_ORDER_FLUX_CORRECTION
@@ -729,8 +729,8 @@ void integrate_2d_vl(DomainS *pD)
 
 #ifdef USE_ENTROPY_FIX
       entropy_flux(Ul[i],          Ur[i],
-		   Wl_x2Face[j][i],Wr_x2Face[j][i],
-		   Bx,             &x2FluxS[j][i]);
+                   Wl_x2Face[j][i],Wr_x2Face[j][i],
+                   Bx,             &x2FluxS[j][i]);
 #endif
 
 #ifdef FIRST_ORDER_FLUX_CORRECTION
@@ -760,10 +760,10 @@ void integrate_2d_vl(DomainS *pD)
     NaNFlux=0;
   }
 #endif
-  
+
 
 /*=== STEP 12: Update face-centered B for a full timestep ====================*/
-        
+
 /*--- Step 12a -----------------------------------------------------------------
  * Calculate the cell centered value of emf1,2,3 at the half-time-step.
  */
@@ -771,8 +771,8 @@ void integrate_2d_vl(DomainS *pD)
 #ifdef MHD
   for (j=js-1; j<=je+1; j++) {
     for (i=is-1; i<=ie+1; i++) {
-      emf3_cc[j][i] = (Whalf[j][i].B1c*Whalf[j][i].V2 - 
-		       Whalf[j][i].B2c*Whalf[j][i].V1);
+      emf3_cc[j][i] = (Whalf[j][i].B1c*Whalf[j][i].V2 -
+                       Whalf[j][i].B2c*Whalf[j][i].V1);
     }
   }
 
@@ -810,7 +810,7 @@ void integrate_2d_vl(DomainS *pD)
 #endif /* MHD */
 
 /*=== STEP 13: Add source terms for a full timestep using n+1/2 states =======*/
-       
+
 /*--- Step 13a -----------------------------------------------------------------
  * Add gravitational source terms due to a Static Potential
  * To improve conservation of total energy, we average the energy
@@ -818,21 +818,21 @@ void integrate_2d_vl(DomainS *pD)
  *    S_{M} = -(\rho)^{n+1/2} Grad(Phi);   S_{E} = -(\rho v)^{n+1/2} Grad{Phi}
  */
 
-  if (StaticGravPot != NULL){
+  if (ExternalGravPot != NULL){
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
         cc_pos(pG,i,j,ks,&x1,&x2,&x3);
-        phic = (*StaticGravPot)( x1,             x2,x3);
-        phir = (*StaticGravPot)((x1+0.5*pG->dx1),x2,x3);
-        phil = (*StaticGravPot)((x1-0.5*pG->dx1),x2,x3);
+        phic = (*ExternalGravPot)( x1,             x2,x3, pG->time + 0.5*pG->dt);
+        phir = (*ExternalGravPot)((x1+0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+        phil = (*ExternalGravPot)((x1-0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
 
         pG->U[ks][j][i].M1 -= dtodx1*(phir-phil)*Uhalf[j][i].d;
 #ifndef BAROTROPIC
         pG->U[ks][j][i].E -= dtodx1*(x1Flux[j][i  ].d*(phic - phil)
                                    + x1Flux[j][i+1].d*(phir - phic));
 #endif
-        phir = (*StaticGravPot)(x1,(x2+0.5*pG->dx2),x3);
-        phil = (*StaticGravPot)(x1,(x2-0.5*pG->dx2),x3);
+        phir = (*ExternalGravPot)(x1,(x2+0.5*pG->dx2),x3, pG->time + 0.5*pG->dt);
+        phil = (*ExternalGravPot)(x1,(x2-0.5*pG->dx2),x3, pG->time + 0.5*pG->dt);
 
         pG->U[ks][j][i].M2 -= dtodx2*(phir-phil)*Uhalf[j][i].d;
 #ifndef BAROTROPIC
@@ -897,7 +897,7 @@ void integrate_2d_vl(DomainS *pD)
       S[j][i] -= dtodx2*(x2FluxS[j+1][i]  - x2FluxS[j][i]);
 #endif
     }
-  }  
+  }
 
 #ifdef FIRST_ORDER_FLUX_CORRECTION
 /*=== STEP 15: First-order flux correction ===================================*/
@@ -981,35 +981,35 @@ void integrate_2d_vl(DomainS *pD)
       }
 #ifdef USE_ENTROPY_FIX
       if (flag_cell != 0) {
-	entropy++;
-	Wcheck = entropy_fix (&(pG->U[ks][j][i]),&(S[j][i]));
-	Ucheck = Prim_to_Cons(&Wcheck);
-	Wcheck = check_Prim(&Ucheck);
-	Vsq = SQR(Wcheck.V1) + SQR(Wcheck.V2) + SQR(Wcheck.V3);
-	if (Wcheck.d > 0.0 && Wcheck.P > 0.0 && Vsq < 1.0){
+        entropy++;
+        Wcheck = entropy_fix (&(pG->U[ks][j][i]),&(S[j][i]));
+        Ucheck = Prim_to_Cons(&Wcheck);
+        Wcheck = check_Prim(&Ucheck);
+        Vsq = SQR(Wcheck.V1) + SQR(Wcheck.V2) + SQR(Wcheck.V3);
+        if (Wcheck.d > 0.0 && Wcheck.P > 0.0 && Vsq < 1.0){
           pG->U[ks][j][i].d = Ucheck.d;
           pG->U[ks][j][i].M1 = Ucheck.M1;
           pG->U[ks][j][i].M2 = Ucheck.M2;
           pG->U[ks][j][i].M3 = Ucheck.M3;
           pG->U[ks][j][i].E = Ucheck.E;
-	  flag_cell = 0;
-	}
+          flag_cell = 0;
+        }
       }
 #endif
       if (flag_cell != 0) {
-	final++;
-	Wcheck = fix_vsq (&(pG->U[ks][j][i]));
-	Ucheck = Prim_to_Cons(&Wcheck);
-	pG->U[ks][j][i].d = Ucheck.d;
-	pG->U[ks][j][i].M1 = Ucheck.M1;
-	pG->U[ks][j][i].M2 = Ucheck.M2;
-	pG->U[ks][j][i].M3 = Ucheck.M3;
-	pG->U[ks][j][i].E = Ucheck.E;
-	Wcheck = check_Prim(&(pG->U[ks][j][i]));
-	Vsq = SQR(Wcheck.V1) + SQR(Wcheck.V2) + SQR(Wcheck.V3);
-	if (Wcheck.d < 0.0 || Wcheck.P < 0.0 || Vsq > 1.0){
-	  fail++;
-	}  
+        final++;
+        Wcheck = fix_vsq (&(pG->U[ks][j][i]));
+        Ucheck = Prim_to_Cons(&Wcheck);
+        pG->U[ks][j][i].d = Ucheck.d;
+        pG->U[ks][j][i].M1 = Ucheck.M1;
+        pG->U[ks][j][i].M2 = Ucheck.M2;
+        pG->U[ks][j][i].M3 = Ucheck.M3;
+        pG->U[ks][j][i].E = Ucheck.E;
+        Wcheck = check_Prim(&(pG->U[ks][j][i]));
+        Vsq = SQR(Wcheck.V1) + SQR(Wcheck.V2) + SQR(Wcheck.V3);
+        if (Wcheck.d < 0.0 || Wcheck.P < 0.0 || Vsq > 1.0){
+          fail++;
+        }
       }
     }
   }
@@ -1251,14 +1251,14 @@ void integrate_init_2d(MeshS *pM)
     == NULL) goto on_error;
   if ((Wr_x2Face = (Prim1DS**)calloc_2d_array(size2,size1, sizeof(Prim1DS)))
     == NULL) goto on_error;
-  if ((x1Flux    = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS))) 
+  if ((x1Flux    = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS)))
     == NULL) goto on_error;
-  if ((x2Flux    = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS))) 
+  if ((x2Flux    = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS)))
     == NULL) goto on_error;
 #ifdef FIRST_ORDER_FLUX_CORRECTION
-  if ((x1FluxP = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS))) 
+  if ((x1FluxP = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS)))
     == NULL) goto on_error;
-  if ((x2FluxP = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS))) 
+  if ((x2FluxP = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS)))
     == NULL) goto on_error;
 #ifdef MHD
   if ((emf3P = (Real**)calloc_2d_array(size2, size1, sizeof(Real))) == NULL)
@@ -1358,14 +1358,14 @@ void integrate_destruct_2d(void)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn static void integrate_emf3_corner(GridS *pG)
- *  \brief Integrates face centered B-fluxes to compute corner EMFs. 
+ *  \brief Integrates face centered B-fluxes to compute corner EMFs.
  *
  *   Note:
  * - x1Flux.By = VxBy - BxVy = v1*b2-b1*v2 = -EMFZ
  * - x1Flux.Bz = VxBz - BxVz = v1*b3-b1*v3 = EMFY
  * - x2Flux.By = VxBy - BxVy = v2*b3-b2*v3 = -EMFX
  * - x2Flux.Bz = VxBz - BxVz = v2*b1-b2*v1 = EMFZ
- */ 
+ */
 
 #ifdef MHD
 static void integrate_emf3_corner(GridS *pG)
@@ -1445,7 +1445,7 @@ static void integrate_emf3_corner(GridS *pG)
 /*----------------------------------------------------------------------------*/
 /*! \fn static void FixCell(GridS *pG, Int3Vect ix)
  *  \brief Uses first order fluxes to fix negative d,P or superluminal v
- */ 
+ */
 static void FixCell(GridS *pG, Int3Vect ix)
 {
   int ks=pG->ks;
@@ -1649,7 +1649,7 @@ static void FixCell(GridS *pG, Int3Vect ix)
 
 #ifdef STATIC_MESH_REFINEMENT
 /* With SMR, replace higher-order fluxes with predict fluxes in case they are
- * used at fine/coarse grid boundaries */ 
+ * used at fine/coarse grid boundaries */
 
   x1Flux[ix.j][ix.i] = x1FluxP[ix.j][ix.i];
   x2Flux[ix.j][ix.i] = x2FluxP[ix.j][ix.i];

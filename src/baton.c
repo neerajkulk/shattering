@@ -27,7 +27,7 @@
 
 /*! \fn void baton_start(const int Nb, const int tag)
  *  \brief This function starts off a "Baton Passing" scheme for regulating
- * the maximum number of processes active at a given moment. 
+ * the maximum number of processes active at a given moment.
  *
  * NOTES on baton_start() and baton_stop():
  *

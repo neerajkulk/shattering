@@ -1,13 +1,13 @@
 #include "copyright.h"
 /*============================================================================*/
-/*! \file dump_vtk.c 
+/*! \file dump_vtk.c
  *  \brief Function to write a dump in VTK "legacy" format.
  *
  * PURPOSE: Function to write a dump in VTK "legacy" format.  With SMR,
  *   dumps are made for all levels and domains, unless nlevel and ndomain are
  *   specified in <output> block.  Works for BOTH conserved and primitives.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - dump_vtk() - writes VTK dump (all variables).			      */
 /*============================================================================*/
 

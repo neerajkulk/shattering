@@ -68,7 +68,7 @@ void problem(DomainS *pDomain){
 #endif
 
    rjet = par_getd("problem", "rjet");
-   
+
    U = Prim1D_to_Cons1D(&W, &Bx);
    Ujet = Prim1D_to_Cons1D(&Wjet, &Bxjet);
 
@@ -98,7 +98,7 @@ void problem(DomainS *pDomain){
    }
 
 /* initialize conserved variables */
-   
+
    for(k=kl; k<=ku; k++){
       for(j=jl; j<=ju; j++){
          for(i=il; i<=iu; i++){
@@ -163,7 +163,7 @@ void problem_read_restart(MeshS *pM, FILE *fp)
   for (nl=0; nl<pM->NLevels; nl++){
   for (nd=0; nd<pM->DomainsPerLevel[nl]; nd++){
     if (pM->Domain[nl][nd].Grid != NULL) {
-      if (pM->Domain[nl][nd].Disp[0] == 0) 
+      if (pM->Domain[nl][nd].Disp[0] == 0)
         bvals_mhd_fun(&(pM->Domain[nl][nd]),left_x1,jet_iib);
     }
   }}
@@ -194,7 +194,7 @@ void Userwork_after_loop(MeshS *pM)
 /*===================== PRIVATE FUNCTIONS ====================================*/
 
 /******************************************************************************/
-/*! \fn void jet_iib(GridS *pGrid) 
+/*! \fn void jet_iib(GridS *pGrid)
  *  \brief Sets ghost zones to either outflow BC or
  * if cell is within jet radius, to jet values */
 /******************************************************************************/
@@ -210,7 +210,7 @@ void jet_iib(GridS *pGrid){
       for(i=1; i<=nghost; i++){
         cc_pos(pGrid,(is-i),j,k,&x1,&x2,&x3);
         rad = sqrt(SQR(x2 - x2_mid) + SQR(x3 - x3_mid));
-            
+
         if(rad <= rjet){
           pGrid->U[k][j][is-i].d  = Ujet.d;
           pGrid->U[k][j][is-i].M1 = Ujet.Mx;

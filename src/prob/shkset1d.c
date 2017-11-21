@@ -1,7 +1,7 @@
 #include "copyright.h"
 /*============================================================================*/
-/*! \file shkset1d.c 
- *  \brief Problem generator for 1-D Riemann problems.  
+/*! \file shkset1d.c
+ *  \brief Problem generator for 1-D Riemann problems.
  *
  * PURPOSE: Problem generator for 1-D Riemann problems.  Initial discontinuity
  *   is located so there are equal numbers of cells to the left and right (at
@@ -406,7 +406,7 @@ void problem(DomainS *pDomain)
           r0 = 1.0;
         }
 #endif /* MHD */
- 
+
         RootSoln[k][j][i].d = d0;
 
         RootSoln[k][j][i].M1 = Mx*cos_a2*cos_a3 - My*sin_a3 - Mz*sin_a2*cos_a3;
@@ -538,7 +538,7 @@ void Userwork_after_loop(MeshS *pM)
       error.d   += fabs(pGrid->U[k][j][i].d   - RootSoln[k][j][i].d );
       error.M1  += fabs(pGrid->U[k][j][i].M1  - RootSoln[k][j][i].M1);
       error.M2  += fabs(pGrid->U[k][j][i].M2  - RootSoln[k][j][i].M2);
-      error.M3  += fabs(pGrid->U[k][j][i].M3  - RootSoln[k][j][i].M3); 
+      error.M3  += fabs(pGrid->U[k][j][i].M3  - RootSoln[k][j][i].M3);
 #ifdef MHD
       error.B1c += fabs(pGrid->U[k][j][i].B1c - RootSoln[k][j][i].B1c);
       error.B2c += fabs(pGrid->U[k][j][i].B2c - RootSoln[k][j][i].B2c);
@@ -581,7 +581,7 @@ void Userwork_after_loop(MeshS *pM)
 #endif
   count = Nx1*Nx2*Nx3;
 
-#ifdef MPI_PARALLEL 
+#ifdef MPI_PARALLEL
 /* Now we have to use an All_Reduce to get the total error over all the MPI
  * grids.  Begin by copying the error into the err[] array */
 
@@ -634,7 +634,7 @@ void Userwork_after_loop(MeshS *pM)
   rms_error = SQR(total_error.d) + SQR(total_error.M1) + SQR(total_error.M2)
                 + SQR(total_error.M3);
 #ifdef MHD
-  rms_error += SQR(total_error.B1c) + SQR(total_error.B2c) 
+  rms_error += SQR(total_error.B1c) + SQR(total_error.B2c)
                + SQR(total_error.B3c);
 #endif /* MHD */
 #ifndef ISOTHERMAL
@@ -696,10 +696,10 @@ void Userwork_after_loop(MeshS *pM)
   fprintf(fp,"%d  %d  %d  %e",Nx1,Nx2,Nx3,rms_error);
 
   fprintf(fp,"  %e  %e  %e  %e",
-	  (total_error.d/(double)count),
-	  (total_error.M1/(double)count),
-	  (total_error.M2/(double)count),
-	  (total_error.M3/(double)count) );
+          (total_error.d/(double)count),
+          (total_error.M1/(double)count),
+          (total_error.M2/(double)count),
+          (total_error.M3/(double)count) );
 
 #ifndef ISOTHERMAL
   fprintf(fp,"  %e",(total_error.E/(double)count) );
@@ -707,9 +707,9 @@ void Userwork_after_loop(MeshS *pM)
 
 #ifdef MHD
   fprintf(fp,"  %e  %e  %e",
-	  (total_error.B1c/(double)count),
-	  (total_error.B2c/(double)count),
-	  (total_error.B3c/(double)count));
+          (total_error.B1c/(double)count),
+          (total_error.B2c/(double)count),
+          (total_error.B3c/(double)count));
 #endif /* MHD */
 
 #if (NSCALARS > 0)

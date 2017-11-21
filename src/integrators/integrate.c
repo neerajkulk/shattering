@@ -3,7 +3,7 @@
 /*! \file integrate.c
  *  \brief Contains public functions to set integrator.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - integrate_init()        - set pointer to integrate function based on dim
  * - integrate_destruct()    - call destruct integrate function based on dim */
 /*============================================================================*/

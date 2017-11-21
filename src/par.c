@@ -30,7 +30,7 @@
  * - 7-jan-2003   add_block() find or add a named block             -- TAG
  * - 7-jan-2003   add_par() split into add_par() and add_par_line() -- TAG
  * - 7-jan-2003   mode = 0, par_dump() outputs the comment field    -- TAG
- * - 9-jan-2003   add_par() only overwrites a comment field in an 
+ * - 9-jan-2003   add_par() only overwrites a comment field in an
  *                    existing par if the input comment is != NULL. -- TAG
  * - 9-jan-2003   Column aligned format added to mode=0, par_dump() -- TAG
  * - 1-mar-2004   Moved error out to utils.c as ath_error()         -- PJT
@@ -51,13 +51,13 @@
  * - void par_setd()       - sets/adds a Real
  * - void par_dump()       - print out all Blocks/Pars for debugging
  * - void par_close()      - free memory
- * - void par_dist_mpi()   - broadcast Blocks and Pars to children in MPI 
+ * - void par_dist_mpi()   - broadcast Blocks and Pars to children in MPI
  *
  * VARIABLE TYPE AND STRUCTURE DEFINITIONS:
  * - Par_s   - linked list of parameters
- * - Block_s - linked list of Pars					      
+ * - Block_s - linked list of Pars
  *
- * PRIVATE FUNCTION PROTOTYPES: 
+ * PRIVATE FUNCTION PROTOTYPES:
  * - allocate()       - wrapper for calloc which terminates code on failure
  * - my_strdup()      - wrapper for strdup which terminates code on failure
  * - skipwhite()      - returns pointer to next non-whitespace
@@ -88,7 +88,7 @@ static char *now_filename = NULL; /* keep pointer to last open filename */
 
 /*! \struct Par
  *  \brief Holds a single name=value#comment tuple as a linked list */
-typedef struct Par_s {   
+typedef struct Par_s {
   char *name;                 /* name of the parameter */
   char *value;                /* (string) value of the parameter */
   char *comment;              /* space for comment */
@@ -97,7 +97,7 @@ typedef struct Par_s {
 
 /*! \struct Block
  *  \brief  Linked list of Pars that belong together */
-typedef struct Block_s { 
+typedef struct Block_s {
   char *name;                 /* name of this block */
   Par  *p;                    /* first member of list in this block */
   int max_name_len;           /* length of longest name  in Par list */
@@ -112,7 +112,7 @@ static Block *base_block = NULL;   /* base of all Block's that contain Par's  */
 static int debug = 0;              /* debug level, set to 1 for debug output  */
 
 /*==============================================================================
- * PRIVATE FUNCTION PROTOTYPES: 
+ * PRIVATE FUNCTION PROTOTYPES:
  *   allocate()       - wrapper for calloc which terminates code on failure
  *   my_strdup()      - wrapper for strdup which terminates code on failure
  *   skipwhite()      - returns pointer to next non-whitespace
@@ -146,7 +146,7 @@ void par_debug(int level);
 /*=========================== PUBLIC FUNCTIONS ===============================*/
 /*----------------------------------------------------------------------------*/
 /*! \fn  void par_open(char *filename)
- *  \brief Open a parameter file for R/O access.  
+ *  \brief Open a parameter file for R/O access.
  *
  *  Lines read from the file
  *   are locally patched; all names, values and comments are allocated and put
@@ -163,7 +163,7 @@ void par_open(char *filename)
   if (now_open) ath_error("Parameter file %s still open\n",now_filename);
   if (now_filename) free(now_filename);
   fp = fopen(filename,"r");
-  if (fp == NULL) 
+  if (fp == NULL)
     ath_error("Parameter file %s could not be opened, try -i PARFILE\n"
       ,filename);
   if (debug) fprintf(stdout,"Opening \"%s\" for parameter access\n",filename);
@@ -187,7 +187,7 @@ void par_open(char *filename)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void par_cmdline(int argc, char *argv[]) 
+/*! \fn void par_cmdline(int argc, char *argv[])
  *  \brief Parse a commandline, very forgiving (no warnings) when not in
  *   the right block/name=value format */
 
@@ -233,7 +233,7 @@ void par_cmdline(int argc, char *argv[])
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn int par_exist(char *block, char *name) 
+/*! \fn int par_exist(char *block, char *name)
  *  \brief Return 0 or 1 if a block/name exists */
 
 int par_exist(char *block, char *name)
@@ -313,7 +313,7 @@ int  par_geti_def(char *block, char *name, int def)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn double par_getd_def(char *block, char *name, double def) 
+/*! \fn double par_getd_def(char *block, char *name, double def)
  *  \brief Return double *name in *block if it exists, else use
  *   the double def as a default value  */
 
@@ -341,7 +341,7 @@ void par_sets(char *block, char *name, char *sval, char *comment)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void par_seti(char *block, char *name, char *fmt, int ival, 
+/*! \fn void par_seti(char *block, char *name, char *fmt, int ival,
  *                    char *comment)
  *  \brief Set or add an integer */
 
@@ -384,7 +384,7 @@ void par_dump(int mode, FILE *fp)
     fprintf(fp,"# --------------------- PAR_DUMP -----------------------\n\n");
 
   for(bp = base_block; bp != NULL; bp = bp->next){
-    if (mode == 1) 
+    if (mode == 1)
       fprintf(fp,"%s::\n",bp->name);
     else{
       fprintf(fp,"<%s>\n",bp->name);
@@ -393,11 +393,11 @@ void par_dump(int mode, FILE *fp)
 
     for(pp = bp->p; pp != NULL; pp = pp->next){
       if (mode == 1)
-	fprintf(fp," %s/%s = %s\n",bp->name,pp->name,pp->value);
+        fprintf(fp," %s/%s = %s\n",bp->name,pp->name,pp->value);
       else{
-	fprintf(fp,fmt,pp->name,pp->value);
-	if(pp->comment == NULL) fprintf(fp,"\n");
-	else fprintf(fp," # %s\n",pp->comment);
+        fprintf(fp,fmt,pp->name,pp->value);
+        if(pp->comment == NULL) fprintf(fp,"\n");
+        else fprintf(fp," # %s\n",pp->comment);
       }
     }
     fputc('\n',fp);
@@ -444,7 +444,7 @@ void par_dist_mpi(const int mytid, MPI_Comm comm)
     if (!now_open) ath_error("Parameter file is not open\n");
     if(debug)
       fprintf(stdout,"[par_dist_mpi]: Sending Parameter file \"%s\"\n",
-	      now_filename);
+              now_filename);
 
 /* Share the filename with the children */
     count = 1 + (int)strlen(now_filename);
@@ -461,23 +461,23 @@ void par_dist_mpi(const int mytid, MPI_Comm comm)
 /* Broadcast the block string */
       count = 1 + (int)strlen(line);
       if(MPI_SUCCESS != MPI_Bcast(&count, 1, MPI_INT, 0, comm))
-	ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
+        ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
       if(MPI_SUCCESS != MPI_Bcast(line, count, MPI_CHAR, 0, comm))
-	ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
+        ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
 
       for(pp = bp->p; pp != NULL; pp = pp->next){
 /* Rebuild the "name = value # comment" string */
-	if(pp->comment == NULL)
-	  sprintf(line,"%s = %s",pp->name,pp->value);
-	else
-	  sprintf(line,"%s = %s # %s",pp->name,pp->value,pp->comment);
+        if(pp->comment == NULL)
+          sprintf(line,"%s = %s",pp->name,pp->value);
+        else
+          sprintf(line,"%s = %s # %s",pp->name,pp->value,pp->comment);
 
 /* Broadcast the "name = value # comment" string */
-	count = 1 + (int)strlen(line);
-	if(MPI_SUCCESS != MPI_Bcast(&count, 1, MPI_INT, 0, comm))
-	  ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
-	if(MPI_SUCCESS != MPI_Bcast(line, count, MPI_CHAR, 0, comm))
-	  ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
+        count = 1 + (int)strlen(line);
+        if(MPI_SUCCESS != MPI_Bcast(&count, 1, MPI_INT, 0, comm))
+          ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
+        if(MPI_SUCCESS != MPI_Bcast(line, count, MPI_CHAR, 0, comm))
+          ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
       }
     }
 
@@ -501,23 +501,23 @@ void par_dist_mpi(const int mytid, MPI_Comm comm)
     now_open = 1;
     if(debug)
       fprintf(stdout,"[par_dist_mpi]: Recieving Parameter file \"%s\"\n",
-	      now_filename);
+              now_filename);
 
     if(MPI_SUCCESS != MPI_Bcast(&count, 1, MPI_INT, 0, comm))
       ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
     while(count > 0){
       if(MPI_SUCCESS != MPI_Bcast(line, count, MPI_CHAR, 0, comm))
-	ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
+        ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
 
       if (*line == '<') {                   /* a new Block */
-	block_name = line_block_name(line); /* extract name from <name> */
-	bp = add_block(block_name); /* find or add a block with this name */
+        block_name = line_block_name(line); /* extract name from <name> */
+        bp = add_block(block_name); /* find or add a block with this name */
       }
       else
-	add_par_line(bp,line);              /* add par to this block */
+        add_par_line(bp,line);              /* add par to this block */
 
       if(MPI_SUCCESS != MPI_Bcast(&count, 1, MPI_INT, 0, comm))
-	ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
+        ath_error("[par_dist_mpi]: Error on calling MPI_Bcast\n");
     }
 
     if(debug)
@@ -531,12 +531,12 @@ void par_dist_mpi(const int mytid, MPI_Comm comm)
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 
 /*--------------------------------------------------------------------------- */
-/*! \fn static void *allocate(size_t size) 
- *  \brief Handy to call if you want to be certain to get the memory, 
+/*! \fn static void *allocate(size_t size)
+ *  \brief Handy to call if you want to be certain to get the memory,
  *   else it will die here
  */
 
-static void *allocate(size_t size) 
+static void *allocate(size_t size)
 {
   void *mem = calloc(1,size);
 
@@ -587,12 +587,12 @@ static void str_term(char *cp)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn static char *line_block_name(char *line) 
+/*! \fn static char *line_block_name(char *line)
  *  \brief Extract a block name from a line containing <block>
  *   Note it returns pointer into a patched piece of the input 'line'
  */
 
-static char *line_block_name(char *line) 
+static char *line_block_name(char *line)
 {
   char *sp, *cp;
 
@@ -610,7 +610,7 @@ static char *line_block_name(char *line)
 /*----------------------------------------------------------------------------*/
 /*! \fn static void add_par(Block *bp, char *name, char *value, char *comment)
  *  \brief Add a name = value # comment set to the Par list in the
- *   block *bp.  
+ *   block *bp.
  *
  *  If a parameter with the input name exists the value is
  *   replaced and if the input comment string is non-NULL it is also overwritten
@@ -633,7 +633,7 @@ static void add_par(Block *bp, char *name, char *value, char *comment)
     if(comment == NULL) printf("\n");
     else printf(" # %s\n",comment);
     printf("   max_name_len  = %d\n   max_value_len = %d\n",
-	   bp->max_name_len,bp->max_value_len);
+           bp->max_name_len,bp->max_value_len);
   }
 
   for(pnext = &(bp->p); (pp = *pnext) != NULL; pnext = &(pp->next)){
@@ -643,8 +643,8 @@ static void add_par(Block *bp, char *name, char *value, char *comment)
       pp->value = my_strdup(value);
 /* Optionally replace the comment with the new comment */
       if(comment != NULL){
-	if(pp->comment != NULL) free(pp->comment);
-	pp->comment = my_strdup(comment);
+        if(pp->comment != NULL) free(pp->comment);
+        pp->comment = my_strdup(comment);
       }
       return;
     }
@@ -662,7 +662,7 @@ static void add_par(Block *bp, char *name, char *value, char *comment)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn static void add_par_line(Block *bp, char *line)
- *  \brief Parse a line, assume it's "key = value # comment" 
+ *  \brief Parse a line, assume it's "key = value # comment"
  *   and add it into a block
  */
 
@@ -679,8 +679,8 @@ static void add_par_line(Block *bp, char *line)
   for(cp = name; *cp != '\0'; cp++){/* Find the first '=' and '#' */
     if(*cp == '='){
       if(equal == NULL){
-	equal = cp;                 /* store the equals sign location */
-	value = skipwhite(cp + 1);  /* value */
+        equal = cp;                 /* store the equals sign location */
+        value = skipwhite(cp + 1);  /* value */
       }
     }
     if(*cp == '#'){
@@ -821,7 +821,7 @@ static char *par_getsl(char *block, char *name)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void par_debug(int level)
- *  \brief Set debug flag to level.  Call with argument=1 to enable 
+ *  \brief Set debug flag to level.  Call with argument=1 to enable
  *   diagnositc output.    Alas, not really for the outside world to use */
 
 void par_debug(int level) {      /* un - advertised :-) */
@@ -877,7 +877,7 @@ int main(int argc, char *argv[])
       free(cp);
     }
   }
- 
+
   par_dist_mpi(mytid,MPI_COMM_WORLD);
   par_dump(0,stdout);
   par_close();

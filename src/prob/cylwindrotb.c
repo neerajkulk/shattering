@@ -1,7 +1,7 @@
 #include "copyright.h"
 /*============================================================================*/
 /*! \file cylwindrotb.c
- *  \brief The cylindrical analogue of the Bondi accretion (Parker wind) 
+ *  \brief The cylindrical analogue of the Bondi accretion (Parker wind)
  *  problem with rotation and magnetic field.  Axisymmetric.
  */
 /*============================================================================*/
@@ -186,7 +186,7 @@ void problem(DomainS *pDomain)
     }
   }
 
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
   bvals_mhd_fun(pDomain,left_x1,do_nothing_bc);
   bvals_mhd_fun(pDomain,right_x1,do_nothing_bc);
 
@@ -235,21 +235,21 @@ void Userwork_after_loop(MeshS *pM)
 
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 
-/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3) 
+/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3)
  *  \brief Gravitational potential */
 static Real grav_pot(const Real x1, const Real x2, const Real x3) {
   return -GM/x1;
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn Real myfunc(const Real x, const Real y) 
- *  \brief This function is used to calculate y (ie. rho) as a function of x 
+/*! \fn Real myfunc(const Real x, const Real y)
+ *  \brief This function is used to calculate y (ie. rho) as a function of x
  *  (ie. R), gamma, eta, theta, omega, and E using the bisection method.
  *
  */
 
-Real myfunc(const Real x, const Real y) 
+Real myfunc(const Real x, const Real y)
 {
-  return eta/(2.0*pow(x,2)*pow(y,2)) + (theta/Gamma_1)*pow(y,Gamma_1) 
+  return eta/(2.0*pow(x,2)*pow(y,2)) + (theta/Gamma_1)*pow(y,Gamma_1)
     - 1.0/x + 0.5*omega*(pow(x-1.0/x,2)/pow(y-1,2) - pow(x,2)) - E;
 }

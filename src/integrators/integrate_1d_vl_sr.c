@@ -7,8 +7,8 @@
  * PURPOSE: Integrate SRMHD equations using 1D version of MUSCL-Hancock (VL)
  *   integrator.  Updates U.[d,M1,M2,M3,E,B2c,B3c,s] in Grid structure.
  *   Adds gravitational source terms, self-gravity.
- *        
- * CONTAINS PUBLIC FUNCTIONS: 
+ *
+ * CONTAINS PUBLIC FUNCTIONS:
  * - integrate_1d_vl()
  * - integrate_init_1d()
  * - integrate_destruct_1d() */
@@ -54,8 +54,8 @@ static void FixCell(GridS *pG, Int3Vect);
 
 /*=========================== PUBLIC FUNCTIONS ===============================*/
 /*----------------------------------------------------------------------------*/
-/*! \fn void integrate_1d_vl(DomainS *pD) 
- *  \brief 1D version of van Leer unsplit integrator for MHD. 
+/*! \fn void integrate_1d_vl(DomainS *pD)
+ *  \brief 1D version of van Leer unsplit integrator for MHD.
  *
  *   The numbering of steps follows the numbering in the 3D version.
  *   NOT ALL STEPS ARE NEEDED IN 1D.
@@ -99,7 +99,7 @@ void integrate_1d_vl(DomainS *pD)
 /* No source terms are needed since there is no temporal evolution */
 
 /*--- Step 1a ------------------------------------------------------------------
- * Load 1D vector of primitive variables;  
+ * Load 1D vector of primitive variables;
  * W1d = (d, V1, V2, V3, P, B2c, B3c, s[n])
  */
 
@@ -182,12 +182,12 @@ void integrate_1d_vl(DomainS *pD)
  *    S_{M} = -(\rho) Grad(Phi);   S_{E} = -(\rho v) Grad{Phi}
  */
 
-  if (StaticGravPot != NULL){
+  if (ExternalGravPot != NULL){
     for (i=il; i<=iu; i++) {
       cc_pos(pG,i,js,ks,&x1,&x2,&x3);
-      phic = (*StaticGravPot)((x1            ),x2,x3);
-      phir = (*StaticGravPot)((x1+0.5*pG->dx1),x2,x3);
-      phil = (*StaticGravPot)((x1-0.5*pG->dx1),x2,x3);
+      phic = (*ExternalGravPot)((x1            ),x2,x3, pG->time + 0.5*pG->dt);
+      phir = (*ExternalGravPot)((x1+0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+      phil = (*ExternalGravPot)((x1-0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
 
       Uhalf[i].M1 -= hdtodx1*pG->U[ks][js][i].d*(phir-phil);
       Uhalf[i].E -= hdtodx1*(x1Flux[i  ].d*(phic - phil) +
@@ -196,14 +196,14 @@ void integrate_1d_vl(DomainS *pD)
   }
 
 /*=== STEP 7: Conserved->Primitive variable inversion at t^{n+1/2} ===========*/
-        
-/* Invert conserved variables at t^{n+1/2} to primitive variables. With FOFC, 
- * if cell-centered d < 0, P< 0, or v^2 > 1, correct by switching back to 
+
+/* Invert conserved variables at t^{n+1/2} to primitive variables. With FOFC,
+ * if cell-centered d < 0, P< 0, or v^2 > 1, correct by switching back to
  * values at beginning of step, rendering update first order in time for that
  * cell.
  */
 
-#ifdef FIRST_ORDER_FLUX_CORRECTION        
+#ifdef FIRST_ORDER_FLUX_CORRECTION
   negd = 0;
   negP = 0;
   superl = 0;
@@ -211,7 +211,7 @@ void integrate_1d_vl(DomainS *pD)
 #endif
   for (i=il; i<=iu; i++) {
     Whalf[i] = Cons_to_Prim(&Uhalf[i]);
-#ifdef FIRST_ORDER_FLUX_CORRECTION   
+#ifdef FIRST_ORDER_FLUX_CORRECTION
     if (Whalf[i].d < 0.0) {
       flag_cell = 1;
       negd++;
@@ -236,7 +236,7 @@ void integrate_1d_vl(DomainS *pD)
 #endif
   }
 
-#ifdef FIRST_ORDER_FLUX_CORRECTION  
+#ifdef FIRST_ORDER_FLUX_CORRECTION
   if (negd > 0 || negP > 0 || superl > 0)
     printf("[Step7]: %i cells had d<0; %i cells had P<0; %i cells had v>1\n"
                                  ,negd,negP,superl);
@@ -308,9 +308,9 @@ void integrate_1d_vl(DomainS *pD)
   }
 
 /*=== STEP 12: Not needed in 1D ===*/
-        
+
 /*=== STEP 13: Add source terms for a full timestep using n+1/2 states =======*/
-       
+
 /*--- Step 13a -----------------------------------------------------------------
  * Add gravitational source terms due to a Static Potential
  * To improve conservation of total energy, we average the energy
@@ -318,12 +318,12 @@ void integrate_1d_vl(DomainS *pD)
  *    S_{M} = -(\rho)^{n+1/2} Grad(Phi);   S_{E} = -(\rho v)^{n+1/2} Grad{Phi}
  */
 
-  if (StaticGravPot != NULL){
+  if (ExternalGravPot != NULL){
     for (i=is; i<=ie; i++) {
       cc_pos(pG,i,js,ks,&x1,&x2,&x3);
-      phic = (*StaticGravPot)((x1            ),x2,x3);
-      phir = (*StaticGravPot)((x1+0.5*pG->dx1),x2,x3);
-      phil = (*StaticGravPot)((x1-0.5*pG->dx1),x2,x3);
+      phic = (*ExternalGravPot)((x1            ),x2,x3, pG->time + 0.5*pG->dt);
+      phir = (*ExternalGravPot)((x1+0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+      phil = (*ExternalGravPot)((x1-0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
 
       pG->U[ks][js][i].M1 -= dtodx1*Uhalf[i].d*(phir-phil);
 #ifndef BAROTROPIC
@@ -366,7 +366,7 @@ void integrate_1d_vl(DomainS *pD)
 /*--- Step 15a -----------------------------------------------------------------
  * If cell-centered d or P have gone negative, or if v^2 > 1, correct
  * by using 1st order predictor fluxes */
-        
+
   for (i=is; i<=ie; i++) {
       Wcheck = check_Prim(&(pG->U[ks][js][i]));
       if (Wcheck.d < 0.0) {
@@ -448,7 +448,7 @@ void integrate_1d_vl(DomainS *pD)
       Wcheck = check_Prim(&(pG->U[ks][js][i]));
       Vsq = SQR(Wcheck.V1) + SQR(Wcheck.V2) + SQR(Wcheck.V3);
       if (Wcheck.d < 0.0 || Wcheck.P < 0.0 || Vsq > 1.0){
-	fail++;
+        fail++;
       }
     }
   }
@@ -612,40 +612,40 @@ void integrate_destruct_1d(void)
 /*----------------------------------------------------------------------------*/
 /*! \fn static void FixCell(GridS *pG, Int3Vect indx)
  *  \brief Uses first order fluxes to fix negative d,P or superluminal v
- */ 
+ */
 static void FixCell(GridS *pG, Int3Vect indx)
 {
   int ks=pG->ks,js=pG->js;
   Real dtodx1=pG->dt/pG->dx1;
   Cons1DS x1FD_i, x1FD_ip1, x2FD_j, x2FD_jp1;
-  
+
   /* Compute difference of predictor and corrector fluxes at cell faces */
-  
+
   x1FD_i.d    = x1Flux[indx.i  ].d - x1FluxP[indx.i  ].d;
   x1FD_ip1.d  = x1Flux[indx.i+1].d - x1FluxP[indx.i+1].d;
-        
+
   x1FD_i.Mx    = x1Flux[indx.i  ].Mx - x1FluxP[indx.i  ].Mx;
   x1FD_ip1.Mx  = x1Flux[indx.i+1].Mx - x1FluxP[indx.i+1].Mx;
-        
+
   x1FD_i.My    = x1Flux[indx.i  ].My - x1FluxP[indx.i  ].My;
   x1FD_ip1.My  = x1Flux[indx.i+1].My - x1FluxP[indx.i+1].My;
-        
+
   x1FD_i.Mz    = x1Flux[indx.i  ].Mz - x1FluxP[indx.i  ].Mz;
   x1FD_ip1.Mz  = x1Flux[indx.i+1].Mz - x1FluxP[indx.i+1].Mz;
-        
+
 #ifdef MHD
   x1FD_i.By    = x1Flux[indx.i  ].By - x1FluxP[indx.i  ].By;
   x1FD_ip1.By  = x1Flux[indx.i+1].By - x1FluxP[indx.i+1].By;
-        
+
   x1FD_i.Bz    = x1Flux[indx.i  ].Bz - x1FluxP[indx.i  ].Bz;
   x1FD_ip1.Bz  = x1Flux[indx.i+1].Bz - x1FluxP[indx.i+1].Bz;
 #endif
-        
+
 #ifndef BAROTROPIC
   x1FD_i.E    = x1Flux[indx.i  ].E - x1FluxP[indx.i  ].E;
   x1FD_ip1.E  = x1Flux[indx.i+1].E - x1FluxP[indx.i+1].E;
 #endif /* BAROTROPIC */
-        
+
   /* Use flux differences to correct bad cell */
   pG->U[ks][js][indx.i].d  += dtodx1*(x1FD_ip1.d  - x1FD_i.d );
   pG->U[ks][js][indx.i].M1 += dtodx1*(x1FD_ip1.Mx - x1FD_i.Mx);
@@ -661,9 +661,9 @@ static void FixCell(GridS *pG, Int3Vect indx)
 #ifndef BAROTROPIC
   pG->U[ks][js][indx.i].E  += dtodx1*(x1FD_ip1.E  - x1FD_i.E );
 #endif /* BAROTROPIC */
-        
-        
-  /* Use flux differences to correct bad cell neighbors at i-1 and i+1 */      
+
+
+  /* Use flux differences to correct bad cell neighbors at i-1 and i+1 */
   if (indx.i > pG->is) {
     pG->U[ks][js][indx.i-1].d  += dtodx1*(x1FD_i.d );
     pG->U[ks][js][indx.i-1].M1 += dtodx1*(x1FD_i.Mx);
@@ -680,7 +680,7 @@ static void FixCell(GridS *pG, Int3Vect indx)
     pG->U[ks][js][indx.i-1].E  += dtodx1*(x1FD_i.E );
 #endif /* BAROTROPIC */
   }
-        
+
   if (indx.i < pG->ie) {
     pG->U[ks][js][indx.i+1].d  -= dtodx1*(x1FD_ip1.d );
     pG->U[ks][js][indx.i+1].M1 -= dtodx1*(x1FD_ip1.Mx);
@@ -697,7 +697,7 @@ static void FixCell(GridS *pG, Int3Vect indx)
     pG->U[ks][js][indx.i+1].E  -= dtodx1*(x1FD_ip1.E );
 #endif /* BAROTROPIC */
   }
-        
+
 }
 #endif /* FIRST_ORDER_FLUX_CORRECTION */
 

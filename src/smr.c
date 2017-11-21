@@ -9,14 +9,14 @@
  * - G. Toth and P.L. Roe, "Divergence and Curl-preserving prolongation and
  *   restriction formulas", JCP 180, 736 (2002)
  *
- * CONTAINS PUBLIC FUNCTIONS: 
- * - RestrictCorrect(): restricts (averages) fine Grid solution to coarse, and 
+ * CONTAINS PUBLIC FUNCTIONS:
+ * - RestrictCorrect(): restricts (averages) fine Grid solution to coarse, and
  *    corrects cells at fine/coarse boundaries using restricted fine Grid fluxes
  * - Prolongate(): sets BC on fine Grid by prolongation (interpolation) of
  *     coarse Grid solution into fine grid ghost zones
  * - SMR_init(): allocates memory for send/receive buffers
  *
- * PRIVATE FUNCTION PROTOTYPES: 
+ * PRIVATE FUNCTION PROTOTYPES:
  * - ProCon() - prolongates conserved variables
  * - ProFld() - prolongates face-centered B field using TR formulas
  * - mcd_slope() - returns monotonized central-difference slope		      */
@@ -33,8 +33,8 @@
 
 #ifdef STATIC_MESH_REFINEMENT
 
-static double **send_bufP= NULL; 
-static double **send_bufRC=NULL; 
+static double **send_bufP= NULL;
+static double **send_bufRC=NULL;
 static double ***recv_bufP= NULL;
 #ifdef MPI_PARALLEL
 static double ***recv_bufRC=NULL;
@@ -50,7 +50,7 @@ Real3Vect ***BFld[3];
 #endif
 
 /*==============================================================================
- * PRIVATE FUNCTION PROTOTYPES: 
+ * PRIVATE FUNCTION PROTOTYPES:
  *   ProCon - prolongates conserved variables
  *   ProFld - prolongates face-centered B field using TR formulas
  *   mcd_slope - returns monotonized central-difference slope
@@ -60,7 +60,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
             const ConsS Ujm1,const ConsS Ujp1,
             const ConsS Ukm1,const ConsS Ukp1, ConsS PCon[][2][2]);
 #ifdef MHD
-void ProFld(Real3Vect BGZ[][3][3], Real3Vect PFld[][3][3], 
+void ProFld(Real3Vect BGZ[][3][3], Real3Vect PFld[][3][3],
   const Real dx1c, const Real dx2c, const Real dx3c);
 #endif /* MHD */
 #ifndef FIRST_ORDER
@@ -70,7 +70,7 @@ static Real mcd_slope(const Real vl, const Real vc, const Real vr);
 /*=========================== PUBLIC FUNCTIONS ===============================*/
 /*----------------------------------------------------------------------------*/
 /*! \fn void RestrictCorrect(MeshS *pM)
- *  \brief Restricts (averages) fine Grid solution to coarse, and 
+ *  \brief Restricts (averages) fine Grid solution to coarse, and
  *    corrects cells at fine/coarse boundaries using restricted fine Grid fluxes
  */
 
@@ -105,7 +105,7 @@ void RestrictCorrect(MeshS *pM)
 #ifdef MPI_PARALLEL
 /* Post non-blocking receives at level nl-1 for data from child Grids at this
  * level (nl).  This data is sent in Step 3 below, and will be read in Step 1
- * at the next iteration of the loop. */ 
+ * at the next iteration of the loop. */
 
   if (nl>0) {
     for (nd=0; nd<(pM->DomainsPerLevel[nl-1]); nd++){
@@ -172,7 +172,7 @@ void RestrictCorrect(MeshS *pM)
         if(mIndex == MPI_UNDEFINED){
           ath_error("[RestCorr]: Invalid request index nl=%i nd=%i\n",nl,nd);
         }
-      
+
 /* Recv buffer is addressed from 0 for first MPI message, even if NmyCGrid>0 */
 
         mIndex += pG->NmyCGrid;
@@ -405,7 +405,7 @@ void RestrictCorrect(MeshS *pM)
             pG->U[k][j][i].B3c -= q1*(pCO->myFlx[dim][kk][jj].B3c - *(pRcv++));
 #endif /* MHD */
 #if (NSCALARS > 0)
-            for (n=0; n<NSCALARS; n++) pG->U[k][j][i].s[n] -= 
+            for (n=0; n<NSCALARS; n++) pG->U[k][j][i].s[n] -=
               q1*(pCO->myFlx[dim][kk][jj].s[n] - *(pRcv++));
 #endif
           }}
@@ -433,7 +433,7 @@ void RestrictCorrect(MeshS *pM)
             pG->U[k][j][i].B3c -= q2*(pCO->myFlx[dim][kk][ii].B3c - *(pRcv++));
 #endif /* MHD */
 #if (NSCALARS > 0)
-            for (n=0; n<NSCALARS; n++) pG->U[k][j][i].s[n] -= 
+            for (n=0; n<NSCALARS; n++) pG->U[k][j][i].s[n] -=
               q2*(pCO->myFlx[dim][kk][ii].s[n] - *(pRcv++));
 #endif
           }}
@@ -461,7 +461,7 @@ void RestrictCorrect(MeshS *pM)
             pG->U[k][j][i].B3c -= q3*(pCO->myFlx[dim][jj][ii].B3c - *(pRcv++));
 #endif /* MHD */
 #if (NSCALARS > 0)
-            for (n=0; n<NSCALARS; n++) pG->U[k][j][i].s[n] -= 
+            for (n=0; n<NSCALARS; n++) pG->U[k][j][i].s[n] -=
               q3*(pCO->myFlx[dim][jj][ii].s[n] - *(pRcv++));
 #endif
           }}
@@ -483,9 +483,9 @@ void RestrictCorrect(MeshS *pM)
           if (dim == 0) {
             i=ics-1; ib = ics;
             q1 = -(pG->dt/pG->dx1);
-            q2 = -(pG->dt/pG->dx2); 
+            q2 = -(pG->dt/pG->dx2);
             q3 = -(pG->dt/pG->dx3);
-          } 
+          }
           if (dim == 1) {
             i=ice+1; ib = ice+1;
             q1 =  (pG->dt/pG->dx1);
@@ -549,9 +549,9 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
             * other child Grid */
             kk = kce-kcs+1;
             for (j=jcs, jj=0; j<=jce  ; j++, jj++) {
-              SMRemf2[kk][jj] = *(pRcv++); 
+              SMRemf2[kk][jj] = *(pRcv++);
               if((pCO->myEMF2[5] != NULL) || (kce==pG->ke) || (ice<ics)){
-                pG->B3i[kce+1][j][i] -= 
+                pG->B3i[kce+1][j][i] -=
                   q1*(pCO->myEMF2[dim][kk][jj] - SMRemf2[kk][jj]);
               }
             }
@@ -598,13 +598,13 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
       for (dim=2; dim<4; dim++){
         if (pCO->myEMF3[dim] != NULL) {
           if (dim == 2) {
-            j=jcs-1; jb=jcs; 
+            j=jcs-1; jb=jcs;
             q1 = -(pG->dt/pG->dx1);
             q2 = -(pG->dt/pG->dx2);
             q3 = -(pG->dt/pG->dx3);
           }
           if (dim == 3) {
-            j=jce+1; jb=jce+1; 
+            j=jce+1; jb=jce+1;
             q1 = -(pG->dt/pG->dx1);
             q2 =  (pG->dt/pG->dx2);
             q3 = -(pG->dt/pG->dx3);
@@ -629,7 +629,7 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
           }
           for (k=kcs, kk=0; k<=kce; k++, kk++) {
           for (i=ics, ii=0; i<=ice; i++, ii++) {
-            pG->B2i[k][jb][i] += 
+            pG->B2i[k][jb][i] +=
               q1*(pCO->myEMF3[dim][kk][ii+1] - SMRemf3[kk][ii+1]) -
               q1*(pCO->myEMF3[dim][kk][ii  ] - SMRemf3[kk][ii  ]);
           }}
@@ -638,9 +638,9 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
  * B2i[ice+1].  Normally this is done as correction at x1-boundary */
           if (jce < jcs) {
             for (k=kcs, kk=0; k<=kce; k++, kk++) {
-              pG->B2i[k][jb][ics-1] += 
+              pG->B2i[k][jb][ics-1] +=
                 q1*(pCO->myEMF3[dim][kk][0] - SMRemf3[kk][0]);
-              pG->B2i[k][jb][ice+1] -= 
+              pG->B2i[k][jb][ice+1] -=
                 q1*(pCO->myEMF3[dim][kk][ice-ics+1] - SMRemf3[kk][ice-ics+1]);
             }
           }
@@ -668,7 +668,7 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
 
             for (k=kcs, kk=0; k<=kce; k++, kk++) {
             for (i=ics, ii=0; i<=ice; i++, ii++) {
-              pG->B2i[k][jb][i] -= 
+              pG->B2i[k][jb][i] -=
                 q3*(pCO->myEMF1[dim][kk+1][ii] - SMRemf1[kk+1][ii]) -
                 q3*(pCO->myEMF1[dim][kk  ][ii] - SMRemf1[kk  ][ii]);
             }}
@@ -677,9 +677,9 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
  * B2i[kce+1].  Normally this is done as correction at x3-boundary */
             if (jce < jcs) {
               for (i=ics, ii=0; i<=ice; i++, ii++) {
-                pG->B2i[kcs-1][jb][i] -= 
+                pG->B2i[kcs-1][jb][i] -=
                   q3*(pCO->myEMF1[dim][0][ii] - SMRemf1[0][ii]);
-                pG->B2i[kce+1][jb][i] += 
+                pG->B2i[kce+1][jb][i] +=
                   q3*(pCO->myEMF1[dim][kce-kcs+1][ii] - SMRemf1[kce-kcs+1][ii]);
               }
             }
@@ -708,13 +708,13 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
       for (dim=4; dim<6; dim++){
         if (pCO->myEMF1[dim] != NULL) {
           if (dim == 4) {
-            k=kcs-1; kb=kcs; 
+            k=kcs-1; kb=kcs;
             q1 = -(pG->dt/pG->dx1);
             q2 = -(pG->dt/pG->dx2);
             q3 = -(pG->dt/pG->dx3);
           }
           if (dim == 5) {
-            k=kce+1; kb=kce+1; 
+            k=kce+1; kb=kce+1;
             q1 = -(pG->dt/pG->dx1);
             q2 = -(pG->dt/pG->dx2);
             q3 =  (pG->dt/pG->dx3);
@@ -863,7 +863,7 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
         *(pSnd++) = pG->U[k][j][i].B3c + pG->U[k][j][i+1].B3c;
 #endif
 #if (NSCALARS > 0)
-        for (n=0; n<NSCALARS; n++) 
+        for (n=0; n<NSCALARS; n++)
           *(pSnd++) = pG->U[k][j][i].s[n] + pG->U[k][j][i+1].s[n];
 #endif
       }}}
@@ -890,7 +890,7 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
           *(pSnd++) += pG->U[k][j+1][i].B3c + pG->U[k][j+1][i+1].B3c;
 #endif
 #if (NSCALARS > 0)
-          for (n=0; n<NSCALARS; n++) 
+          for (n=0; n<NSCALARS; n++)
             *(pSnd++) += pG->U[k][j+1][i].s[n] + pG->U[k][j+1][i+1].s[n];
 #endif
         }}}
@@ -926,7 +926,7 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
                        pG->U[k+1][j+1][i].B3c + pG->U[k+1][j+1][i+1].B3c;
 #endif
 #if (NSCALARS > 0)
-          for (n=0; n<NSCALARS; n++) 
+          for (n=0; n<NSCALARS; n++)
             *(pSnd++) += pG->U[k+1][j  ][i].s[n] + pG->U[k+1][j  ][i+1].s[n] +
                          pG->U[k+1][j+1][i].s[n] + pG->U[k+1][j+1][i+1].s[n];
 #endif
@@ -936,7 +936,7 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
       }
 
 /* reset pointer to beginning and normalize averages */
-      pSnd = (double*)&(send_bufRC[nd][start_addr]);  
+      pSnd = (double*)&(send_bufRC[nd][start_addr]);
       for (i=start_addr; i<(start_addr+nCons); i++) *(pSnd++) *= fact;
       cnt = nCons;
 
@@ -1005,7 +1005,7 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
       for (dim=0; dim<2; dim++){
       if (pPO->myFlx[dim] != NULL) {
 
-      pSnd = (double*)&(send_bufRC[nd][(start_addr+cnt)]);  
+      pSnd = (double*)&(send_bufRC[nd][(start_addr+cnt)]);
 
       if (nDim == 1) {  /*----- 1D problem -----*/
 
@@ -1079,7 +1079,7 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
         }
 
 /* reset pointer to beginning of x1-fluxes and normalize averages */
-        pSnd = (double*)&(send_bufRC[nd][(start_addr+cnt)]);  
+        pSnd = (double*)&(send_bufRC[nd][(start_addr+cnt)]);
         for (i=(start_addr+cnt); i<(start_addr+cnt+nFlx); i++) *(pSnd++) *=fact;
       }
       cnt += nFlx;
@@ -1145,7 +1145,7 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
       }
 
 /* reset pointer to beginning of x2-fluxes and normalize averages */
-      pSnd = (double*)&(send_bufRC[nd][(start_addr+cnt)]);  
+      pSnd = (double*)&(send_bufRC[nd][(start_addr+cnt)]);
       for (i=(start_addr+cnt); i<(start_addr+cnt+nFlx); i++) *(pSnd++) *= fact;
       cnt += nFlx;
 
@@ -1206,7 +1206,7 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
       nFlx = ((jpe-jps+1)*(ipe-ips+1)/4)*(NVAR);
 
 /* reset pointer to beginning of x3-fluxes and normalize averages */
-      pSnd = (double*)&(send_bufRC[nd][(start_addr+cnt)]);  
+      pSnd = (double*)&(send_bufRC[nd][(start_addr+cnt)]);
       for (i=(start_addr+cnt); i<(start_addr+cnt+nFlx); i++) *(pSnd++) *= fact;
       cnt += nFlx;
 
@@ -1224,14 +1224,14 @@ printf("js,je = %i %i jcs/jce = %i %i\n",pG->js,pG->je,jcs,jce);
 
 /* 2D problem -- Copy EMF3 */
 
-          if (pG->Nx[2] == 1) {  
+          if (pG->Nx[2] == 1) {
             for (k=0; k<=(kpe-kps)  ; k+=2) {
             for (j=0; j<=(jpe-jps)+1; j+=2) {
               *(pSnd++) = pPO->myEMF3[dim][k][j];
             }}
             cnt += ((jpe-jps+1)/2 + 1);
 
-          } else {  
+          } else {
 
 /* 3D problem -- Conservative averages of EMF3 and EMF2 */
 
@@ -1410,7 +1410,7 @@ void Prolongate(MeshS *pM)
         for (npg=(pG->NmyPGrid); npg<(pG->NPGrid); npg++){
 
 /* Skip if no prolongation needed for this child (only flux correction) */
-          if (pG->PGrid[npg].nWordsP == 0) { 
+          if (pG->PGrid[npg].nWordsP == 0) {
             nZeroP += 1;
           } else {
 
@@ -1442,7 +1442,7 @@ void Prolongate(MeshS *pM)
     for (ncg=0; ncg<(pG->NCGrid); ncg++){
 
 /* Skip if no prolongation needed for this child (only flux correction) */
-    if (pG->CGrid[ncg].nWordsP == 0) { 
+    if (pG->CGrid[ncg].nWordsP == 0) {
         if(ncg >= pG->NmyCGrid)
               nZeroP += 1;
     } else {
@@ -1451,7 +1451,7 @@ void Prolongate(MeshS *pM)
 
 /* index send_buf with DomN of child, since could be multiple child Domains on
  * same processor.  Start address must be different for each DomN */
-      pSnd = (double*)&(send_bufP[pCO->DomN][start_addrP[pCO->DomN]]); 
+      pSnd = (double*)&(send_bufP[pCO->DomN][start_addrP[pCO->DomN]]);
 
       for (dim=0; dim<(2*nDim); dim++){
         if (pCO->myFlx[dim] != NULL) {
@@ -1524,7 +1524,7 @@ void Prolongate(MeshS *pM)
 
       start_addrP[pCO->DomN] += pG->CGrid[ncg].nWordsP;
 
-    } /* end if/else on nWordsP */ 
+    } /* end if/else on nWordsP */
     } /* end loop over child grids */
   }} /* end loop over Domains */
 
@@ -1566,12 +1566,12 @@ void Prolongate(MeshS *pM)
  * if NmyPGrid>0.  Also must remove zero size messages from index. */
 
         mIndex += pG->NmyPGrid;
-        for (i=pG->NmyPGrid; i <= mIndex; i++) 
+        for (i=pG->NmyPGrid; i <= mIndex; i++)
           if (pG->PGrid[i].nWordsP == 0) mIndex++;
 
         mAddress = 0;
         for (i=0; i<mIndex; i++) mAddress += pG->PGrid[i].nWordsP;
-        pPO = (GridOvrlpS*)&(pG->PGrid[mIndex]); 
+        pPO = (GridOvrlpS*)&(pG->PGrid[mIndex]);
         pRcv = (double*)&(recv_bufP[rbufN][nd][mAddress]);
 
 #else
@@ -1743,7 +1743,7 @@ void Prolongate(MeshS *pM)
               pG->U[k+n][j+m][i+l].B3c = ProlongedC[n][m][l].B3c;
 #endif
 #if (NSCALARS > 0)
-              for (ns=0; ns<NSCALARS; ns++) 
+              for (ns=0; ns<NSCALARS; ns++)
                 pG->U[k+n][j+m][i+l].s[ns] = ProlongedC[n][m][l].s[ns];
 #endif
             }}}
@@ -1866,7 +1866,7 @@ void Prolongate(MeshS *pM)
               }
 
 /* outer x3 boundary */
-              if ((dim == 5) && 
+              if ((dim == 5) &&
                   (k == kps) &&
                   ((i >= (ips+nghost)) || (pPO->myFlx[0]==NULL)) &&
                   ((i <  (ipe-nghost)) || (pPO->myFlx[1]==NULL)) &&
@@ -1890,11 +1890,11 @@ void Prolongate(MeshS *pM)
                 if (dim != 5 || (k+n) != kps)
                   pG->B3i[k+n][j+m][i+l] = ProlongedF[n][m][l].x3;
 
-                pG->U[k+n][j+m][i+l].B1c = 
+                pG->U[k+n][j+m][i+l].B1c =
                   0.5*(ProlongedF[n][m][l].x1 + ProlongedF[n][m][l+1].x1);
-                pG->U[k+n][j+m][i+l].B2c = 
+                pG->U[k+n][j+m][i+l].B2c =
                   0.5*(ProlongedF[n][m][l].x2 + ProlongedF[n][m+1][l].x2);
-                pG->U[k+n][j+m][i+l].B3c = 
+                pG->U[k+n][j+m][i+l].B3c =
                   0.5*(ProlongedF[n][m][l].x3 + ProlongedF[n+1][m][l].x3);
               }}}
             }
@@ -1914,12 +1914,12 @@ void Prolongate(MeshS *pM)
  * iteration of the loop over levels (for nl=nl+1). */
 
   for (nd=0; nd<(pM->DomainsPerLevel[nl]); nd++){
-    if (pM->Domain[nl][nd].Grid != NULL) { 
-      pG=pM->Domain[nl][nd].Grid; 
+    if (pM->Domain[nl][nd].Grid != NULL) {
+      pG=pM->Domain[nl][nd].Grid;
       rbufN = ((nl+1) % 2);
 
 /* For each Domain nd, the data for child grid on same processor must be in
- * first element of CGrid array */ 
+ * first element of CGrid array */
 
       for (ncg=0; ncg<(pG->NmyCGrid); ncg++){
         pCO=(GridOvrlpS*)&(pG->CGrid[ncg]);    /* ptr to child Grid overlap */
@@ -1967,7 +1967,7 @@ void SMR_init(MeshS *pM)
   int ngh1;
 #endif
   GridS *pG;
-  
+
   maxND=1;
   for (nl=0; nl<(pM->NLevels); nl++) maxND=MAX(maxND,pM->DomainsPerLevel[nl]);
   if((start_addrP = (int*)calloc_1d_array(maxND,sizeof(int))) == NULL)
@@ -2125,8 +2125,11 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
   for (k=0; k<2; k++){
   for (j=0; j<2; j++){
   for (i=0; i<2; i++){
-    PCon[k][j][i].d  = Ui.d 
+    PCon[k][j][i].d  = Ui.d
       + (0.5*i - 0.25)*dq1 + (0.5*j - 0.25)*dq2 + (0.5*k - 0.25)*dq3;;
+    if(PCon[k][j][i].d != PCon[k][j][i].d || PCon[k][j][i].d < 0.0){
+      ath_pout(-1, "slope:  d<0 or nan %e\n",  PCon[k][j][i].d );
+    }
   }}}
 
 /* 1-momentum */
@@ -2136,7 +2139,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
   for (k=0; k<2; k++){
   for (j=0; j<2; j++){
   for (i=0; i<2; i++){
-    PCon[k][j][i].M1 = Ui.M1 
+    PCon[k][j][i].M1 = Ui.M1
       + (0.5*i - 0.25)*dq1 + (0.5*j - 0.25)*dq2 + (0.5*k - 0.25)*dq3;;
   }}}
 
@@ -2147,7 +2150,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
   for (k=0; k<2; k++){
   for (j=0; j<2; j++){
   for (i=0; i<2; i++){
-    PCon[k][j][i].M2 = Ui.M2 
+    PCon[k][j][i].M2 = Ui.M2
       + (0.5*i - 0.25)*dq1 + (0.5*j - 0.25)*dq2 + (0.5*k - 0.25)*dq3;;
   }}}
 
@@ -2158,7 +2161,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
   for (k=0; k<2; k++){
   for (j=0; j<2; j++){
   for (i=0; i<2; i++){
-    PCon[k][j][i].M3 = Ui.M3 
+    PCon[k][j][i].M3 = Ui.M3
       + (0.5*i - 0.25)*dq1 + (0.5*j - 0.25)*dq2 + (0.5*k - 0.25)*dq3;;
   }}}
 
@@ -2170,7 +2173,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
   for (k=0; k<2; k++){
   for (j=0; j<2; j++){
   for (i=0; i<2; i++){
-    PCon[k][j][i].B1c = Ui.B1c 
+    PCon[k][j][i].B1c = Ui.B1c
       + (0.5*i - 0.25)*dq1 + (0.5*j - 0.25)*dq2 + (0.5*k - 0.25)*dq3;;
   }}}
 
@@ -2181,7 +2184,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
   for (k=0; k<2; k++){
   for (j=0; j<2; j++){
   for (i=0; i<2; i++){
-    PCon[k][j][i].B2c = Ui.B2c 
+    PCon[k][j][i].B2c = Ui.B2c
       + (0.5*i - 0.25)*dq1 + (0.5*j - 0.25)*dq2 + (0.5*k - 0.25)*dq3;;
   }}}
 
@@ -2192,7 +2195,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
   for (k=0; k<2; k++){
   for (j=0; j<2; j++){
   for (i=0; i<2; i++){
-    PCon[k][j][i].B3c = Ui.B3c 
+    PCon[k][j][i].B3c = Ui.B3c
       + (0.5*i - 0.25)*dq1 + (0.5*j - 0.25)*dq2 + (0.5*k - 0.25)*dq3;;
   }}}
 #endif /* MHD */
@@ -2210,7 +2213,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
   for (k=0; k<2; k++){
   for (j=0; j<2; j++){
   for (i=0; i<2; i++){
-    PCon[k][j][i].E = Ui.E 
+    PCon[k][j][i].E = Ui.E
       + (0.5*i - 0.25)*dq1 + (0.5*j - 0.25)*dq2 + (0.5*k - 0.25)*dq3;;
   }}}
 
@@ -2269,7 +2272,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
     for (k=0; k<2; k++){
     for (j=0; j<2; j++){
     for (i=0; i<2; i++){
-      PCon[k][j][i].s[n] = Ui.s[n] 
+      PCon[k][j][i].s[n] = Ui.s[n]
         + (0.5*i - 0.25)*dq1 + (0.5*j - 0.25)*dq2 + (0.5*k - 0.25)*dq3;;
     }}}
   }
@@ -2304,7 +2307,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
 /* If the state is unphysical, revert to first order prologongation */
 
   if (fail) {
-    
+
     for (k=0; k<2; k++){
       for (j=0; j<2; j++){
         for (i=0; i<2; i++){
@@ -2337,7 +2340,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void ProFld(Real3Vect BGZ[][3][3], Real3Vect PFld[][3][3], 
+/*! \fn void ProFld(Real3Vect BGZ[][3][3], Real3Vect PFld[][3][3],
  *            const Real dx1c, const Real dx2c, const Real dx3c)
  *  \brief Uses the divergence-preserving prolongation operators of
  * Toth & Roe (JCP, 180, 736, 2002) to interpolate the face centered fields
@@ -2345,7 +2348,7 @@ void ProCon(const ConsS Uim1,const ConsS Ui,  const ConsS Uip1,
  */
 
 #ifdef MHD
-void ProFld(Real3Vect BGZ[][3][3], Real3Vect PFld[][3][3], 
+void ProFld(Real3Vect BGZ[][3][3], Real3Vect PFld[][3][3],
             const Real dx1c, const Real dx2c, const Real dx3c)
 {
   int i,j,k;
@@ -2506,18 +2509,25 @@ static Real mcd_slope(const Real vl, const Real vc, const Real vr){
   Real dvl = (vc - vl), dvr = (vr - vc);
   Real dv, dvm;
 
-  if(dvl > 0.0 && dvr > 0.0){
-    dv = 2.0*(dvl < dvr ? dvl : dvr);
-    dvm = 0.5*(dvl + dvr);
-    return (dvm < dv ? dvm : dv);
-  }
-  else if(dvl < 0.0 && dvr < 0.0){
-    dv = 2.0*(dvl > dvr ? dvl : dvr);
-    dvm = 0.5*(dvl + dvr);
-    return (dvm > dv ? dvm : dv);
-  }
+  if(dvl > 0.0 && dvr > 0.0)
+    return MIN(dvl, dvr);
+
+  if(dvl < 0.0 && dvr < 0.0)
+    return MAX(dvl, dvr);
 
   return 0.0;
+  /* if(dvl > 0.0 && dvr > 0.0){ */
+  /*   dv = 2.0*(dvl < dvr ? dvl : dvr); */
+  /*   dvm = 0.5*(dvl + dvr); */
+  /*   return (dvm < dv ? dvm : dv); */
+  /* } */
+  /* else if(dvl < 0.0 && dvr < 0.0){ */
+  /*   dv = 2.0*(dvl > dvr ? dvl : dvr); */
+  /*   dvm = 0.5*(dvl + dvr); */
+  /*   return (dvm > dv ? dvm : dv); */
+  /* } */
+
+  /* return 0.0; */
 }
 #endif /* FIRST_ORDER */
 

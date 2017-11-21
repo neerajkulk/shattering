@@ -48,7 +48,7 @@ typedef struct MGrid_s{
   int Nx1,Nx2,Nx3;
   int is,ie;
   int js,je;
-  int ks,ke; 
+  int ks,ke;
   int rx1_id, lx1_id;
   int rx2_id, lx2_id;
   int rx3_id, lx3_id;
@@ -311,7 +311,7 @@ void multig_3d(MGrid *pMG)
 /* Else, do 10 iterations at this level, restrict to a coarser grid, and call
  * multig_3d again with this coarse grid */
 
-  else { 
+  else {
     Jacobi(pMG);
 
 /* Allocate and initialize MGrid at next coarsest level */
@@ -372,7 +372,7 @@ void multig_3d(MGrid *pMG)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void Jacobi(MGrid *pMG)
- *  \brief Jacobi iterations. 
+ *  \brief Jacobi iterations.
  *
  *   Do not use with periodic BCs, uses multipole expansion
  *   to compute potential at boundary
@@ -442,7 +442,7 @@ void Jacobi(MGrid *pMG)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void Restriction_3d(MGrid *pMG_fine, MGrid *pMG_coarse) 
+/*! \fn void Restriction_3d(MGrid *pMG_fine, MGrid *pMG_coarse)
  *  \brief Averages fine grid solution onto coarse
  */
 
@@ -491,7 +491,7 @@ void Restriction_3d(MGrid *pMG_fine, MGrid *pMG_coarse)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void Prolongation_3d(MGrid *pMG_coarse, MGrid *pMG_fine)
- *  \brief Linear interpolation of coarse grid onto fine  
+ *  \brief Linear interpolation of coarse grid onto fine
  */
 void Prolongation_3d(MGrid *pMG_coarse, MGrid *pMG_fine)
 {
@@ -658,7 +658,7 @@ void set_mg_bvals(MGrid *pMG)
     if (pMG->rx3_id >= 0 && pMG->lx3_id >= 0) {
       /* Post a non-blocking receive for the input data from the left grid */
       err = MPI_Irecv(recv_buf, cnt, MPI_DOUBLE, pMG->lx3_id,
-		      boundary_cells_tag, MPI_COMM_WORLD, &rq);
+                      boundary_cells_tag, MPI_COMM_WORLD, &rq);
       if(err) ath_error("[set_mg_bvals]: MPI_Irecv error = %d\n",err);
 
       swap_mg_ox3(pMG,cnt,0,&rq);  /* send R */
@@ -666,7 +666,7 @@ void set_mg_bvals(MGrid *pMG)
 
       /* Post a non-blocking receive for the input data from the right grid */
       err = MPI_Irecv(recv_buf, cnt, MPI_DOUBLE, pMG->rx3_id,
-		      boundary_cells_tag, MPI_COMM_WORLD, &rq);
+                      boundary_cells_tag, MPI_COMM_WORLD, &rq);
       if(err) ath_error("[set_mg_bvals]: MPI_Irecv error = %d\n",err);
 
       swap_mg_ix3(pMG,cnt,0,&rq);  /* send L */
@@ -677,7 +677,7 @@ void set_mg_bvals(MGrid *pMG)
     if (pMG->rx3_id >= 0 && pMG->lx3_id < 0) {
       /* Post a non-blocking receive for the input data from the right grid */
       err = MPI_Irecv(recv_buf, cnt, MPI_DOUBLE, pMG->rx3_id,
-		      boundary_cells_tag, MPI_COMM_WORLD, &rq);
+                      boundary_cells_tag, MPI_COMM_WORLD, &rq);
       if(err) ath_error("[set_mg_bvals]: MPI_Irecv error = %d\n",err);
 
       swap_mg_ox3(pMG,cnt,0,&rq);  /* send R */
@@ -688,7 +688,7 @@ void set_mg_bvals(MGrid *pMG)
     if (pMG->rx3_id < 0 && pMG->lx3_id >= 0) {
       /* Post a non-blocking receive for the input data from the left grid */
       err = MPI_Irecv(recv_buf, cnt, MPI_DOUBLE, pMG->lx3_id,
-		      boundary_cells_tag, MPI_COMM_WORLD, &rq);
+                      boundary_cells_tag, MPI_COMM_WORLD, &rq);
       if(err) ath_error("[set_mg_bvals]: MPI_Irecv error = %d\n",err);
 
       swap_mg_ix3(pMG,cnt,0,&rq);  /* send L */
@@ -1083,17 +1083,17 @@ void selfg_multig_3d_init(MeshS *pM)
   NGrid_x3 = par_geti("parallel","NGrid_x3");
 
   x1cnt = x2cnt = x3cnt = 0;
-        
+
   for (k=0; k<NGrid_x3; k++){
     for (j=0; j<NGrid_x2; j++){
       for (i=0; i<NGrid_x1; i++){
         if(NGrid_x1 > 1){
           nx2t = pD->grid_block[k][j][i].jde - pD->grid_block[k][j][i].jds + 1;
           nx3t = pD->grid_block[k][j][i].kde - pD->grid_block[k][j][i].kds + 1;
-        
+
           x1cnt = nx2t*nx3t > x1cnt ? nx2t*nx3t : x1cnt;
         }
-        
+
         if(NGrid_x2 > 1){
           nx1t = pD->grid_block[k][j][i].ide - pD->grid_block[k][j][i].ids + 1;
           if(nx1t > 1) nx1t += 2;

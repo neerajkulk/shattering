@@ -8,7 +8,7 @@
  *   is set by the input parameter <problem>/rhoh in 3D (default value is 3.0).
  *   This reproduces 2D results of Liska & Wendroff, 3D results of
  *   Dimonte et al.
- * 
+ *
  * FOR 2D HYDRO:
  * Problem domain should be -1/6 < x < 1/6; -0.5 < y < 0.5 with gamma=1.4 to
  * match Liska & Wendroff. Interface is at y=0; perturbation added to Vy
@@ -111,8 +111,8 @@ void problem(DomainS *pDomain)
 
 /* 2D PROBLEM --------------------------------------------------------------- */
 /* Initialize two fluids with interface at y=0.0.  Pressure scaled to give a
- * sound speed of 1 at the interface in the light (lower, d=1) fluid 
- * Perturb V2 using single (iprob=1) or multiple (iprob=2) mode 
+ * sound speed of 1 at the interface in the light (lower, d=1) fluid
+ * Perturb V2 using single (iprob=1) or multiple (iprob=2) mode
  */
 
   if (pGrid->Nx[2] == 1) {
@@ -120,9 +120,9 @@ void problem(DomainS *pDomain)
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
         cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-	pGrid->U[k][j][i].d = 1.0;
+        pGrid->U[k][j][i].d = 1.0;
         pGrid->U[k][j][i].E = (1.0/Gamma - 0.1*x2)/Gamma_1;
-	pGrid->U[k][j][i].M1 = 0.0;
+        pGrid->U[k][j][i].M1 = 0.0;
         if (iprob == 1) {
           pGrid->U[k][j][i].M2 = amp/4.0*
             (1.0+cos(2.0*PI*x1/lx))*(1.0+cos(2.0*PI*x2/ly));
@@ -130,17 +130,17 @@ void problem(DomainS *pDomain)
         else {
           pGrid->U[k][j][i].M2 = amp*(ran2(&iseed) - 0.5)*
             (1.0+cos(2.0*PI*x2/ly));
-	}
+        }
         pGrid->U[k][j][i].M3 = 0.0;
         if (x2 > 0.0) {
-	  pGrid->U[k][j][i].d = 2.0;
+          pGrid->U[k][j][i].d = 2.0;
           pGrid->U[k][j][i].M2 *= 2.0;
           pGrid->U[k][j][i].E = (1.0/Gamma - 0.2*x2)/Gamma_1;
-	}
-	pGrid->U[k][j][i].E+=0.5*SQR(pGrid->U[k][j][i].M2)/pGrid->U[k][j][i].d;
+        }
+        pGrid->U[k][j][i].E+=0.5*SQR(pGrid->U[k][j][i].M2)/pGrid->U[k][j][i].d;
 #ifdef MHD
-	pGrid->B1i[k][j][i] = b0;
-	pGrid->U[k][j][i].B1c = b0;
+        pGrid->B1i[k][j][i] = b0;
+        pGrid->U[k][j][i].B1c = b0;
         pGrid->U[k][j][i].E += 0.5*b0*b0;
 #endif
       }
@@ -155,7 +155,7 @@ void problem(DomainS *pDomain)
  * y-direction, so special boundary conditions needed for x2
 */
 
-  StaticGravPot = grav_pot2;
+  ExternalGravPot = grav_pot2;
   if (pDomain->Disp[1] == 0) bvals_mhd_fun(pDomain, left_x2,  reflect_ix2);
   if (pDomain->MaxX[1] == pDomain->RootMaxX[1])
     bvals_mhd_fun(pDomain, right_x2, reflect_ox2);
@@ -177,10 +177,10 @@ void problem(DomainS *pDomain)
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
         cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-	pGrid->U[k][j][i].d = 1.0;
+        pGrid->U[k][j][i].d = 1.0;
         pGrid->U[k][j][i].E = (1.0/Gamma - 0.1*x3)/Gamma_1;
-	pGrid->U[k][j][i].M1 = 0.0;
-	pGrid->U[k][j][i].M2 = 0.0;
+        pGrid->U[k][j][i].M1 = 0.0;
+        pGrid->U[k][j][i].M2 = 0.0;
         if (iprob == 1) {
           pGrid->U[k][j][i].M3 = amp/8.0*(1.0+cos(2.0*PI*x1/lx))*
             (1.0+cos(2.0*PI*x2/ly))*(1.0+cos(2.0*PI*x3/lz));
@@ -188,13 +188,13 @@ void problem(DomainS *pDomain)
         else {
           pGrid->U[k][j][i].M3 = amp*(ran2(&iseed) - 0.5)*
             (1.0+cos(2.0*PI*x3/lz));
-	}
+        }
         if (x3 > 0.0) {
-	  pGrid->U[k][j][i].d = rhoh;
+          pGrid->U[k][j][i].d = rhoh;
           pGrid->U[k][j][i].M3 *= rhoh;
           pGrid->U[k][j][i].E = (1.0/Gamma - 0.1*rhoh*x3)/Gamma_1;
-	}
-	pGrid->U[k][j][i].E+=0.5*SQR(pGrid->U[k][j][i].M3)/pGrid->U[k][j][i].d;
+        }
+        pGrid->U[k][j][i].E+=0.5*SQR(pGrid->U[k][j][i].M3)/pGrid->U[k][j][i].d;
 #ifdef MHD
         switch(iprob){
         case 3: /* B only in light fluid, do not add B^2 to E, total P const */
@@ -265,7 +265,7 @@ void problem(DomainS *pDomain)
  * z-direction, so special boundary conditions needed for x3
  */
 
-  StaticGravPot = grav_pot3;
+  ExternalGravPot = grav_pot3;
 
   if (pDomain->Disp[2] == 0) bvals_mhd_fun(pDomain, left_x3,  reflect_ix3);
   if (pDomain->MaxX[2] == pDomain->RootMaxX[2])
@@ -302,7 +302,7 @@ void problem_read_restart(MeshS *pM, FILE *fp)
   int nl,nd;
 
   if (pM->Nx[2] == 1) {
-    StaticGravPot = grav_pot2;
+    ExternalGravPot = grav_pot2;
     for (nl=0; nl<(pM->NLevels); nl++){
       for (nd=0; nd<(pM->DomainsPerLevel[nl]); nd++){
         bvals_mhd_fun(&(pM->Domain[nl][nd]), left_x2,  reflect_ix2);
@@ -310,9 +310,9 @@ void problem_read_restart(MeshS *pM, FILE *fp)
       }
     }
   }
- 
+
   if (pM->Nx[2] > 1) {
-    StaticGravPot = grav_pot3;
+    ExternalGravPot = grav_pot3;
     for (nl=0; nl<(pM->NLevels); nl++){
       for (nd=0; nd<(pM->DomainsPerLevel[nl]); nd++){
         bvals_mhd_fun(&(pM->Domain[nl][nd]), left_x3,  reflect_ix3);
@@ -360,9 +360,9 @@ void Userwork_after_loop(MeshS *pM)
 #define RNMX (1.0-DBL_EPSILON)
 
 /*! \fn double ran2(long int *idum)
- *  \brief  Extracted from the Numerical Recipes in C (version 2) code.  
+ *  \brief  Extracted from the Numerical Recipes in C (version 2) code.
  *   Modified to use doubles instead of floats. - T. A. Gardiner - Aug. 12, 2003
- *   
+ *
  *
  * Long period (> 2 x 10^{18}) random number generator of L'Ecuyer
  * with Bays-Durham shuffle and added safeguards.  Returns a uniform
@@ -370,7 +370,7 @@ void Userwork_after_loop(MeshS *pM)
  * values).  Call with idum = a negative integer to initialize;
  * thereafter, do not alter idum between successive deviates in a
  * sequence.  RNMX should appriximate the largest floating point value
- * that is less than 1. 
+ * that is less than 1.
  */
 
 double ran2(long int *idum)
@@ -441,8 +441,8 @@ static void reflect_ix2(GridS *pGrid)
       for (i=il; i<=iu; i++) {
         pGrid->U[k][js-j][i]    =  pGrid->U[k][js+(j-1)][i];
         pGrid->U[k][js-j][i].M2 = -pGrid->U[k][js-j][i].M2; /* reflect 2-mom. */
-        pGrid->U[k][js-j][i].E +=  
-	  pGrid->U[k][js+(j-1)][i].d*0.1*(2*j-1)*pGrid->dx2/Gamma_1;
+        pGrid->U[k][js-j][i].E +=
+          pGrid->U[k][js+(j-1)][i].d*0.1*(2*j-1)*pGrid->dx2/Gamma_1;
       }
     }
   }

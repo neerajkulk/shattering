@@ -17,7 +17,7 @@
  *             COS sophmore project.
  *          Isothermal version written by Nicole Lemaster, May 1, 2008.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - fluxes() - all Riemann solvers in Athena must have this function name and
  *              use the same argument list as defined in rsolvers/prototypes.h*/
 /*============================================================================*/
@@ -154,7 +154,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
     *pFlux = Fl;
 #if defined(CYLINDRICAL) && !defined(BAROTROPIC)
     pFlux->Pflux = ptl;
-#endif 
+#endif
     return;
   }
 
@@ -162,7 +162,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
     *pFlux = Fr;
 #if defined(CYLINDRICAL) && !defined(BAROTROPIC)
     pFlux->Pflux = ptr;
-#endif 
+#endif
     return;
   }
 
@@ -194,7 +194,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
  */
 
   ptst = ptl + Ul.d*sdl*(sdl-sdml);
- 
+
 /* Ul* */
   /* eqn (39) of M&K */
   Ulst.Mx = Ulst.d * spd[2];
@@ -203,7 +203,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 //       fabs(Wl.Vx)/fabs(spd[0]) <= SMALL_NUMBER)) {
 //     Ulst.My = Ulst.d * Wl.Vy;
 //     Ulst.Mz = Ulst.d * Wl.Vz;
-// 
+//
 //     Ulst.By = Ul.By;
 //     Ulst.Bz = Ul.Bz;
 //   }
@@ -251,7 +251,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 //       fabs(Wr.Vx)/fabs(spd[4]) <= SMALL_NUMBER)) {
 //     Urst.My = Urst.d * Wr.Vy;
 //     Urst.Mz = Urst.d * Wr.Vz;
-// 
+//
 //     Urst.By = Ur.By;
 //     Urst.Bz = Ur.Bz;
 //   }
@@ -469,7 +469,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 //   b3roe = (sqrtdr*Wl.Bz + sqrtdl*Wr.Bz)*isdlpdr;
 //   x = 0.5*(SQR(Wl.By - Wr.By) + SQR(Wl.Bz - Wr.Bz))*SQR(isdlpdr);
 //   y = 0.5*(Wl.d + Wr.d)*idroe;
-// 
+//
 //   /* COMPUTE FAST MAGNETOSONIC SPEED */
 //   bt_starsq = (SQR(b2roe) + SQR(b3roe))*y;
 //   vaxsq = Bxsq*idroe;
@@ -478,7 +478,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 //   tsum = vaxsq + ct2 + twid_csq;
 //   cfsq = 0.5*(tsum + sqrt((double)(SQR(tsum) - 4.0*twid_csq*vaxsq)));
 //   cf = sqrt((double)cfsq);
-// 
+//
 //   spd[0] = MIN(Wl.Vx-cfl,v1roe-cf);
 //   spd[4] = MAX(v1roe+cf,Wr.Vx+cfr);
 
@@ -569,7 +569,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 
   tmp = (spd[0]-spd[1])*(spd[0]-spd[3]);
 //   if (tmp == 0) {
-  if ((fabs(spd[0]/spd[1]-1.0) < SMALL_NUMBER) 
+  if ((fabs(spd[0]/spd[1]-1.0) < SMALL_NUMBER)
         || (fabs(spd[0]/spd[3]-1.0) < SMALL_NUMBER)) {
     /* degenerate case described below eqn. (39) */
     Ulst.My = Ul.My;
@@ -598,7 +598,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 
   tmp = (spd[4]-spd[1])*(spd[4]-spd[3]);
 //   if (tmp == 0) {
-  if ((fabs(spd[4]/spd[1]-1.0) < SMALL_NUMBER) 
+  if ((fabs(spd[4]/spd[1]-1.0) < SMALL_NUMBER)
         || (fabs(spd[4]/spd[3]-1.0) < SMALL_NUMBER)) {
     /* degenerate case described below eqn. (39) */
     Urst.My = Ur.My;

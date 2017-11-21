@@ -8,7 +8,7 @@
  *   dumps are made for all levels and domains, unless nlevel and ndomain are
  *   specified in <output> block.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - output_pgm() -  outputs 2D PGM images
  *============================================================================*/
 
@@ -91,10 +91,10 @@ void output_pgm(MeshS *pM, OutputS *pOut)
 /* Override auto-scale? */
           if (pOut->sdmin != 0) dmin = pOut->dmin;
           if (pOut->sdmax != 0) dmax = pOut->dmax;
-  
+
           max_min = (dmax - dmin)*(1.0 + FLT_EPSILON);
 
-/* map the data which satisfies [min <= data <= max] to the range 
+/* map the data which satisfies [min <= data <= max] to the range
  * [0.0 , 256.0] -- Not inclusive of 256 */
 
           if(max_min > 0.0) {
@@ -124,7 +124,7 @@ void output_pgm(MeshS *pM, OutputS *pOut)
 
 /* Close the file, free memory */
 
-          fclose(pfile); 
+          fclose(pfile);
           free_2d_array(data);
         }
       }}

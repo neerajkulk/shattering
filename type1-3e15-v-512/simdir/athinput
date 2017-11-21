@@ -1,0 +1,99 @@
+<job>
+problem_id   =  rsttest
+maxout       =  6
+num_domains  =  1
+
+<output1>
+out_fmt  =  vtk
+out      =  prim
+dt       =  0.18470040860310268
+
+<output2>
+out_fmt  =  rst
+dt       =  0.09235020430155134
+
+<output3>
+out_fmt  =  vtk
+dt       =  0.004617510215077567
+out      =  P
+id       =  P
+x3       =  0.0
+
+<output4>
+out_fmt  =  vtk
+dt       =  0.004617510215077567
+out      =  d
+id       =  d
+x3       =  0.0
+
+<output5>
+out_fmt  =  vtk
+dt       =  0.004617510215077567
+out      =  B1c
+id       =  B1c
+x3       =  0.0
+
+<output6>
+out_fmt  =  vtk
+dt       =  0.004617510215077567
+out      =  B2c
+id       =  B2c
+x3       =  0.0
+
+<time>
+cour_no  =  0.4
+nlim     =  -1
+# tlim   =  (- 0.9926868741224368 t_ofst)
+tlim     =  0.9235020430155134 # z =  6
+# tlim   =  0.8783415214842492 # z =  4
+# tlim   =  0.7497188373329768 # z =  2
+
+# <commentary>
+# Cut the domain into different nested levels. Each level has
+# 1. N     =  constant
+# 2. disp  =  (N/2) * (2^l-1)
+#
+# N        =  128
+# disp     =  (let ((lev 3) (n 128)) (* (/ n 2) (- (expt 2 lev) 1))) -- C-c e
+#
+<domain1>
+level     =  0
+
+Nx1       =  32
+Nx2       =  32
+Nx3       =  32
+
+x1min     = -0.5
+x1max     =  0.5
+x2min     = -0.5
+x2max     =  0.5
+x3min     = -0.5
+x3max     =  0.5
+
+bc_ix1    =  2
+bc_ox1    =  2
+bc_ix2    =  2
+bc_ox2    =  2
+bc_ix3    =  2
+bc_ox3    =  2
+
+NGrid_x1  =  2
+NGrid_x2  =  1
+NGrid_x3  =  1
+
+<problem>
+gamma     =  1.6666666666667
+c_nfw     =  5.0
+atm_file  =  type-1-z6-ic.dat
+xi_init   =  0.5
+Tigm      =  1.0e-1
+M15       =  3.0
+f_sp      =  1.0
+t_ofst    =  0.06918483110692339 # z =  6
+# t_ofst  =  0.11434535263818774 # z =  4
+# t_ofst  =  0.24296803678946005 # z =  2
+cooling   =  0
+dt        =  0.18470040860310268e90
+
+
+<par_end>

@@ -1,7 +1,7 @@
 #include "copyright.h"
 /*============================================================================*/
 /*! \file cylbphi.c
- *  \brief A simple magnetostatic test of pressure balance using a B-field with 
+ *  \brief A simple magnetostatic test of pressure balance using a B-field with
  *  uniform phi-component. */
 /*============================================================================*/
 
@@ -112,7 +112,7 @@ void problem(DomainS *pDomain)
     }
   }
 
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
   bvals_mhd_fun(pDomain,left_x1,do_nothing_bc);
   bvals_mhd_fun(pDomain,right_x1,do_nothing_bc);
 
@@ -160,7 +160,7 @@ void Userwork_after_loop(MeshS *pM)
 
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 
-/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3) 
+/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3)
  *  \brief  Gravitational potential. */
 static Real grav_pot(const Real x1, const Real x2, const Real x3) {
   switch (iprob) {

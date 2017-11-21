@@ -251,11 +251,11 @@ void problem(DomainS *pDomain)
       for (i=is; i<=ie+1; i++) {
         cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
 
-	a1[k][j][i] = A1(x1, x2-0.5*pGrid->dx2, x3-0.5*pGrid->dx3, 0.0);
+        a1[k][j][i] = A1(x1, x2-0.5*pGrid->dx2, x3-0.5*pGrid->dx3, 0.0);
 
-	a2[k][j][i] = A2(x1-0.5*pGrid->dx1, x2, x3-0.5*pGrid->dx3, 0.0);
+        a2[k][j][i] = A2(x1-0.5*pGrid->dx1, x2, x3-0.5*pGrid->dx3, 0.0);
 
-	a3[k][j][i] = A3(x1-0.5*pGrid->dx1, x2-0.5*pGrid->dx2, x3, 0.0);
+        a3[k][j][i] = A3(x1-0.5*pGrid->dx1, x2-0.5*pGrid->dx2, x3, 0.0);
       }
     }
   }
@@ -264,8 +264,8 @@ void problem(DomainS *pDomain)
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie+1; i++) {
-	pGrid->B1i[k][j][i] = (a3[k  ][j+1][i] - a3[k][j][i])/pGrid->dx2 -
-	                      (a2[k+1][j  ][i] - a2[k][j][i])/pGrid->dx3;
+        pGrid->B1i[k][j][i] = (a3[k  ][j+1][i] - a3[k][j][i])/pGrid->dx2 -
+                              (a2[k+1][j  ][i] - a2[k][j][i])/pGrid->dx3;
       }
     }
   }
@@ -275,7 +275,7 @@ void problem(DomainS *pDomain)
       for (j=js; j<=je+1; j++) {
         for (i=is; i<=ie; i++) {
           pGrid->B2i[k][j][i] = (a1[k+1][j][i  ] - a1[k][j][i])/pGrid->dx3 -
-	                        (a3[k  ][j][i+1] - a3[k][j][i])/pGrid->dx1;
+                                (a3[k  ][j][i+1] - a3[k][j][i])/pGrid->dx1;
         }
       }
     }
@@ -341,28 +341,28 @@ void problem(DomainS *pDomain)
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
 
-	x = cos_a2*(x1*cos_a3 + x2*sin_a3) + x3*sin_a2;
+        x = cos_a2*(x1*cos_a3 + x2*sin_a3) + x3*sin_a2;
 
-	sn = sin(k_par*x);
+        sn = sin(k_par*x);
 
-	pGrid->U[k][j][i].d = d0 + amp*sn*rem[0][wave_flag];
+        pGrid->U[k][j][i].d = d0 + amp*sn*rem[0][wave_flag];
 
-	Mx = d0*vflow + amp*sn*rem[1][wave_flag];
-	My = amp*sn*rem[2][wave_flag];
-	Mz = amp*sn*rem[3][wave_flag];
+        Mx = d0*vflow + amp*sn*rem[1][wave_flag];
+        My = amp*sn*rem[2][wave_flag];
+        Mz = amp*sn*rem[3][wave_flag];
 
-	pGrid->U[k][j][i].M1 = Mx*cos_a2*cos_a3 - My*sin_a3 - Mz*sin_a2*cos_a3;
-	pGrid->U[k][j][i].M2 = Mx*cos_a2*sin_a3 + My*cos_a3 - Mz*sin_a2*sin_a3;
-	pGrid->U[k][j][i].M3 = Mx*sin_a2                    + Mz*cos_a2;
+        pGrid->U[k][j][i].M1 = Mx*cos_a2*cos_a3 - My*sin_a3 - Mz*sin_a2*cos_a3;
+        pGrid->U[k][j][i].M2 = Mx*cos_a2*sin_a3 + My*cos_a3 - Mz*sin_a2*sin_a3;
+        pGrid->U[k][j][i].M3 = Mx*sin_a2                    + Mz*cos_a2;
 
 #ifndef ISOTHERMAL
-	pGrid->U[k][j][i].E = p0/Gamma_1 + 0.5*d0*u0*u0 +
+        pGrid->U[k][j][i].E = p0/Gamma_1 + 0.5*d0*u0*u0 +
 #ifdef MHD
-	  0.5*(bx0*bx0 + by0*by0 + bz0*bz0) +
+          0.5*(bx0*bx0 + by0*by0 + bz0*bz0) +
 #endif /* MHD */
-	  amp*sn*rem[4][wave_flag];
+          amp*sn*rem[4][wave_flag];
 #endif /* ISOTHERMAL */
 
 #if (NSCALARS > 0)
@@ -392,11 +392,11 @@ void problem(DomainS *pDomain)
       for (i=is; i<=ie+1; i++) {
         cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
 
-	a1[k][j][i] = A1(x1, x2-0.5*pGrid->dx2, x3-0.5*pGrid->dx3, vdt);
+        a1[k][j][i] = A1(x1, x2-0.5*pGrid->dx2, x3-0.5*pGrid->dx3, vdt);
 
-	a2[k][j][i] = A2(x1-0.5*pGrid->dx1, x2, x3-0.5*pGrid->dx3, vdt);
+        a2[k][j][i] = A2(x1-0.5*pGrid->dx1, x2, x3-0.5*pGrid->dx3, vdt);
 
-	a3[k][j][i] = A3(x1-0.5*pGrid->dx1, x2-0.5*pGrid->dx2, x3, vdt);
+        a3[k][j][i] = A3(x1-0.5*pGrid->dx1, x2-0.5*pGrid->dx2, x3, vdt);
       }
     }
   }
@@ -405,11 +405,11 @@ void problem(DomainS *pDomain)
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-	RootSoln[k][j][i].B1c = (a3[k  ][j+1][i] - a3[k][j][i])/pGrid->dx2 -
-	                        (a2[k+1][j  ][i] - a2[k][j][i])/pGrid->dx3
+        RootSoln[k][j][i].B1c = (a3[k  ][j+1][i] - a3[k][j][i])/pGrid->dx2 -
+                                (a2[k+1][j  ][i] - a2[k][j][i])/pGrid->dx3
                             + (a3[k  ][j+1][i+1] - a3[k][j][i+1])/pGrid->dx2 -
-	                      (a2[k+1][j  ][i+1] - a2[k][j][i+1])/pGrid->dx3;
-	RootSoln[k][j][i].B1c *= 0.5;
+                              (a2[k+1][j  ][i+1] - a2[k][j][i+1])/pGrid->dx3;
+        RootSoln[k][j][i].B1c *= 0.5;
       }
     }
   }
@@ -419,10 +419,10 @@ void problem(DomainS *pDomain)
       for (j=js; j<=je; j++) {
         for (i=is; i<=ie; i++) {
           RootSoln[k][j][i].B2c = (a1[k+1][j][i  ] - a1[k][j][i])/pGrid->dx3 -
-	                          (a3[k  ][j][i+1] - a3[k][j][i])/pGrid->dx1
+                                  (a3[k  ][j][i+1] - a3[k][j][i])/pGrid->dx1
                              + (a1[k+1][j+1][i  ] - a1[k][j+1][i])/pGrid->dx3 -
                                (a3[k  ][j+1][i+1] - a3[k][j+1][i])/pGrid->dx1;
-	RootSoln[k][j][i].B2c *= 0.5;
+        RootSoln[k][j][i].B2c *= 0.5;
         }
       }
     }
@@ -440,7 +440,7 @@ void problem(DomainS *pDomain)
                                   (a1[k][j+1][i  ] - a1[k][j][i])/pGrid->dx2
                              + (a2[k+1][j  ][i+1] - a2[k+1][j][i])/pGrid->dx1 -
                                (a1[k+1][j+1][i  ] - a1[k+1][j][i])/pGrid->dx2;
-	RootSoln[k][j][i].B3c *= 0.5;
+        RootSoln[k][j][i].B3c *= 0.5;
         }
       }
     }
@@ -459,31 +459,31 @@ void problem(DomainS *pDomain)
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
 
-	x = cos_a2*(x1*cos_a3 + x2*sin_a3) + x3*sin_a2;
+        x = cos_a2*(x1*cos_a3 + x2*sin_a3) + x3*sin_a2;
 
-	sn = sin(k_par*(x - vdt));
+        sn = sin(k_par*(x - vdt));
 
-	RootSoln[k][j][i].d = d0 + amp*sn*rem[0][wave_flag];
+        RootSoln[k][j][i].d = d0 + amp*sn*rem[0][wave_flag];
 
-	Mx = d0*vflow + amp*sn*rem[1][wave_flag];
-	My = amp*sn*rem[2][wave_flag];
-	Mz = amp*sn*rem[3][wave_flag];
+        Mx = d0*vflow + amp*sn*rem[1][wave_flag];
+        My = amp*sn*rem[2][wave_flag];
+        Mz = amp*sn*rem[3][wave_flag];
 
-	RootSoln[k][j][i].M1 = Mx*cos_a2*cos_a3 - My*sin_a3 - Mz*sin_a2*cos_a3;
-	RootSoln[k][j][i].M2 = Mx*cos_a2*sin_a3 + My*cos_a3 - Mz*sin_a2*sin_a3;
-	RootSoln[k][j][i].M3 = Mx*sin_a2                    + Mz*cos_a2;
+        RootSoln[k][j][i].M1 = Mx*cos_a2*cos_a3 - My*sin_a3 - Mz*sin_a2*cos_a3;
+        RootSoln[k][j][i].M2 = Mx*cos_a2*sin_a3 + My*cos_a3 - Mz*sin_a2*sin_a3;
+        RootSoln[k][j][i].M3 = Mx*sin_a2                    + Mz*cos_a2;
 
 #ifndef ISOTHERMAL
-	RootSoln[k][j][i].E = p0/Gamma_1 + 0.5*d0*u0*u0 +
+        RootSoln[k][j][i].E = p0/Gamma_1 + 0.5*d0*u0*u0 +
 #ifdef MHD
-	  0.5*(bx0*bx0 + by0*by0 + bz0*bz0) +
+          0.5*(bx0*bx0 + by0*by0 + bz0*bz0) +
 #endif /* MHD */
-	  amp*sn*rem[4][wave_flag];
+          amp*sn*rem[4][wave_flag];
 #endif /* ISOTHERMAL */
 #if (NSCALARS > 0)
-	sn = sin(k_par*(x - vflow*tlim));  /* scalars advected at vflow */
+        sn = sin(k_par*(x - vflow*tlim));  /* scalars advected at vflow */
         for (n=0; n<NSCALARS; n++)
           RootSoln[k][j][i].s[n] = RootSoln[k][j][i].d*(1.0 + amp*(sn - 1.0));
 #endif
@@ -507,7 +507,7 @@ void problem(DomainS *pDomain)
 
 /* With viscosity and/or resistivity, read eta_R and nu_V */
 
-#ifdef RESISTIVITY 
+#ifdef RESISTIVITY
   eta_Ohm = par_getd("problem","eta_O");
   Q_AD    = par_getd_def("problem","Q_AD",0.0);
   d_ind   = par_getd_def("problem","d_ind",0.0);
@@ -637,7 +637,7 @@ void Userwork_after_loop(MeshS *pM)
       error.d   += fabs(pGrid->U[k][j][i].d   - RootSoln[k][j][i].d );
       error.M1  += fabs(pGrid->U[k][j][i].M1  - RootSoln[k][j][i].M1);
       error.M2  += fabs(pGrid->U[k][j][i].M2  - RootSoln[k][j][i].M2);
-      error.M3  += fabs(pGrid->U[k][j][i].M3  - RootSoln[k][j][i].M3); 
+      error.M3  += fabs(pGrid->U[k][j][i].M3  - RootSoln[k][j][i].M3);
 #ifdef MHD
       error.B1c += fabs(pGrid->U[k][j][i].B1c - RootSoln[k][j][i].B1c);
       error.B2c += fabs(pGrid->U[k][j][i].B2c - RootSoln[k][j][i].B2c);
@@ -680,7 +680,7 @@ void Userwork_after_loop(MeshS *pM)
 #endif
   count = Nx1*Nx2*Nx3;
 
-#ifdef MPI_PARALLEL 
+#ifdef MPI_PARALLEL
 /* Now we have to use an All_Reduce to get the total error over all the MPI
  * grids.  Begin by copying the error into the err[] array */
 
@@ -733,7 +733,7 @@ void Userwork_after_loop(MeshS *pM)
   rms_error = SQR(total_error.d) + SQR(total_error.M1) + SQR(total_error.M2)
                 + SQR(total_error.M3);
 #ifdef MHD
-  rms_error += SQR(total_error.B1c) + SQR(total_error.B2c) 
+  rms_error += SQR(total_error.B1c) + SQR(total_error.B2c)
                + SQR(total_error.B3c);
 #endif /* MHD */
 #ifndef ISOTHERMAL
@@ -794,10 +794,10 @@ void Userwork_after_loop(MeshS *pM)
   fprintf(fp,"%d  %d  %d  %e",Nx1,Nx2,Nx3,rms_error);
 
   fprintf(fp,"  %e  %e  %e  %e",
-	  (total_error.d/(double)count),
-	  (total_error.M1/(double)count),
-	  (total_error.M2/(double)count),
-	  (total_error.M3/(double)count) );
+          (total_error.d/(double)count),
+          (total_error.M1/(double)count),
+          (total_error.M2/(double)count),
+          (total_error.M3/(double)count) );
 
 #ifndef ISOTHERMAL
   fprintf(fp,"  %e",(total_error.E/(double)count) );
@@ -805,9 +805,9 @@ void Userwork_after_loop(MeshS *pM)
 
 #ifdef MHD
   fprintf(fp,"  %e  %e  %e",
-	  (total_error.B1c/(double)count),
-	  (total_error.B2c/(double)count),
-	  (total_error.B3c/(double)count));
+          (total_error.B1c/(double)count),
+          (total_error.B2c/(double)count),
+          (total_error.B3c/(double)count));
 #endif /* MHD */
 
 #if (NSCALARS > 0)

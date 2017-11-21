@@ -6,7 +6,7 @@
 /*============================================================================*/
 /*! \file selfg_fft_obc.c
  *  \brief Contains functions to solve Poisson's equation for self-gravity in
- *   3D using FFTs, using OPEN BCs in all three directions 
+ *   3D using FFTs, using OPEN BCs in all three directions
  *
  *
  *   The function uses FFTW3.x, and for MPI parallel use Steve Plimpton's
@@ -233,7 +233,7 @@ void selfg_fft_obc_3d(DomainS *pD)
       }
 
 #ifdef STAR_PARTICLE
-     assign_starparticles_3d(pD,work); 
+     assign_starparticles_3d(pD,work);
 #endif /* STAR_PARTICLE */
 
       /* Copy work array 0 into work array 1, then multiply by complex offsets.
@@ -342,7 +342,7 @@ void selfg_fft_obc_3d(DomainS *pD)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void selfg_fft_2d_init(MeshS *pM)
- *  \brief Initializes plans for forward/backward FFTs, and allocates memory 
+ *  \brief Initializes plans for forward/backward FFTs, and allocates memory
  *   needed by FFTW.
  */
 void selfg_fft_obc_2d_init(MeshS *pM)
@@ -364,7 +364,7 @@ void selfg_fft_obc_2d_init(MeshS *pM)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void selfg_fft_3d_init(MeshS *pM)
- *  \brief Initializes plans for forward/backward FFTs, and allocates memory 
+ *  \brief Initializes plans for forward/backward FFTs, and allocates memory
  *   needed by FFTW.
  */
 void selfg_fft_obc_3d_init(MeshS *pM)

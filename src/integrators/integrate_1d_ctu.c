@@ -8,7 +8,7 @@
  *   ConsS. Adds gravitational source terms, self-gravity, and optically-thin
  *   cooling.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - integrate_1d_ctu()
  * - integrate_init_1d()
  * - integrate_destruct_1d() */
@@ -68,7 +68,7 @@ void integrate_1d_ctu(DomainS *pD)
 #ifndef BAROTROPIC
   Real coolfl,coolfr,coolf,Eh=0.0;
 #endif
-#if defined(MHD) 
+#if defined(MHD)
   Real B1ch,B2ch,B3ch;
 #endif
 #if (NSCALARS > 0)
@@ -114,7 +114,7 @@ void integrate_1d_ctu(DomainS *pD)
 /*=== STEP 1: Compute L/R x1-interface states and 1D x1-Fluxes ===============*/
 
 /*--- Step 1a ------------------------------------------------------------------
- * Load 1D vector of conserved variables;  
+ * Load 1D vector of conserved variables;
  * U1d = (d, M1, M2, M3, E, B2c, B3c, s[n])
  */
 
@@ -161,7 +161,7 @@ void integrate_1d_ctu(DomainS *pD)
  * Add source terms from static gravitational potential for 0.5*dt to L/R states
  */
 
-  if (StaticGravPot != NULL){
+  if (ExternalGravPot != NULL){
     for (i=il+1; i<=iu; i++) {
       cc_pos(pG,i,js,ks,&x1,&x2,&x3);
 // #ifdef CYLINDRICAL
@@ -173,9 +173,9 @@ void integrate_1d_ctu(DomainS *pD)
 //       Wl[i].Vx -= hdt*gl;
 //       Wr[i].Vx -= hdt*gr;
 // #else
-      phicr = (*StaticGravPot)( x1             ,x2,x3);
-      phicl = (*StaticGravPot)((x1-    pG->dx1),x2,x3);
-      phifc = (*StaticGravPot)((x1-0.5*pG->dx1),x2,x3);
+      phicr = (*ExternalGravPot)( x1             ,x2,x3, pG->time + 0.5*pG->dt);
+      phicl = (*ExternalGravPot)((x1-    pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+      phifc = (*ExternalGravPot)((x1-0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
 
       Wl[i].Vx -= dtodx1*(phifc - phicl);
       Wr[i].Vx -= dtodx1*(phicr - phifc);
@@ -322,7 +322,7 @@ void integrate_1d_ctu(DomainS *pD)
  */
 
 #ifndef PARTICLES
-  if ((StaticGravPot != NULL) || (CoolingFunc != NULL))
+  if ((ExternalGravPot != NULL) || (CoolingFunc != NULL))
 #endif
   {
     for (i=il+1; i<=iu-1; i++) {
@@ -353,10 +353,10 @@ void integrate_1d_ctu(DomainS *pD)
 #endif
 
 /* Add source terms for fixed gravitational potential */
-      if (StaticGravPot != NULL){
+      if (ExternalGravPot != NULL){
         cc_pos(pG,i,js,ks,&x1,&x2,&x3);
-        phir = (*StaticGravPot)((x1+0.5*pG->dx1),x2,x3);
-        phil = (*StaticGravPot)((x1-0.5*pG->dx1),x2,x3);
+        phir = (*ExternalGravPot)((x1+0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+        phil = (*ExternalGravPot)((x1-0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
         M1h -= hdtodx1*(phir-phil)*pG->U[ks][js][i].d;
       }
 
@@ -461,12 +461,12 @@ void integrate_1d_ctu(DomainS *pD)
  *    S_{M} = -(\rho)^{n+1/2} Grad(Phi);   S_{E} = -(\rho v)^{n+1/2} Grad{Phi}
  */
 
-  if (StaticGravPot != NULL){
+  if (ExternalGravPot != NULL){
     for (i=is; i<=ie; i++) {
       cc_pos(pG,i,js,ks,&x1,&x2,&x3);
-      phic = (*StaticGravPot)((x1            ),x2,x3);
-      phir = (*StaticGravPot)((x1+0.5*pG->dx1),x2,x3);
-      phil = (*StaticGravPot)((x1-0.5*pG->dx1),x2,x3);
+      phic = (*ExternalGravPot)((x1            ),x2,x3, pG->time + 0.5*pG->dt);
+      phir = (*ExternalGravPot)((x1+0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+      phil = (*ExternalGravPot)((x1-0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
 
 #ifdef CYLINDRICAL
 //       g = (*x1GravAcc)(x1vc(pG,i),x2,x3);
@@ -592,21 +592,21 @@ void integrate_1d_ctu(DomainS *pD)
         if (dim==0) i = pG->CGrid[ncg].ijks[0];
         if (dim==1) i = pG->CGrid[ncg].ijke[0] + 1;
 
-        pG->CGrid[ncg].myFlx[dim][ks][js].d  = x1Flux[i].d; 
-        pG->CGrid[ncg].myFlx[dim][ks][js].M1 = x1Flux[i].Mx; 
+        pG->CGrid[ncg].myFlx[dim][ks][js].d  = x1Flux[i].d;
+        pG->CGrid[ncg].myFlx[dim][ks][js].M1 = x1Flux[i].Mx;
         pG->CGrid[ncg].myFlx[dim][ks][js].M2 = x1Flux[i].My;
-        pG->CGrid[ncg].myFlx[dim][ks][js].M3 = x1Flux[i].Mz; 
+        pG->CGrid[ncg].myFlx[dim][ks][js].M3 = x1Flux[i].Mz;
 #ifndef BAROTROPIC
-        pG->CGrid[ncg].myFlx[dim][ks][js].E  = x1Flux[i].E; 
+        pG->CGrid[ncg].myFlx[dim][ks][js].E  = x1Flux[i].E;
 #endif /* BAROTROPIC */
 #ifdef MHD
         pG->CGrid[ncg].myFlx[dim][ks][js].B1c = 0.0;
-        pG->CGrid[ncg].myFlx[dim][ks][js].B2c = x1Flux[i].By; 
-        pG->CGrid[ncg].myFlx[dim][ks][js].B3c = x1Flux[i].Bz; 
+        pG->CGrid[ncg].myFlx[dim][ks][js].B2c = x1Flux[i].By;
+        pG->CGrid[ncg].myFlx[dim][ks][js].B3c = x1Flux[i].Bz;
 #endif /* MHD */
 #if (NSCALARS > 0)
         for (n=0; n<NSCALARS; n++)
-          pG->CGrid[ncg].myFlx[dim][ks][js].s[n]  = x1Flux[i].s[n]; 
+          pG->CGrid[ncg].myFlx[dim][ks][js].s[n]  = x1Flux[i].s[n];
 #endif
       }
     }
@@ -620,21 +620,21 @@ void integrate_1d_ctu(DomainS *pD)
         if (dim==0) i = pG->PGrid[npg].ijks[0];
         if (dim==1) i = pG->PGrid[npg].ijke[0] + 1;
 
-        pG->PGrid[npg].myFlx[dim][ks][js].d  = x1Flux[i].d; 
-        pG->PGrid[npg].myFlx[dim][ks][js].M1 = x1Flux[i].Mx; 
+        pG->PGrid[npg].myFlx[dim][ks][js].d  = x1Flux[i].d;
+        pG->PGrid[npg].myFlx[dim][ks][js].M1 = x1Flux[i].Mx;
         pG->PGrid[npg].myFlx[dim][ks][js].M2 = x1Flux[i].My;
-        pG->PGrid[npg].myFlx[dim][ks][js].M3 = x1Flux[i].Mz; 
+        pG->PGrid[npg].myFlx[dim][ks][js].M3 = x1Flux[i].Mz;
 #ifndef BAROTROPIC
-        pG->PGrid[npg].myFlx[dim][ks][js].E  = x1Flux[i].E; 
+        pG->PGrid[npg].myFlx[dim][ks][js].E  = x1Flux[i].E;
 #endif /* BAROTROPIC */
 #ifdef MHD
         pG->PGrid[npg].myFlx[dim][ks][js].B1c = 0.0;
-        pG->PGrid[npg].myFlx[dim][ks][js].B2c = x1Flux[i].By; 
-        pG->PGrid[npg].myFlx[dim][ks][js].B3c = x1Flux[i].Bz; 
+        pG->PGrid[npg].myFlx[dim][ks][js].B2c = x1Flux[i].By;
+        pG->PGrid[npg].myFlx[dim][ks][js].B3c = x1Flux[i].Bz;
 #endif /* MHD */
 #if (NSCALARS > 0)
         for (n=0; n<NSCALARS; n++)
-          pG->PGrid[npg].myFlx[dim][ks][js].s[n]  = x1Flux[i].s[n]; 
+          pG->PGrid[npg].myFlx[dim][ks][js].s[n]  = x1Flux[i].s[n];
 #endif
       }
     }
@@ -678,7 +678,7 @@ void integrate_init_1d(MeshS *pM)
   if ((Wr = (Prim1DS*)malloc(size1*sizeof(Prim1DS))) == NULL) goto on_error;
 
 #ifdef CYLINDRICAL
-  if((StaticGravPot != NULL) || (CoolingFunc != NULL))
+  if((ExternalGravPot != NULL) || (CoolingFunc != NULL))
 #endif
   {
     if ((dhalf  = (Real*)malloc(size1*sizeof(Real))) == NULL) goto on_error;

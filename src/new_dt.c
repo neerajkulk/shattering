@@ -14,7 +14,7 @@
  * A CFL condition is also applied using particle velocities if PARTICLES is
  * defined.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - new_dt() - computes dt						      */
 /*============================================================================*/
 
@@ -24,6 +24,8 @@
 #include "athena.h"
 #include "globals.h"
 #include "prototypes.h"
+
+/* #define DT_DIAGNOSTICS */
 
 /*==============================================================================
  * PRIVATE FUNCTION PROTOTYPES:
@@ -35,7 +37,7 @@ int get_N_STS(Real dt_MHD, Real dt_Diff);
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void new_dt(MeshS *pM)
- *  \brief Computes timestep using CFL condition. */ 
+ *  \brief Computes timestep using CFL condition. */
 
 void new_dt(MeshS *pM)
 {
@@ -70,6 +72,14 @@ void new_dt(MeshS *pM)
   Real x1,x2,x3;
 #endif
 
+#ifdef DT_DIAGNOSTICS
+  Real max_vflow, max_cs, max_mhd, tmp_speed;
+#ifdef MPI_PARALLEL
+  Real speeds[3];
+  Real my_speeds[3];
+#endif  /* MPI_PARALLEL */
+#endif  /* DT_DIAGNOSTICS */
+
 /* Loop over all Domains with a Grid on this processor -----------------------*/
 
   for (nl=0; nl<(pM->NLevels); nl++){
@@ -83,6 +93,10 @@ void new_dt(MeshS *pM)
     max_v1 = max_v2 = max_v3 = 1.0;
 #else
 
+#ifdef DT_DIAGNOSTICS
+    max_vflow = max_cs = max_mhd = 0.0;
+#endif  /* DT_DIAGNOSTICS */
+
     for (k=pGrid->ks; k<=pGrid->ke; k++) {
     for (j=pGrid->js; j<=pGrid->je; j++) {
       for (i=pGrid->is; i<=pGrid->ie; i++) {
@@ -95,11 +109,11 @@ void new_dt(MeshS *pM)
 #ifdef MHD
 
 /* Use maximum of face-centered fields (always larger than cell-centered B) */
-        b1 = pGrid->U[k][j][i].B1c 
+        b1 = pGrid->U[k][j][i].B1c
           + fabs((double)(pGrid->B1i[k][j][i] - pGrid->U[k][j][i].B1c));
-        b2 = pGrid->U[k][j][i].B2c 
+        b2 = pGrid->U[k][j][i].B2c
           + fabs((double)(pGrid->B2i[k][j][i] - pGrid->U[k][j][i].B2c));
-        b3 = pGrid->U[k][j][i].B3c 
+        b3 = pGrid->U[k][j][i].B3c
           + fabs((double)(pGrid->B3i[k][j][i] - pGrid->U[k][j][i].B3c));
         bsq = b1*b1 + b2*b2 + b3*b3;
 /* compute sound speed squared */
@@ -135,6 +149,25 @@ void new_dt(MeshS *pM)
 
 #endif /* MHD */
 
+#ifdef DT_DIAGNOSTICS
+        tmp_speed = fabs(v1);
+        if (pGrid->Nx[1] > 1)
+          tmp_speed = MAX(tmp_speed, fabs(v2));
+        if (pGrid->Nx[2] > 1)
+          tmp_speed = MAX(tmp_speed, fabs(v3));
+        max_vflow = MAX(max_vflow, tmp_speed);
+
+        max_cs = MAX(max_cs, sqrt(asq));
+#ifdef MHD
+        tmp_speed = sqrt(cf1sq);
+        if (pGrid->Nx[1] > 1)
+          tmp_speed = MAX(tmp_speed, sqrt(cf2sq));
+        if (pGrid->Nx[2] > 1)
+          tmp_speed = MAX(tmp_speed, sqrt(cf3sq));
+        max_mhd = MAX(max_mhd, tmp_speed);
+#endif  /* MHD */
+#endif  /* DT_DIAGNOSTICS */
+
 /* compute maximum cfl velocity (corresponding to minimum dt) */
         if (pGrid->Nx[0] > 1)
           max_v1 = MAX(max_v1,fabs(v1)+sqrt((double)cf1sq));
@@ -147,7 +180,7 @@ void new_dt(MeshS *pM)
 #endif
         if (pGrid->Nx[2] > 1)
           max_v3 = MAX(max_v3,fabs(v3)+sqrt((double)cf3sq));
- 
+
       }
     }}
 
@@ -175,9 +208,42 @@ void new_dt(MeshS *pM)
 
   }}} /*--- End loop over Domains --------------------------------------------*/
 
-  old_dt = pM->dt; 
+  old_dt = pM->dt;
   pM->dt = CourNo/max_dti;
-    
+
+#ifdef DT_DIAGNOSTICS
+#ifdef MPI_PARALLEL
+  my_speeds[0] = max_vflow;
+  my_speeds[1] = max_cs;
+#ifdef MHD
+  my_speeds[2] = max_mhd;
+#else
+  my_speeds[2] = 0.0;
+#endif  /* MHD */
+
+  ierr = MPI_Allreduce(&my_speeds, &speeds, 3, MPI_DOUBLE,
+                       MPI_MAX, MPI_COMM_WORLD);
+  if (ierr)
+    ath_error("[new_dt]: MPI_Allreduce signalled error %d.\n", ierr);
+
+  max_vflow = speeds[0];
+  max_cs    = speeds[1];
+#ifdef MHD
+  max_mhd   = speeds[2];
+#else
+  max_mhd   = 0.0;
+#endif  /* MHD */
+#endif  /* MPI_PARALLEL */
+
+  if ((max_mhd > max_cs) && (max_mhd > max_vflow))
+    ath_pout(0, "[new_dt]: dt limited by fast mode.\n");
+  else if ((max_cs > max_vflow) && (max_cs > max_mhd))
+    ath_pout(0, "[new_dt]: dt limited by sound wave.\n");
+  else
+    ath_pout(0, "[new_dt]: dt limited by flow speed.\n");
+#endif  /* DT_DIAGNOSTICS */
+
+
 /* Find minimum timestep over all processors */
 
 #ifdef MPI_PARALLEL
@@ -185,12 +251,12 @@ void new_dt(MeshS *pM)
   ierr = MPI_Allreduce(&my_dt, &dt, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
   pM->dt = dt;
 #endif /* MPI_PARALLEL */
-        
+
 /* Limit increase to 2x old value */
-  if (pM->nstep != 0) {
+  if (pM->nstep != 0 && pM->dt != 0.0) {
     pM->dt = MIN(pM->dt, 2.0*old_dt);
-  }     
-    
+  }
+
 /* modify timestep so loop finishes at t=tlim exactly */
   tlim = par_getd("time","tlim");
   if ((pM->time < tlim) && ((tlim - pM->time) < pM->dt))
@@ -200,7 +266,7 @@ void new_dt(MeshS *pM)
 #if defined(THERMAL_CONDUCTION) || defined(RESISTIVITY) || defined(VISCOSITY)
   max_dti_diff = new_dt_diff(pM);
 
-  diff_dt = CourNo/max_dti_diff;
+  diff_dt = 0.25/max_dti_diff;
 
 #ifdef MPI_PARALLEL
   my_dt = diff_dt;
@@ -210,11 +276,16 @@ void new_dt(MeshS *pM)
 
 #ifdef STS
   /* number of super timesteps */
+  Real dtt = pM->dt;
   N_STS = get_N_STS(pM->dt, diff_dt);
+  ncycle = 1;
 
-  if (N_STS > 12) {
+  if (N_STS > 11) {
     N_STS  = 12;
-    pM->dt = 109.7045774 * diff_dt;
+    ncycle = (int) ceil(pM->dt / diff_dt/109.7045774);
+    diff_dt = pM->dt / ncycle/109.7045774;
+    dtt = 109.7045774 * diff_dt;
+    /*pM->dt = 109.7045774 * diff_dt;*/
   }
 
   if (N_STS == 1) {
@@ -224,12 +295,13 @@ void new_dt(MeshS *pM)
   else {
     nu_STS  = 0.25/SQR((Real)(N_STS));
     nu_sqrt = 0.5/((Real)(N_STS));
-    pM->diff_dt = 2.0*pM->dt*nu_sqrt/((Real)(N_STS))
+    pM->diff_dt = 2.0*dtt*nu_sqrt/((Real)(N_STS))
               *(pow(1.0+nu_sqrt,2.0*N_STS)+pow(1.0-nu_sqrt,2.0*N_STS))
               /(pow(1.0+nu_sqrt,2.0*N_STS)-pow(1.0-nu_sqrt,2.0*N_STS));
   }
 #else
-  pM->dt = MIN(pM->dt, diff_dt);
+  ncycle = (int) ceil(pM->dt / diff_dt);
+  diff_dt = pM->dt / ncycle;
 #endif /* STS */
 
 #endif /* Explicit Diffusion */
@@ -250,13 +322,13 @@ void new_dt(MeshS *pM)
 #ifdef STS
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 /*----------------------------------------------------------------------------*/
-/* Obtain the number of sub-timesteps 
+/* Obtain the number of sub-timesteps
  */
 int get_N_STS(Real dt_MHD, Real dt_Diff)
 {
 /* dt_STS/dt_diff assuming nu=1/4N^2 */
   static double Ratio[16]={
-     1.00000000,  3.08215298,  6.88968591, 12.22069494, 19.07497343,
+    1.00000000,  3.08215298,  6.88968591, 12.22069494, 19.07497343,
     27.45247186, 37.35317345, 48.77707124, 61.72416193, 76.19444378,
     92.18791578, 109.7045774, 128.7444282, 149.3074679, 171.3936964, 195.0031136
   };

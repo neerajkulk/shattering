@@ -61,7 +61,7 @@
  *   - scal[15] = |b|**2
  *   - scal[16] = T^00_EM
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - dump_history()        - Writes variables as formatted table
  * - dump_history_enroll() - Adds new user-defined history variables	      */
 /*============================================================================*/
@@ -81,11 +81,14 @@
 
 /* Array of strings / labels for the user added history column. */
 static char *usr_label[MAX_USR_H_COUNT];
+static char *usr_label_alt[MAX_USR_H_COUNT];
 
 /* Array of history dump function pointers for user added history columns. */
-static ConsFun_t phst_fun[MAX_USR_H_COUNT];
+static ConsFun_t phst_fun[MAX_USR_H_COUNT];      /* evaluated once per cell */
+static ConsFun_t phst_fun_alt[MAX_USR_H_COUNT];  /* "" only on processor 0  */
 
 static int usr_hst_cnt = 0; /* User History Counter <= MAX_USR_H_COUNT */
+static int usr_hst_cnt_alt = 0;
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void dump_history(MeshS *pM, OutputS *pOut)
@@ -97,13 +100,13 @@ void dump_history(MeshS *pM, OutputS *pOut)
   GridS *pG;
   DomainS *pD;
   int i,j,k,is,ie,js,je,ks,ke,nl,nd;
-  double dVol, scal[NSCAL + NSCALARS + MAX_USR_H_COUNT], d1;
+  double dVol, scal[NSCAL + NSCALARS + 2 * MAX_USR_H_COUNT], d1;
   FILE *pfile;
   char *fname,*plev=NULL,*pdom=NULL,*pdir=NULL,fmt[80];
   char levstr[8],domstr[8],dirstr[20];
   int n, total_hst_cnt, mhst, myID_Comm_Domain=1;
 #ifdef MPI_PARALLEL
-  double my_scal[NSCAL + NSCALARS + MAX_USR_H_COUNT]; /* My Volume averages */
+  double my_scal[NSCAL + NSCALARS + 2 * MAX_USR_H_COUNT]; /* My Volume averages */
   int ierr;
 #endif
 #ifdef CYLINDRICAL
@@ -116,7 +119,7 @@ void dump_history(MeshS *pM, OutputS *pOut)
 #endif
 
 
-  total_hst_cnt = 9 + NSCALARS + usr_hst_cnt;
+  total_hst_cnt = 9 + NSCALARS + usr_hst_cnt + usr_hst_cnt_alt;
 #ifdef ADIABATIC
   total_hst_cnt++;
 #endif
@@ -166,13 +169,13 @@ void dump_history(MeshS *pM, OutputS *pOut)
         for (i=2; i<total_hst_cnt; i++) {
           scal[i] = 0.0;
         }
- 
+
 /* Compute history variables */
 
         for (k=ks; k<=ke; k++) {
           for (j=js; j<=je; j++) {
             for (i=is; i<=ie; i++) {
-              dVol = 1.0; 
+              dVol = 1.0;
               if (pG->dx1 > 0.0) dVol *= pG->dx1;
               if (pG->dx2 > 0.0) dVol *= pG->dx2;
               if (pG->dx3 > 0.0) dVol *= pG->dx3;
@@ -228,7 +231,7 @@ void dump_history(MeshS *pM, OutputS *pOut)
 #else /* SPECIAL_RELATIVITY */
 
               W = Cons_to_Prim (&(pG->U[k][j][i]));
-        
+
               /* calculate gamma */
               g   = pG->U[k][j][i].d/W.d;
               g2  = SQR(g);
@@ -254,18 +257,18 @@ void dump_history(MeshS *pM, OutputS *pOut)
               mhst++;
               scal[mhst] += dVol*SQR(g*W.V3);
 
-	      mhst++;
-	      scal[mhst] += dVol*W.P;
+              mhst++;
+              scal[mhst] += dVol*W.P;
 
 #ifdef MHD
 
               vB = W.V1*pG->U[k][j][i].B1c + W.V2*W.B2c + W.V3*W.B3c;
               Bmag2 = SQR(pG->U[k][j][i].B1c) + SQR(W.B2c) + SQR(W.B3c);
-        
+
               bx = g*(pG->U[k][j][i].B1c*g_2 + vB*W.V1);
               by = g*(W.B2c*g_2 + vB*W.V2);
               bz = g*(W.B3c*g_2 + vB*W.V3);
-        
+
               b2 = Bmag2*g_2 + vB*vB;
 
               mhst++;
@@ -290,13 +293,13 @@ void dump_history(MeshS *pM, OutputS *pOut)
                 mhst++;
                 scal[mhst] += dVol*(*phst_fun[n])(pG, i, j, k);
               }
-            }
+            } /* end loop over grid */
           }
         }
 
 /* Compute the sum over all Grids in Domain */
 
-#ifdef MPI_PARALLEL 
+#ifdef MPI_PARALLEL
         for(i=2; i<total_hst_cnt; i++){
           my_scal[i] = scal[i];
         }
@@ -322,6 +325,11 @@ void dump_history(MeshS *pM, OutputS *pOut)
           if (pD->Nx[2] > 1) dVol *= (pD->MaxX[2] - pD->MinX[2]);
           for(i=2; i<total_hst_cnt; i++){
             scal[i] /= dVol;
+          }
+
+          for(n=0; n<usr_hst_cnt_alt; n++){
+            mhst++;
+            scal[mhst] = (*phst_fun_alt[n])(pG, i, j, k);
           }
 
 /* Create filename and open file.  History files are always written in lev#
@@ -451,6 +459,10 @@ void dump_history(MeshS *pM, OutputS *pOut)
               mhst++;
               fprintf(pfile,"  [%i]=%s",mhst,usr_label[n]);
             }
+            for(n=0; n<usr_hst_cnt_alt; n++){
+              mhst++;
+              fprintf(pfile,"  [%i]=%s",mhst,usr_label_alt[n]);
+            }
             fprintf(pfile,"\n#\n");
           }
 
@@ -461,7 +473,7 @@ void dump_history(MeshS *pM, OutputS *pOut)
           }
           fprintf(pfile,"\n");
           fclose(pfile);
-  
+
         }
       }
     }
@@ -478,7 +490,7 @@ void dump_history_enroll(const ConsFun_t pfun, const char *label){
 
   if(usr_hst_cnt >= MAX_USR_H_COUNT)
     ath_error("[dump_history_enroll]: MAX_USR_H_COUNT = %d exceeded\n",
-	      MAX_USR_H_COUNT);
+              MAX_USR_H_COUNT);
 
 /* Copy the label string */
   if((usr_label[usr_hst_cnt] = ath_strdup(label)) == NULL)
@@ -488,6 +500,29 @@ void dump_history_enroll(const ConsFun_t pfun, const char *label){
   phst_fun[usr_hst_cnt] = pfun;
 
   usr_hst_cnt++;
+
+  return;
+
+}
+
+/* store a parallel series of user functions in phst_fun_alt and
+   usr_label_alt.  these are like the above, but get called once per
+   output, rather than once per cell.  for storing global variables
+   such as time, vflow, and x_shift. */
+void dump_history_enroll_alt(const ConsFun_t pfun, const char *label)
+{
+  if(usr_hst_cnt_alt >= MAX_USR_H_COUNT)
+    ath_error("[dump_history_enroll_alt]: MAX_USR_H_COUNT = %d exceeded\n",
+              MAX_USR_H_COUNT);
+
+  /* Copy the label string */
+  if((usr_label_alt[usr_hst_cnt_alt] = ath_strdup(label)) == NULL)
+    ath_error("[dump_history_enroll_alt]: Error on sim_strdup(\"%s\")\n",label);
+
+  /* Store the function pointer */
+  phst_fun_alt[usr_hst_cnt_alt] = pfun;
+
+  usr_hst_cnt_alt++;
 
   return;
 

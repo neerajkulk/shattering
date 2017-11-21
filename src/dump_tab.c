@@ -263,7 +263,7 @@ void dump_tab_cons(MeshS *pM, OutputS *pOut)
               for (n=0; n<NSCALARS; n++) fprintf(pfile,fmt,pG->U[k][j][i].s[n]);
 #endif
 
-      	      fprintf(pfile,"\n");
+              fprintf(pfile,"\n");
             }
           }
         }
@@ -470,7 +470,7 @@ void dump_tab_prim(MeshS *pM, OutputS *pOut)
           for(j=jl; j<=ju; j++){
             for(i=il; i<=iu; i++){
               cc_pos(pG,i,j,k,&x1,&x2,&x3);
-              W = Cons_to_Prim(&(pG->U[k][j][i])); 
+              W = Cons_to_Prim(&(pG->U[k][j][i]));
 
               if (pG->Nx[0] > 1) fprintf(pfile,zone_fmt,i);
               if (pG->Nx[1] > 1) fprintf(pfile,zone_fmt,j);

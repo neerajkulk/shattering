@@ -39,7 +39,7 @@ void problem(DomainS *pDomain)
   int is,ie,js,je,ks,ke,n,m,nx1,nx2,nx3,Nx1,Nx2;
   Real x1size,x2size;
 
-  Real B0,dB,d0,dden,Pres; 
+  Real B0,dB,d0,dden,Pres;
   Real k1, k2;
 
   is = pGrid->is; ie = pGrid->ie;
@@ -103,7 +103,7 @@ void problem(DomainS *pDomain)
   }
 #endif
 
-/* Now set initial conditions to 2d wave solution */ 
+/* Now set initial conditions to 2d wave solution */
 
   for (k=ks; k<=ke; k++) {
   for (j=js; j<=je; j++) {
@@ -129,7 +129,7 @@ void problem(DomainS *pDomain)
 
   }}}
 
-#ifdef RESISTIVITY 
+#ifdef RESISTIVITY
   eta_Ohm = 0.0;
   Q_AD    = 0.0;
   Q_Hall  = par_getd("problem","Q_H");
@@ -157,7 +157,7 @@ void problem_write_restart(MeshS *pM, FILE *fp)
 
 void problem_read_restart(MeshS *pM, FILE *fp)
 {
-#ifdef RESISTIVITY  
+#ifdef RESISTIVITY
   eta_Ohm = 0.0;
   Q_AD    = 0.0;
   Q_Hall  = par_getd("problem","Q_H");

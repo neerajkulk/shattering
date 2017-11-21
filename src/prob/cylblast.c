@@ -98,7 +98,7 @@ void problem(DomainS *pDomain)
         pG->U[k][j][i].M3 = 0.0;
 #ifdef MHD
         /* Set up a planar magnetic field in the x-y (r-phi) plane */
-        pG->B1i[k][j][i]   = b0*(cos(angle)*cos(x2)+sin(angle)*sin(x2)); 
+        pG->B1i[k][j][i]   = b0*(cos(angle)*cos(x2)+sin(angle)*sin(x2));
         pG->B2i[k][j][i]   = b0*(-cos(angle)*sin(x2i)+sin(angle)*cos(x2i));
         pG->B3i[k][j][i]   = 0.0;
         pG->U[k][j][i].B1c = b0*(cos(angle)*cos(x2)+sin(angle)*sin(x2));
@@ -128,13 +128,13 @@ void problem(DomainS *pDomain)
   }
 
   /* Enroll the gravitational function and radial BC */
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
   bvals_mhd_fun(pDomain,left_x1, do_nothing_bc);
   bvals_mhd_fun(pDomain,right_x1,do_nothing_bc);
   bvals_mhd_fun(pDomain,left_x2, do_nothing_bc);
   bvals_mhd_fun(pDomain,right_x2,do_nothing_bc);
 
-#ifdef RESISTIVITY 
+#ifdef RESISTIVITY
   eta_Ohm = 0.0;
   Q_AD    = par_getd("problem","Q_AD");
   Q_Hall  = 0.0;
@@ -203,4 +203,3 @@ void Userwork_after_loop(MeshS *pM)
 static Real grav_pot(const Real x1, const Real x2, const Real x3) {
   return 0.5*SQR(x1*omega0);
 }
-

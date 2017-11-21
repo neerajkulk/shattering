@@ -1,6 +1,6 @@
 /*============================================================================*/
 /*! \file ath_fft.c
- *  \brief Simple wrappers for 2D and 3D FFT functions. 
+ *  \brief Simple wrappers for 2D and 3D FFT functions.
  *
  * PURPOSE:  Simple wrappers for 2D and 3D FFT functions.  These exist to
  *   hide the differences in function calls needed for single processor vs
@@ -54,7 +54,7 @@
  */
 
 struct ath_3d_fft_plan *ath_3d_fft_quick_plan(DomainS *pD,
-				ath_fft_data *data, ath_fft_direction dir)
+                                ath_fft_data *data, ath_fft_direction dir)
 {
   GridS *pGrid = (pD->Grid);
   /* Get size of global FFT grid */
@@ -74,7 +74,7 @@ struct ath_3d_fft_plan *ath_3d_fft_quick_plan(DomainS *pD,
   /* Create the plan using a more generic function.
    * If the data hasn't already been allocated, it will now */
   return ath_3d_fft_create_plan(pD, gnx3, gnx2, gnx1, gks, gke, gjs, gje,
-				   gis, gie, data, 0, dir);
+                                   gis, gie, data, 0, dir);
 }
 
 /*! \fn struct ath_3d_fft_plan *ath_3d_fft_create_plan(int gnx3, int gnx2,
@@ -94,9 +94,9 @@ struct ath_3d_fft_plan *ath_3d_fft_quick_plan(DomainS *pD,
  */
 
 struct ath_3d_fft_plan *ath_3d_fft_create_plan(DomainS *pD, int gnx3, int gnx2,
-				int gnx1, int gks, int gke, int gjs, int gje,
-				int gis, int gie, ath_fft_data *data, int al,
-				ath_fft_direction dir)
+                                int gnx1, int gks, int gke, int gjs, int gje,
+                                int gis, int gie, ath_fft_data *data, int al,
+                                ath_fft_direction dir)
 {
   int nbuf, tmp;
   struct ath_3d_fft_plan *ath_plan;
@@ -128,17 +128,17 @@ struct ath_3d_fft_plan *ath_3d_fft_create_plan(DomainS *pD, int gnx3, int gnx2,
   /* Create the plan */
 #ifdef FFT_BLOCK_DECOMP
   /* Block decomp library plans don't care if forward or backward */
-  ath_plan->plan = fft_3d_create_plan(pD->Comm_Domain, gnx3, gnx2, gnx1, 
-					gks, gke, gjs, gje, gis, gie, 
-			    		gks, gke, gjs, gje, gis, gie, 
-                            		0, 0, &nbuf);
+  ath_plan->plan = fft_3d_create_plan(pD->Comm_Domain, gnx3, gnx2, gnx1,
+                                        gks, gke, gjs, gje, gis, gie,
+                                        gks, gke, gjs, gje, gis, gie,
+                                        0, 0, &nbuf);
 #else /* FFT_BLOCK_DECOMP */
   if (dir == ATH_FFT_FORWARD) {
     ath_plan->plan = fftw_plan_dft_3d(gnx1, gnx2, gnx3, data, data,
-					FFTW_FORWARD, FFTW_MEASURE);
+                                        FFTW_FORWARD, FFTW_MEASURE);
   } else {
     ath_plan->plan = fftw_plan_dft_3d(gnx1, gnx2, gnx3, data, data,
-					FFTW_BACKWARD, FFTW_MEASURE);
+                                        FFTW_BACKWARD, FFTW_MEASURE);
   }
 #endif /* FFT_BLOCK_DECOMP */
 
@@ -148,7 +148,7 @@ struct ath_3d_fft_plan *ath_3d_fft_create_plan(DomainS *pD, int gnx3, int gnx2,
 }
 
 /*! \fn ath_fft_data *ath_3d_fft_malloc(struct ath_3d_fft_plan *ath_plan)
- *  \brief Easy allocation of data array needed for particular 3D plan 
+ *  \brief Easy allocation of data array needed for particular 3D plan
  */
 
 ath_fft_data *ath_3d_fft_malloc(struct ath_3d_fft_plan *ath_plan)
@@ -214,7 +214,7 @@ void ath_3d_fft_destroy_plan(struct ath_3d_fft_plan *ath_plan)
  */
 
 struct ath_2d_fft_plan *ath_2d_fft_quick_plan(DomainS *pD,
-				ath_fft_data *data, ath_fft_direction dir)
+                                ath_fft_data *data, ath_fft_direction dir)
 {
   GridS *pGrid=(pD->Grid);
   if (pGrid->Nx[2] != 1) {
@@ -251,9 +251,9 @@ struct ath_2d_fft_plan *ath_2d_fft_quick_plan(DomainS *pD,
  */
 
 struct ath_2d_fft_plan *ath_2d_fft_create_plan(DomainS *pD, int gnx2, int gnx1,
-				int gjs, int gje, int gis, int gie,
-				ath_fft_data *data, int al,
-				ath_fft_direction dir)
+                                int gjs, int gje, int gis, int gie,
+                                ath_fft_data *data, int al,
+                                ath_fft_direction dir)
 {
   int nbuf, tmp;
   struct ath_2d_fft_plan *ath_plan;
@@ -286,15 +286,15 @@ struct ath_2d_fft_plan *ath_2d_fft_create_plan(DomainS *pD, int gnx2, int gnx1,
 #ifdef FFT_BLOCK_DECOMP
   /* Block decomp plans don't care if forward/backward */
   ath_plan->plan = fft_2d_create_plan(pD->Comm_Domain, gnx2, gnx1, gjs, gje,
-					gis, gie, gjs, gje, gis, gie, 
-                            		0, 0, &nbuf);
+                                        gis, gie, gjs, gje, gis, gie,
+                                        0, 0, &nbuf);
 #else /* FFT_BLOCK_DECOMP */
   if (dir == ATH_FFT_FORWARD) {
     ath_plan->plan = fftw_plan_dft_2d(gnx1, gnx2, data, data, FFTW_FORWARD,
-					FFTW_MEASURE);
+                                        FFTW_MEASURE);
   } else {
     ath_plan->plan = fftw_plan_dft_2d(gnx1, gnx2, data, data, FFTW_BACKWARD,
-					FFTW_MEASURE);
+                                        FFTW_MEASURE);
   }
 #endif /* FFT_BLOCK_DECOMP */
 

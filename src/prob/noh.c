@@ -5,7 +5,7 @@
  *   (figure 4.7).
  *
  * PURPOSE: Spherical Noh implosion problem, from Liska & Wendroff, section 4.5
- *   (figure 4.7).  Tests code on VERY strong shock, also sensitive to 
+ *   (figure 4.7).  Tests code on VERY strong shock, also sensitive to
  *   carbuncle instability.
  *
  * PRIVATE FUNCTION PROTOTYPES:
@@ -56,21 +56,21 @@ void problem(DomainS *pD)
   for (k=pGrid->ks; k<=pGrid->ke; k++) {
     for (j=pGrid->js; j<=pGrid->je; j++) {
       for (i=pGrid->is; i<=pGrid->ie; i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-	if (pGrid->Nx[2] > 1) {
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        if (pGrid->Nx[2] > 1) {
           r = sqrt(x1*x1 + x2*x2 + x3*x3);
         } else {
           r = sqrt(x1*x1 + x2*x2);
         }
-	pGrid->U[k][j][i].d = 1.0;
-	pGrid->U[k][j][i].M1 = -x1/r;
-	pGrid->U[k][j][i].M2 = -x2/r;
-	if (pGrid->Nx[2] > 1) {
-	  pGrid->U[k][j][i].M3 = -x3/r;
+        pGrid->U[k][j][i].d = 1.0;
+        pGrid->U[k][j][i].M1 = -x1/r;
+        pGrid->U[k][j][i].M2 = -x2/r;
+        if (pGrid->Nx[2] > 1) {
+          pGrid->U[k][j][i].M3 = -x3/r;
         } else {
-	  pGrid->U[k][j][i].M3 = 0.0;
+          pGrid->U[k][j][i].M3 = 0.0;
         }
-	pGrid->U[k][j][i].E = 1.0e-6/Gamma_1 + 0.5;
+        pGrid->U[k][j][i].E = 1.0e-6/Gamma_1 + 0.5;
       }
     }
   }
@@ -148,24 +148,24 @@ void noh3d_oib(GridS *pGrid)
   for (k=kl; k<=ku; k++) {
     for (j=jl; j<=ju;  j++) {
       for (i=ie+1;  i<=ie+nghost;  i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
         if (pGrid->Nx[2] > 1) {
-	  r = sqrt(x1*x1 + x2*x2 + x3*x3);
+          r = sqrt(x1*x1 + x2*x2 + x3*x3);
           f_t = (1.0 + pGrid->time/r)*(1.0 + pGrid->time/r);
         } else {
-	  r = sqrt(x1*x1 + x2*x2);
+          r = sqrt(x1*x1 + x2*x2);
           f_t = (1.0 + pGrid->time/r);
         }
-	d0 = 1.0*f_t;
-   
-	pGrid->U[k][j][i].d  = d0;
-	pGrid->U[k][j][i].M1 = -x1*d0/r;
-	pGrid->U[k][j][i].M2 = -x2*d0/r;
+        d0 = 1.0*f_t;
+
+        pGrid->U[k][j][i].d  = d0;
+        pGrid->U[k][j][i].M1 = -x1*d0/r;
+        pGrid->U[k][j][i].M2 = -x2*d0/r;
         if (pGrid->Nx[2] > 1) {
-	  pGrid->U[k][j][i].M3 = -x3*d0/r;
+          pGrid->U[k][j][i].M3 = -x3*d0/r;
           pGrid->U[k][j][i].E = 1.0e-6*pow(f_t,1.0+Gamma)/Gamma_1 + 0.5*d0;
         } else {
-	  pGrid->U[k][j][i].M3 = 0.0;
+          pGrid->U[k][j][i].M3 = 0.0;
           pGrid->U[k][j][i].E = 1.0e-6/Gamma_1 + 0.5*d0;
         }
       }
@@ -176,7 +176,7 @@ void noh3d_oib(GridS *pGrid)
 /*----------------------------------------------------------------------------*/
 /*! \fn void noh3d_ojb(GridS *pGrid)
  *  \brief Sets boundary condition on right X2 boundary (ojb) for noh3d test
- * 
+ *
  * Note quantities at this boundary are held fixed at the time-dependent
  * upstream state
  */
@@ -199,24 +199,24 @@ void noh3d_ojb(GridS *pGrid)
   for (k=kl; k<=ku; k++) {
     for (j=je+1; j<=je+nghost; j++) {
       for (i=il; i<=iu; i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
         if (pGrid->Nx[2] > 1) {
-	  r = sqrt(x1*x1 + x2*x2 + x3*x3);
+          r = sqrt(x1*x1 + x2*x2 + x3*x3);
           f_t = (1.0 + pGrid->time/r)*(1.0 + pGrid->time/r);
         } else {
-	  r = sqrt(x1*x1 + x2*x2);
+          r = sqrt(x1*x1 + x2*x2);
           f_t = (1.0 + pGrid->time/r);
         }
-	d0 = 1.0*f_t;
+        d0 = 1.0*f_t;
 
-	pGrid->U[k][j][i].d  = d0;
-	pGrid->U[k][j][i].M1 = -x1*d0/r;
-	pGrid->U[k][j][i].M2 = -x2*d0/r;
+        pGrid->U[k][j][i].d  = d0;
+        pGrid->U[k][j][i].M1 = -x1*d0/r;
+        pGrid->U[k][j][i].M2 = -x2*d0/r;
         if (pGrid->Nx[2] > 1) {
-	  pGrid->U[k][j][i].M3 = -x3*d0/r;
+          pGrid->U[k][j][i].M3 = -x3*d0/r;
           pGrid->U[k][j][i].E = 1.0e-6*pow(f_t,1.0+Gamma)/Gamma_1 + 0.5*d0;
         } else {
-	  pGrid->U[k][j][i].M3 = 0.0;
+          pGrid->U[k][j][i].M3 = 0.0;
           pGrid->U[k][j][i].E = 1.0e-6/Gamma_1 + 0.5*d0;
         }
       }
@@ -225,9 +225,9 @@ void noh3d_ojb(GridS *pGrid)
 }
 
 /*---------------------------------------------------------------------------*/
-/*! \fn void noh3d_okb(GridS *pGrid) 
+/*! \fn void noh3d_okb(GridS *pGrid)
  *  \brief Sets boundary condition on right X3 boundary (okb) for noh3d test
- * 
+ *
  * Note quantities at this boundary are held fixed at the time-dependent
  * upstream state
  */
@@ -242,16 +242,16 @@ void noh3d_okb(GridS *pGrid)
   for (k=ke+1; k<=ke+nghost; k++) {
     for (j=jl; j<=ju; j++) {
       for (i=il; i<=iu; i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-	r = sqrt(x1*x1 + x2*x2 + x3*x3);
-	f_t = (1.0 + pGrid->time/r)*(1.0 + pGrid->time/r);
-	d0 = 1.0*f_t;
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        r = sqrt(x1*x1 + x2*x2 + x3*x3);
+        f_t = (1.0 + pGrid->time/r)*(1.0 + pGrid->time/r);
+        d0 = 1.0*f_t;
 
-	pGrid->U[k][j][i].d  = d0;
-	pGrid->U[k][j][i].M1 = -x1*d0/r;
-	pGrid->U[k][j][i].M2 = -x2*d0/r;
-	pGrid->U[k][j][i].M3 = -x3*d0/r;
-	pGrid->U[k][j][i].E = 1.0e-6*pow(f_t,1.0+Gamma)/Gamma_1 + 0.5*d0;
+        pGrid->U[k][j][i].d  = d0;
+        pGrid->U[k][j][i].M1 = -x1*d0/r;
+        pGrid->U[k][j][i].M2 = -x2*d0/r;
+        pGrid->U[k][j][i].M3 = -x3*d0/r;
+        pGrid->U[k][j][i].E = 1.0e-6*pow(f_t,1.0+Gamma)/Gamma_1 + 0.5*d0;
       }
     }
   }

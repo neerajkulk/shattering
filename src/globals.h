@@ -1,5 +1,5 @@
 #ifndef GLOBALS_H
-#define GLOBALS_H  
+#define GLOBALS_H
 /*============================================================================*/
 /*! \file globals.h
  *  \brief Contains global variables.
@@ -22,7 +22,7 @@ Real Gamma_1, Gamma_2;       /*!< (Gamma)-1 and (Gamma)-2 */
 int myID_Comm_world; /*!< Rank (proc ID) in MPI_COMM_WORLD, 0 for single proc */
 Real d_MIN = TINY_NUMBER;    /*!< density floor */
 
-GravPotFun_t StaticGravPot = NULL;
+GravPotFun_t ExternalGravPot = NULL;
 CoolingFun_t CoolingFunc = NULL;
 #ifdef SELF_GRAVITY
 Real four_pi_G, grav_mean_rho;    /*!< 4\pi G and mean density in domain */
@@ -44,7 +44,8 @@ WeightFun_t getweight = NULL;     /*!< get weight function */
 #endif
 
 #ifdef THERMAL_CONDUCTION
-Real kappa_iso=0.0, kappa_aniso=0.0;         /*!< coeff of thermal conduction */
+KappaFun_t KappaFun_a = NULL;   /* coeff of thermal conduction */
+KappaFun_t KappaFun_i = NULL;
 #endif
 #ifdef RESISTIVITY
 Real eta_Ohm=0.0, Q_Hall=0.0, Q_AD=0.0;        /*!< diffusivities */
@@ -52,13 +53,15 @@ Real d_ind;                                    /*!< index: n_e ~ d^(d_ind) */
 EtaFun_t get_myeta = NULL;       /*!< function to calculate the diffusivities */
 #endif
 #ifdef VISCOSITY
-Real nu_iso=0.0, nu_aniso=0.0;               /*!< coeff of viscosity */
+NuFun_t NuFun_a = NULL;               /* coeff of viscosity */
+NuFun_t NuFun_i = NULL;
 #endif
 #ifdef STS
 int N_STS;			/*!< number of super timesteps */
 Real nu_STS;			/*!< parameter controlling the substeps  */
 Real STS_dt;			/*!< STS time step */
 #endif
+int ncycle;
 
 #ifdef CYLINDRICAL
 // StaticGravAcc_t x1GravAcc = NULL;
@@ -83,7 +86,7 @@ extern Real Gamma, Gamma_1, Gamma_2;
 extern int myID_Comm_world;
 extern Real d_MIN;
 
-extern GravPotFun_t StaticGravPot;
+extern GravPotFun_t ExternalGravPot;
 extern CoolingFun_t CoolingFunc;
 #ifdef SELF_GRAVITY
 extern Real four_pi_G, grav_mean_rho;
@@ -101,12 +104,13 @@ extern Real Omega_0, Rc; /* Omega_0: rotating frequency of frame; Rc: Distance b
 
 #ifdef PARTICLES
 extern Real alamcoeff, *grrhoa;
-extern TSFun_t     get_ts; 
-extern WeightFun_t getweight; 
+extern TSFun_t     get_ts;
+extern WeightFun_t getweight;
 #endif
 
 #ifdef THERMAL_CONDUCTION
-extern Real kappa_iso, kappa_aniso;
+extern KappaFun_t KappaFun_i;
+extern KappaFun_t KappaFun_a;
 #endif
 #ifdef RESISTIVITY
 extern Real eta_Ohm, Q_Hall, Q_AD;
@@ -114,11 +118,12 @@ extern Real d_ind;
 extern EtaFun_t get_myeta;
 #endif
 #ifdef VISCOSITY
-extern Real nu_iso, nu_aniso;
+extern NuFun_t NuFun_i, NuFun_a;
 #endif
+extern int ncycle;
 #ifdef STS
 extern int N_STS;
-extern Real nu_STS, STS_dt; 
+extern Real nu_STS, STS_dt;
 #endif
 
 #ifdef CYLINDRICAL

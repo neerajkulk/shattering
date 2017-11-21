@@ -4,7 +4,7 @@
  *  \brief Contains public functions to integrate explicit diffusion terms
  *   using operator splitting.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - integrate_diff() - calls functions for each diffusion operator
  * - integrate_diff_init() - allocates memory for diff functions
  * - integrate_diff_destruct() - frees memory for diff functions */
@@ -62,24 +62,24 @@ void integrate_diff(MeshS *pM)
  */
 
 void integrate_diff_init(MeshS *pM __attribute__ ((unused)))
-{   
+{
 /* Check that diffusion coefficients were set in problem generator, call memory
  * allocation routines.  */
 
 #ifdef THERMAL_CONDUCTION
-  if ((kappa_iso+kappa_aniso)==0.0 || kappa_iso<0.0 || kappa_aniso<0.0) 
+  if (KappaFun_i == NULL && KappaFun_a == NULL)
     ath_error("[diff_init] problem with coefficents of thermal conduction\n");
   conduction_init(pM);
 #endif
 
 #ifdef VISCOSITY
-  if ((nu_iso+nu_aniso)==0.0 || nu_iso<0.0 || nu_aniso<0.0) 
+  if (NuFun_i == NULL && NuFun_a == NULL)
     ath_error("[diff_init] problem with coefficents of viscosity\n");
   viscosity_init(pM);
 #endif
 
 #ifdef RESISTIVITY
-  if ((eta_Ohm+Q_Hall+Q_AD)==0.0 || eta_Ohm<0.0 || Q_Hall<0.0 || Q_AD<0.0) 
+  if ((eta_Ohm+Q_Hall+Q_AD)==0.0 || eta_Ohm<0.0 || Q_Hall<0.0 || Q_AD<0.0)
     ath_error("[diff_init] problem with coefficents of resistivity\n");
   resistivity_init(pM);
 #endif

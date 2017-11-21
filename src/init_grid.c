@@ -1,6 +1,6 @@
 #include "copyright.h"
 /*============================================================================*/
-/*! \file init_grid.c 
+/*! \file init_grid.c
  *  \brief Initializes most variables in the Grid structure.
  *
  * PURPOSE: Initializes most variables in the Grid structure.  Allocates memory
@@ -8,7 +8,7 @@
  *   between child and parent Grids, and initializes data needed for restriction
  *   flux-correction, and prolongation steps.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - init_grid()
  *
  * PRIVATE FUNCTION PROTOTYPES:
@@ -89,9 +89,9 @@ void init_grid(MeshS *pM)
       }
       else
         pG->is = pG->ie = 0;
-    
+
       pG->dx1 = pD->dx[0];
-    
+
       pG->Disp[0] = pD->Disp[0];
       pG->MinX[0] = pD->MinX[0];
       for (l=1; l<=myL; l++) {
@@ -99,21 +99,21 @@ void init_grid(MeshS *pM)
         pG->MinX[0] += (Real)(pD->GData[myN][myM][l-1].Nx[0])*pG->dx1;
       }
       pG->MaxX[0] = pG->MinX[0] + (Real)(pG->Nx[0])*pG->dx1;
-    
+
 /* ---------------------  Intialize grid in 2-direction --------------------- */
 /* Initialize js,je,dx2
  * Compute Disp, MinX[1], and MaxX[1] using displacement of Domain and Grid
  * location within Domain */
 
       pG->Nx[1] = pD->GData[myN][myM][myL].Nx[1];
-    
+
       if(pG->Nx[1] > 1) {
         pG->js = nghost;
         pG->je = pG->Nx[1] + nghost - 1;
       }
       else
         pG->js = pG->je = 0;
-    
+
       pG->dx2 = pD->dx[1];
 
       pG->Disp[1] = pD->Disp[1];
@@ -169,7 +169,7 @@ void init_grid(MeshS *pM)
 
       pG->U = (ConsS***)calloc_3d_array(n3z, n2z, n1z, sizeof(ConsS));
       if (pG->U == NULL) goto on_error1;
-    
+
 /* Build 3D arrays to hold interface field */
 
 #ifdef MHD
@@ -269,7 +269,7 @@ void init_grid(MeshS *pM)
       pG->lx3_Gid=pG->lx3_id;
       pG->rx3_Gid=pG->rx3_id;
 #endif
-   
+
 #ifdef STATIC_MESH_REFINEMENT
 /*---------------------- Initialize variables for SMR ------------------------*/
 /* Number of child/parent grids, and data about overlap regions. */
@@ -339,7 +339,7 @@ void init_grid(MeshS *pM)
             for (i=0; i<3; i++) {
               G2.ijkl[i] = pCD->GData[n][m][l].Disp[i]/2;
               G2.ijkr[i] = 1;
-              if (pCD->Nx[i] > 1) 
+              if (pCD->Nx[i] > 1)
                 G2.ijkr[i] = (pCD->GData[n][m][l].Disp[i]
                             + pCD->GData[n][m][l].Nx[i])/2;
             }
@@ -447,7 +447,7 @@ G3.ijkl[0],G3.ijkr[0]);
               pG->CGrid[ncg].ijke[1] = G3.ijkr[1] - pG->Disp[1] + pG->js - 1;
               pG->CGrid[ncg].ijks[2] = G3.ijkl[2] - pG->Disp[2] + pG->ks;
               pG->CGrid[ncg].ijke[2] = G3.ijkr[2] - pG->Disp[2] + pG->ks - 1;
-  
+
               pG->CGrid[ncg].DomN = ncd;
               pG->CGrid[ncg].ID = pCD->GData[n][m][l].ID_Comm_Parent;
 
@@ -460,7 +460,7 @@ G3.ijkl[0],G3.ijkr[0]);
 /* count B-fields to be passed, but only if there are cells that overlap */
               if (pG->CGrid[ncg].nWordsRC > 0) {
                 if (nDim==3) {
-                  pG->CGrid[ncg].nWordsRC += 
+                  pG->CGrid[ncg].nWordsRC +=
                     (n1z+1)*n2z*n3z + n1z*(n2z+1)*n3z + n1z*n2z*(n3z+1);
                 } else {
                   if (nDim==2) {
@@ -515,8 +515,8 @@ G3.ijkl[0],G3.ijkr[0]);
                     if (pG->Nx[2] > 1) n2p += nghost + 2;
                   }
 
-                  pG->CGrid[ncg].nWordsRC += n1z*n2z*(NVAR); 
-                  pG->CGrid[ncg].nWordsP  += ((nghost/2)+2)*n1p*n2p*(NVAR); 
+                  pG->CGrid[ncg].nWordsRC += n1z*n2z*(NVAR);
+                  pG->CGrid[ncg].nWordsP  += ((nghost/2)+2)*n1p*n2p*(NVAR);
 
 /* Allocate memory for myFlx and myEMFs */
 
@@ -529,7 +529,7 @@ G3.ijkl[0],G3.ijkr[0]);
                     pG->CGrid[ncg].nWordsP += 3*((nghost/2)+2)*n1p*n2p;
 
                     if (pG->Nx[1] > 1 && dim != 2) {
-                      pG->CGrid[ncg].nWordsRC += (n1z+1)*n2z; 
+                      pG->CGrid[ncg].nWordsRC += (n1z+1)*n2z;
                       pG->CGrid[ncg].myEMF3[2*dim] = (Real**)calloc_2d_array(
                         n2z,n1z+1, sizeof(Real));
                       if(pG->CGrid[ncg].myEMF3[2*dim] == NULL) ath_error(
@@ -537,7 +537,7 @@ G3.ijkl[0],G3.ijkr[0]);
                     }
 
                     if (pG->Nx[2] > 1  && dim == 0) {
-                      pG->CGrid[ncg].nWordsRC += n1z*(n2z+1); 
+                      pG->CGrid[ncg].nWordsRC += n1z*(n2z+1);
                       pG->CGrid[ncg].myEMF2[2*dim] =
                         (Real**)calloc_2d_array(n2z+1,n1z, sizeof(Real));
                       if(pG->CGrid[ncg].myEMF2[2*dim] == NULL) ath_error(
@@ -545,7 +545,7 @@ G3.ijkl[0],G3.ijkr[0]);
                     }
 
                     if (pG->Nx[2] > 1  && dim == 1) {
-                      pG->CGrid[ncg].nWordsRC += n1z*(n2z+1); 
+                      pG->CGrid[ncg].nWordsRC += n1z*(n2z+1);
                       pG->CGrid[ncg].myEMF1[2*dim] =
                         (Real**)calloc_2d_array(n2z+1,n1z, sizeof(Real));
                       if(pG->CGrid[ncg].myEMF1[2*dim] == NULL) ath_error(
@@ -553,7 +553,7 @@ G3.ijkl[0],G3.ijkr[0]);
                     }
 
                     if (pG->Nx[2] > 1  && dim == 2) {
-                      pG->CGrid[ncg].nWordsRC += n1z*(n2z+1) + (n1z+1)*n2z; 
+                      pG->CGrid[ncg].nWordsRC += n1z*(n2z+1) + (n1z+1)*n2z;
                       pG->CGrid[ncg].myEMF1[2*dim] =
                         (Real**)calloc_2d_array(n2z+1,n1z, sizeof(Real));
                       if(pG->CGrid[ncg].myEMF1[2*dim] == NULL) ath_error(
@@ -569,7 +569,7 @@ G3.ijkl[0],G3.ijkr[0]);
 
 /* outer x1/x2/x3 boundary.  Same logic as above for inner boundary */
 
-                n1p = 0; n2p = 0; 
+                n1p = 0; n2p = 0;
                 irefine = 1;
                 for (i=1;i<=(nl+1);i++) irefine *= 2; /* child refinement lev */
                 if ( (G2.ijkr[dim] == G3.ijkr[dim]) &&
@@ -600,8 +600,8 @@ G3.ijkl[0],G3.ijkr[0]);
                     if (pG->Nx[2] > 1) n2p += nghost + 2;
                   }
 
-                  pG->CGrid[ncg].nWordsRC += n1z*n2z*(NVAR); 
-                  pG->CGrid[ncg].nWordsP  += ((nghost/2)+2)*n1p*n2p*(NVAR); 
+                  pG->CGrid[ncg].nWordsRC += n1z*n2z*(NVAR);
+                  pG->CGrid[ncg].nWordsP  += ((nghost/2)+2)*n1p*n2p*(NVAR);
 
 /* Allocate memory for myFlx and myEMFs*/
 
@@ -734,7 +734,7 @@ G3.ijkl[0],G3.ijkr[0]);
 /* Multiply by two to check in units of this (not the parent) grid coord */
             for (i=0; i<3; i++) {
               G2.ijkl[i] = 2*(pPD->GData[n][m][l].Disp[i]);
-              G2.ijkr[i] = 2*(pPD->GData[n][m][l].Disp[i] + 
+              G2.ijkr[i] = 2*(pPD->GData[n][m][l].Disp[i] +
                               pPD->GData[n][m][l].Nx[i]);
             }
 
@@ -838,7 +838,7 @@ G3.ijkl[2],G3.ijkr[2]);
               pG->PGrid[npg].ijke[1] = G3.ijkr[1] - pG->Disp[1] + pG->js - 1;
               pG->PGrid[npg].ijks[2] = G3.ijkl[2] - pG->Disp[2] + pG->ks;
               pG->PGrid[npg].ijke[2] = G3.ijkr[2] - pG->Disp[2] + pG->ks - 1;
-  
+
               pG->PGrid[npg].DomN = npd;
               pG->PGrid[npg].ID = pPD->GData[n][m][l].ID_Comm_Children;
 
@@ -852,7 +852,7 @@ G3.ijkl[2],G3.ijkr[2]);
 /* count B-fields to be passed, but only if there are cells that overlap */
               if (pG->PGrid[npg].nWordsRC > 0) {
                 if (nDim==3) {
-                  pG->PGrid[npg].nWordsRC += 
+                  pG->PGrid[npg].nWordsRC +=
                     (n1z+1)*n2z*n3z + n1z*(n2z+1)*n3z + n1z*n2z*(n3z+1);
                 } else {
                   if (nDim==2) {
@@ -928,7 +928,7 @@ G3.ijkl[2],G3.ijkr[2]);
 
                     if (pG->Nx[1] > 1 && dim != 2) {
                       pG->PGrid[npg].nWordsRC += (n1r+1)*n2r;
-                      pG->PGrid[npg].myEMF3[2*dim] = 
+                      pG->PGrid[npg].myEMF3[2*dim] =
                         (Real**)calloc_2d_array(n2z,n1z+1, sizeof(Real));
                       if(pG->PGrid[npg].myEMF3[2*dim]==NULL) ath_error(
                         "[init_grid]:failed to allocate PGrid ixb myEMF3\n");
@@ -952,7 +952,7 @@ G3.ijkl[2],G3.ijkr[2]);
 
                     if (pG->Nx[2] > 1  && dim == 2) {
                       pG->PGrid[npg].nWordsRC += n1r*(n2r+1) + (n1r+1)*n2r;
-                      pG->PGrid[npg].myEMF1[2*dim] = 
+                      pG->PGrid[npg].myEMF1[2*dim] =
                         (Real**)calloc_2d_array(n2z+1,n1z, sizeof(Real));
                       if(pG->PGrid[npg].myEMF1[2*dim]==NULL) ath_error(
                         "[init_grid]:failed to allocate PGrid ixb myEMF1\n");
@@ -973,7 +973,7 @@ G3.ijkl[2],G3.ijkr[2]);
                 if ( (G1.ijkr[dim] == G3.ijkr[dim]) &&
                     ((pD->Disp[dim] + pD->Nx[dim])/irefine != pM->Nx[dim]) &&
                      (iGrid == (pD->NGrid[dim]-1)) ) {
-  
+
 /* calculate size of arrays to store fluxes on this Grid for Correction */
                   if (dim == 0) {
                     n1z = G3.ijkr[1] - G3.ijkl[1];
@@ -1082,7 +1082,7 @@ G3.ijkl[2],G3.ijkr[2]);
           pG->PGrid[i].ID,pG->PGrid[i].DomN,pG->PGrid[i].nWordsRC,
           pG->PGrid[i].nWordsP);
       }
-    } 
+    }
   }}
 
 #endif /* STATIC_MESH_REFINEMENT */

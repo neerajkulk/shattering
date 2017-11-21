@@ -6,7 +6,7 @@
  * PURPOSE: Problem generator for double Mach reflection test.  Only works for
  *   genuinely 2D problems in X1-X2 plane.
  *
- * REFERENCE: P. Woodward & P. Colella, "The numerical simulation of 
+ * REFERENCE: P. Woodward & P. Colella, "The numerical simulation of
  *   two-dimensional fluid flow with strong shocks", JCP, 54, 115, sect. IVc. */
 /*============================================================================*/
 
@@ -27,9 +27,9 @@
 
 /*==============================================================================
  * PRIVATE FUNCTION PROTOTYPES:
- * dmrbv_iib() - sets BCs on L-x1 (left edge) of grid.  
- * dmrbv_ijb() - sets BCs on L-x2 (bottom edge) of grid.  
- * dmrbv_ojb() - sets BCs on R-x2 (top edge) of grid.  
+ * dmrbv_iib() - sets BCs on L-x1 (left edge) of grid.
+ * dmrbv_ijb() - sets BCs on L-x2 (bottom edge) of grid.
+ * dmrbv_ojb() - sets BCs on R-x2 (top edge) of grid.
  *============================================================================*/
 
 void dmrbv_iib(GridS *pGrid);
@@ -212,7 +212,7 @@ Real d0,e0,u0,v0,x1,x2,x3;
 /*----------------------------------------------------------------------------*/
 /*! \fn void dmrbv_ojb(GridS *pGrid)
  *  \brief Sets TIME-DEPENDENT boundary condition on upper Y boundary (ojb)
- * for dmr test.  
+ * for dmr test.
  *
  * Quantaties at this boundary are held fixed at the downstream
  * state for x1 < 0.16666666+v1_shock*time, and at the upstream state for

@@ -1,5 +1,5 @@
 #ifndef ATHENA_H
-#define ATHENA_H 
+#define ATHENA_H
 /*============================================================================*/
 /*! \file athena.h
  *  \brief Contains definitions of many data types and structures.
@@ -24,7 +24,7 @@
 
 /*! \typedef Real
  *  \brief Variable precision float, depends on macro set by configure.
- */ 
+ */
 #if defined(SINGLE_PREC)
 #ifdef MPI_PARALLEL
 #error: MPI requires double precision
@@ -56,12 +56,12 @@ typedef struct Int3Vect_s{
 }Int3Vect;
 
 /*! \struct SideS
- *  \brief Sides of a cube, used to find overlaps between Grids 
+ *  \brief Sides of a cube, used to find overlaps between Grids
  *   at different levels.
  */
 typedef struct Side_s{
-  int ijkl[3];    /*!< indices of left-sides  in each dir [0,1,2]=[i,j,k] */ 
-  int ijkr[3];    /*!< indices of right-sides in each dir [0,1,2]=[i,j,k] */ 
+  int ijkl[3];    /*!< indices of left-sides  in each dir [0,1,2]=[i,j,k] */
+  int ijkr[3];    /*!< indices of right-sides in each dir [0,1,2]=[i,j,k] */
 }SideS;
 
 /*! \struct GridsDataS
@@ -269,7 +269,7 @@ typedef struct Grid_s{
 #ifdef MHD
   Real ***B1i,***B2i,***B3i;    /*!< interface magnetic fields */
 #ifdef RESISTIVITY
-  Real ***eta_Ohm,***eta_Hall,***eta_AD; /*!< magnetic diffusivities */ 
+  Real ***eta_Ohm,***eta_Hall,***eta_AD; /*!< magnetic diffusivities */
 #endif
 #endif /* MHD */
 #ifdef SELF_GRAVITY
@@ -319,7 +319,7 @@ typedef struct Grid_s{
 #endif /* STATIC_MESH_REFINEMENT */
 
 #ifdef CYLINDRICAL
-  Real *r,*ri;                  /*!< cylindrical scaling factors */ 
+  Real *r,*ri;                  /*!< cylindrical scaling factors */
 #endif /* CYLINDRICAL */
 
 }GridS;
@@ -417,7 +417,7 @@ typedef void (*VOutFun_t)(MeshS *pM, struct Output_s *pout);
 /*! \fn void (*VResFun_t)(MeshS *pM, struct Output_s *pout)
  *  \brief Restart function pointer. */
 typedef void (*VResFun_t)(MeshS *pM, struct Output_s *pout);
-/*! \fn Real (*ConsFun_t)(const GridS *pG, const int i,const int j,const int k) 
+/*! \fn Real (*ConsFun_t)(const GridS *pG, const int i,const int j,const int k)
  *  \brief Pointer to expression that computes quant for output.*/
 typedef Real (*ConsFun_t)(const GridS *pG, const int i,const int j,const int k);
 #ifdef PARTICLES
@@ -480,9 +480,11 @@ typedef struct Output_s{
 /* for static gravitational potential and cooling, set in problem generator,
  * and used by integrators */
 
-/*! \fn Real (*GravPotFun_t)(const Real x1, const Real x2, const Real x3)
+/*! \fn Real (*GravPotFun_t)(const Real x1, const Real x2, const Real
+ *  x3, const Real time)
  *  \brief Gravitational potential function. */
-typedef Real (*GravPotFun_t)(const Real x1, const Real x2, const Real x3);
+typedef Real (*GravPotFun_t)(const Real x1, const Real x2, const Real x3,
+                             const Real time);
 #if defined(CYLINDRICAL) && defined(FARGO)
 /*! \fn Real (*OrbitalFun_t)(const Real x1)
  *  \brief Orbital function for FARGO */
@@ -518,5 +520,15 @@ typedef Real (*TSFun_t)(GridS *pG, int type, Real rho, Real cs, Real vd);
 /*! \enum BCDirection
  *  \brief Directions for the set_bvals_fun() function */
 enum BCDirection {left_x1, right_x1, left_x2, right_x2, left_x3, right_x3};
+
+#ifdef THERMAL_CONDUCTION
+typedef Real (*KappaFun_t)(const Real d, const Real T,
+                           const Real x, const Real y, const Real z);
+#endif
+
+#ifdef VISCOSITY
+typedef Real (*NuFun_t)(const Real d, const Real T,
+                        const Real x, const Real y, const Real z);
+#endif
 
 #endif /* ATHENA_H */

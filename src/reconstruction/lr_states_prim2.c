@@ -2,7 +2,7 @@
 /*============================================================================*/
 /*! \file lr_states_prim2.c
  *  \brief Second order (piecewise linear) spatial reconstruction in the
- *   primitive variables. 
+ *   primitive variables.
  *
  * PURPOSE: Second order (piecewise linear) spatial reconstruction in the
  *   primitive variables. With the CTU integrator, a time-evolution
@@ -13,7 +13,7 @@
  *   variables.  When used with the VL integrator, an eigenvalue decomposition
  *   is NOT needed.
  *
- * NOTATION: 
+ * NOTATION:
  * - W_{L,i-1/2} is reconstructed value on the left-side of interface at i-1/2
  * - W_{R,i-1/2} is reconstructed value on the right-side of interface at i-1/2
  *
@@ -66,7 +66,7 @@ static Real **vel=NULL;
 void lr_states(const GridS *pG __attribute((unused)),
                const Prim1DS W[], const Real Bxc[],
                const Real dt, const Real dx, const int il, const int iu,
-               Prim1DS Wl[], Prim1DS Wr[], 
+               Prim1DS Wl[], Prim1DS Wr[],
                const int dir __attribute__((unused)))
 {
   int i,n,m;
@@ -260,11 +260,11 @@ void lr_states(const GridS *pG __attribute((unused)),
 
     for (n=0; n<NWAVE; n++) {
       if (ev[n] > 0.) {
-	qa  = 0.0;
-	for (m=0; m<NWAVE; m++) {
-	  qa += lem[n][m]*0.5*dtodx*(ev[NWAVE-1]-ev[n])*dW[m];
-	}
-	for (m=0; m<NWAVE; m++) pWl[m] += qa*rem[m][n];
+        qa  = 0.0;
+        for (m=0; m<NWAVE; m++) {
+          qa += lem[n][m]*0.5*dtodx*(ev[NWAVE-1]-ev[n])*dW[m];
+        }
+        for (m=0; m<NWAVE; m++) pWl[m] += qa*rem[m][n];
 /* For HLL fluxes, subtract wave moving away from interface as well. */
 #if defined(HLLE_FLUX) || defined(HLLC_FLUX) || defined(HLLD_FLUX) || defined(FORCE_FLUX)
         qa = 0.0;
@@ -285,11 +285,11 @@ void lr_states(const GridS *pG __attribute((unused)),
         for (m=0; m<NWAVE; m++) pWr[m] += qa*rem[m][n];
 /* For HLL fluxes, subtract wave moving away from interface as well. */
 #if defined(HLLE_FLUX) || defined(HLLC_FLUX) || defined(HLLD_FLUX) || defined(FORCE_FLUX)
-	qa  = 0.0;
-	for (m=0; m<NWAVE; m++) {
-	  qa += lem[n][m]*0.5*dtodx*(ev[n]-ev[NWAVE-1])*dW[m];
-	}
-	for (m=0; m<NWAVE; m++) pWl[m] -= qa*rem[m][n];
+        qa  = 0.0;
+        for (m=0; m<NWAVE; m++) {
+          qa += lem[n][m]*0.5*dtodx*(ev[n]-ev[NWAVE-1])*dW[m];
+        }
+        for (m=0; m<NWAVE; m++) pWl[m] -= qa*rem[m][n];
 #endif /* HLL_FLUX */
       }
     }

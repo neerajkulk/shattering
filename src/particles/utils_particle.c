@@ -8,9 +8,9 @@
  *   algorithms. Also contained are the default (and trivial) gas velocity
  *   shift function. The get_gasinfo(Grid *pG) routine is used for test
  *   purposes only.
- * 
+ *
  * CONTAINS PUBLIC FUNCTIONS:
- * 
+ *
  * - getwei_linear()
  * - getwei_TSC   ()
  * - getwei_QP    ()
@@ -23,7 +23,7 @@
  * - distrFB      ()
  * - void shuffle()
  * - void gasvshift_zero()
- * 
+ *
  * PRIVATE FUNCTION PROTOTYPES:
  * - compare_gr()         - compare the location of the two particles
  * - quicksort_particle() - sort the particles using the quicksort
@@ -139,7 +139,7 @@ void getwei_linear(GridS *pG, Real x1, Real x2, Real x3, Real3Vect cell1,
 /*! \fn void getwei_TSC(GridS *pG, Real x1, Real x2, Real x3, Real3Vect cell1,
  *                      Real weight[3][3][3], int *is, int *js, int *ks)
  *
- *  \brief Get weight using Triangular Shaped Cloud (TSC) interpolation 
+ *  \brief Get weight using Triangular Shaped Cloud (TSC) interpolation
  * Input: pG: grid; x1,x2,x3: global coordinate; cell1: 1 over dx1,dx2,dx3
  * Output: weight: weight function; is,js,ks: starting cell indices in the grid.
  * Note: this interpolation works in any 1-3 dimensions.
@@ -210,7 +210,7 @@ void getwei_TSC(GridS *pG, Real x1, Real x2, Real x3, Real3Vect cell1,
 /*----------------------------------------------------------------------------*/
 /*! \fn void getwei_QP(GridS *pG, Real x1, Real x2, Real x3, Real3Vect cell1,
  *                       Real weight[3][3][3], int *is, int *js, int *ks)
- *  \brief Get weight using quadratic polynomial interpolation 
+ *  \brief Get weight using quadratic polynomial interpolation
  *
  * Input: pG: grid; x1,x2,x3: global coordinate; cell1: 1 over dx1,dx2,dx3
  * Output: weight: weight function; is,js,ks: starting cell indices in the grid.
@@ -291,7 +291,7 @@ void getwei_QP(GridS *pG, Real x1, Real x2, Real x3, Real3Vect cell1,
  * Return: 0: normal exit; -1: particle lie out of the grid, cannot interpolate
  * Note: this interpolation works in any 1-3 dimensions.
  */
-int getvalues(GridS *pG, Real weight[3][3][3], int is, int js, int ks, 
+int getvalues(GridS *pG, Real weight[3][3][3], int is, int js, int ks,
 #ifndef FEEDBACK
                          Real *rho, Real *u1, Real *u2, Real *u3, Real *cs
 #else
@@ -374,7 +374,7 @@ int getvalues(GridS *pG, Real weight[3][3][3], int is, int js, int ks,
 /*! \fn Real get_ts_general(GridS *pG, int type, Real rho, Real cs, Real vd)
  *  \brief Calculate the stopping time for the most general case
  *
- * The relavent scale to calculate is: 
+ * The relavent scale to calculate is:
  * - 1. a/lambda_m == alam
  * - 2. rho_s*a in normalized unit == rhoa
  */
@@ -417,7 +417,7 @@ Real get_ts_general(GridS *pG, int type, Real rho, Real cs, Real vd)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn Real get_ts_epstein(GridS *pG, int type, Real rho, Real cs, Real vd)
- *  \brief Calculate the stopping time in the Epstein regime  
+ *  \brief Calculate the stopping time in the Epstein regime
  *
  * Note grrhoa == rho_s*a in normalized unit
  */
@@ -457,7 +457,7 @@ Real get_ts_fixed(GridS *pG, int type, Real rho, Real cs, Real vd)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void get_gasinfo(GridS *pG)
- *  \brief Calculate the gas information from conserved variables for 
+ *  \brief Calculate the gas information from conserved variables for
  *  feedback_predictor
  *
  * Input: pG: grid (not evolved yet).
@@ -534,8 +534,8 @@ void feedback_clear(GridS *pG)
 /*! \fn void distrFB_pred()
  *  \brief Distribute the feedback force to grid cells for the predict step
  *
- * Input: 
- * - pG: grid;   weight: weight function; 
+ * Input:
+ * - pG: grid;   weight: weight function;
  * - is,js,ks: starting cell indices in the grid.
  * - f1, f2, f3: feedback force from one particle.
  * Output:
@@ -659,10 +659,10 @@ void shuffle(GridS *pG)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn int compare_gr(GridS *pG, Real3Vect cell1, GrainS gr1, GrainS gr2)
- *  \brief Compare the order of two particles according to their positions in 
+ *  \brief Compare the order of two particles according to their positions in
  *  the grid
  *
- * Input: pG: grid; 
+ * Input: pG: grid;
  * -      cell1: 1/dx1,1/dx2,1/dx3, or 0 if that dimension collapses.
  * -      gr1,gr2: pointers of the two particles to be compared.
  * Output: pointer of the particle that should be put in front of the other.

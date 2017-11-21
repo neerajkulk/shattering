@@ -7,7 +7,7 @@
  *   can be read, e.g., by IDL scripts.  With SMR, dumps are made for all levels
  *   and domains, unless nlevel and ndomain are specified in <output> block.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - dump_binary() - writes either conserved or primitive variables depending
  *                 on value of pOut->out read from input block.		      */
 /*============================================================================*/
@@ -47,7 +47,7 @@ void dump_binary(MeshS *pM, OutputS *pOut)
     for (nd=0; nd<(pM->DomainsPerLevel[nl]); nd++){
       if (pM->Domain[nl][nd].Grid != NULL){
 
-/* write files if domain and level match input, or are not specified (-1) */ 
+/* write files if domain and level match input, or are not specified (-1) */
       if ((pOut->nlevel == -1 || pOut->nlevel == nl) &&
           (pOut->ndomain == -1 || pOut->ndomain == nd)){
         pGrid = pM->Domain[nl][nd].Grid;
@@ -152,7 +152,7 @@ void dump_binary(MeshS *pM, OutputS *pOut)
         dat[0] = (Real)pGrid->time;
         dat[1] = (Real)pGrid->dt;
         fwrite(dat,sizeof(Real),2,p_binfile);
- 
+
 /* Allocate Memory */
 
         if((datax = (Real *)malloc(ndata[0]*sizeof(Real))) == NULL){
@@ -256,10 +256,10 @@ void dump_binary(MeshS *pM, OutputS *pOut)
 #endif
 
 /* close file and free memory */
-        fclose(p_binfile); 
-        free(datax); 
-        free(datay); 
-        free(dataz); 
+        fclose(p_binfile);
+        free(datax);
+        free(datay);
+        free(dataz);
         if(strcmp(pOut->out,"prim") == 0) free_3d_array(W);
       }}
     }

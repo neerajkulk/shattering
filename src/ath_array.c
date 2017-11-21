@@ -10,7 +10,7 @@
  *   were an array of fixed size at compile time with the statement:
  *   -  "Type" array[nr][nc];
  *
- *  Equally so for 3D arrys:  array[nt][nr][nc]       
+ *  Equally so for 3D arrys:  array[nt][nr][nc]
  *
  *  TAG -- 8/2/2001
  *
@@ -18,7 +18,7 @@
  * - array = (Real ***)calloc_3d_array(nt,nr,nc,sizeof(Real));
  * - free_3d_array(array);
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  *   - calloc_1d_array() - creates 1D array
  *   - calloc_2d_array() - creates 2D array
  *   - calloc_3d_array() - creates 3D array
@@ -36,7 +36,7 @@
 void* calloc_1d_array(size_t nc, size_t size)
 {
   void *array;
-  
+
   if ((array = (void *)calloc(nc,size)) == NULL) {
     ath_error("[calloc_1d] failed to allocate memory (%d of size %d)\n",
               (int)nc,(int)size);

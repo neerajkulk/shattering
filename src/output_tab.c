@@ -7,7 +7,7 @@
  *   dumps are made for all levels and domains, unless nlevel and ndomain are
  *   specified in <output> blocks.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - output_tab() - opens file and calls appropriate 1D/2D/3D output function
  *     Uses OutData1,2,3() to extract appropriate section to be output.
  *
@@ -69,7 +69,7 @@ void output_tab(MeshS *pM, OutputS *pOut)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void output_tab_1d(MeshS *pM, OutputS *pOut, int nl, int nd) 
+/*! \fn void output_tab_1d(MeshS *pM, OutputS *pOut, int nl, int nd)
  *  \brief Writes 1D data.  Note x-coordinate is just i-index.  */
 
 void output_tab_1d(MeshS *pM, OutputS *pOut, int nl, int nd)
@@ -125,7 +125,7 @@ void output_tab_1d(MeshS *pM, OutputS *pOut, int nl, int nd)
     fprintf(pFile,fmt,data[i]);
     fprintf(pFile,"\n");
   }
-  
+
 /* Compute and store global min/max, for output at end of run */
   pOut->gmin = MIN(dmin,pOut->gmin);
   pOut->gmax = MAX(dmax,pOut->gmax);
@@ -195,7 +195,7 @@ void output_tab_2d(MeshS *pM, OutputS *pOut, int nl, int nd)
       fprintf(pFile,"\n");
     }
   }
-  
+
 /* Compute and store global min/max, for output at end of run */
   if (pOut->num == 0) {
     pOut->gmin = dmin;
@@ -271,7 +271,7 @@ void output_tab_3d(MeshS *pM, OutputS *pOut, int nl, int nd)
       }
     }
   }
-  
+
 /* Compute and store global min/max, for output at end of run */
   if (pOut->num == 0) {
     pOut->gmin = dmin;

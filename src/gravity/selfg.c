@@ -21,7 +21,7 @@
 /*----------------------------------------------------------------------------*/
 /*! \fn void selfg_fc(DomainS *pD)
  *  \brief Adds flux-correction to make the integration algorithms for the
- *   source terms in the momentum and energy equations second-order.  
+ *   source terms in the momentum and energy equations second-order.
  *
  *   This
  *   requires subtracting 1/2 the source terms computed with the old potential,
@@ -49,7 +49,7 @@ void selfg_fc(DomainS *pD)
   Real phic,phil,phir,phil_old,phir_old,dphic,dphil,dphir;
   Real gxl,gxr,gyl,gyr,gzl,gzr;
   Real flx_m1r,flx_m1l,flx_m2r,flx_m2l,flx_m3r,flx_m3l;
-  
+
 /* Calculate the dimensions  */
   if(pG->Nx[0] > 1) dim++;
   if(pG->Nx[1] > 1) dim++;
@@ -137,22 +137,22 @@ void selfg_fc(DomainS *pD)
         flx_m2r = gxr*gyr/four_pi_G;
 
 /*  subtract off momentum fluxes from old potential */
-	gxl = (pG->Phi_old[ks][j][i-1] - pG->Phi_old[ks][j][i  ])/(pG->dx1);
-	gxr = (pG->Phi_old[ks][j][i  ] - pG->Phi_old[ks][j][i+1])/(pG->dx1);
+        gxl = (pG->Phi_old[ks][j][i-1] - pG->Phi_old[ks][j][i  ])/(pG->dx1);
+        gxr = (pG->Phi_old[ks][j][i  ] - pG->Phi_old[ks][j][i+1])/(pG->dx1);
 
-	gyl = (pG->Phi_old[ks][j-1][i-1] - pG->Phi_old[ks][j+1][i-1]) +
+        gyl = (pG->Phi_old[ks][j-1][i-1] - pG->Phi_old[ks][j+1][i-1]) +
               (pG->Phi_old[ks][j-1][i  ] - pG->Phi_old[ks][j+1][i  ]);
         gyl *= (0.25/pG->dx2);
 
-	gyr = (pG->Phi_old[ks][j-1][i  ] - pG->Phi_old[ks][j+1][i  ]) +
+        gyr = (pG->Phi_old[ks][j-1][i  ] - pG->Phi_old[ks][j+1][i  ]) +
               (pG->Phi_old[ks][j-1][i+1] - pG->Phi_old[ks][j+1][i+1]);
         gyr *= (0.25/pG->dx2);
 
-	flx_m1l -= 0.5*(gxl*gxl-gyl*gyl)/four_pi_G + grav_mean_rho*phil_old;
-	flx_m1r -= 0.5*(gxr*gxr-gyr*gyr)/four_pi_G + grav_mean_rho*phir_old;
+        flx_m1l -= 0.5*(gxl*gxl-gyl*gyl)/four_pi_G + grav_mean_rho*phil_old;
+        flx_m1r -= 0.5*(gxr*gxr-gyr*gyr)/four_pi_G + grav_mean_rho*phir_old;
 
-	flx_m2l -= gxl*gyl/four_pi_G;
-	flx_m2r -= gxr*gyr/four_pi_G;
+        flx_m2l -= gxl*gyl/four_pi_G;
+        flx_m2r -= gxr*gyr/four_pi_G;
 
 /* Update momenta and energy with d/dx1 terms  */
         pG->U[ks][j][i].M1 -= 0.5*dtodx1*(flx_m1r - flx_m1l);
@@ -247,7 +247,7 @@ void selfg_fc(DomainS *pD)
 
 #ifdef STAR_PARTICLE
        if (pG->Gstars != NULL){
-          pG->U[k][j][i].M1 -= 0.5*dtodx1*(dphir-dphil)*pG->U[k][j][i].d; 
+          pG->U[k][j][i].M1 -= 0.5*dtodx1*(dphir-dphil)*pG->U[k][j][i].d;
        } else {
 #endif /* STAR_PARTICLE */
 /*  momentum fluxes in x1. gx, gy and gz centered at L and R x1-faces */
@@ -299,7 +299,7 @@ void selfg_fc(DomainS *pD)
               (pG->Phi_old[k-1][j][i+1] - pG->Phi_old[k+1][j][i+1]);
         gzr *= (0.25/pG->dx3);
 
-        flx_m1l -= 0.5*(gxl*gxl-gyl*gyl-gzl*gzl)/four_pi_G 
+        flx_m1l -= 0.5*(gxl*gxl-gyl*gyl-gzl*gzl)/four_pi_G
                    + grav_mean_rho*phil_old;
         flx_m1r -= 0.5*(gxr*gxr-gyr*gyr-gzr*gzr)/four_pi_G
                    + grav_mean_rho*phir_old;
@@ -341,7 +341,7 @@ void selfg_fc(DomainS *pD)
         dphir = phir - phir_old;
 #ifdef STAR_PARTICLE
        if (pG->Gstars != NULL){
-          pG->U[k][j][i].M2 -= 0.5*dtodx1*(dphir-dphil)*pG->U[k][j][i].d; 
+          pG->U[k][j][i].M2 -= 0.5*dtodx1*(dphir-dphil)*pG->U[k][j][i].d;
        } else {
 #endif /* STAR_PARTICLE */
 /* gx, gy and gz centered at L and R x2-faces */
@@ -398,7 +398,7 @@ void selfg_fc(DomainS *pD)
 
         flx_m2l -= 0.5*(gyl*gyl-gxl*gxl-gzl*gzl)/four_pi_G
                  + grav_mean_rho*phil_old;
-        flx_m2r -= 0.5*(gyr*gyr-gxr*gxr-gzr*gzr)/four_pi_G 
+        flx_m2r -= 0.5*(gyr*gyr-gxr*gxr-gzr*gzr)/four_pi_G
                  + grav_mean_rho*phir_old;
 
         flx_m3l -= gyl*gzl/four_pi_G;
@@ -436,7 +436,7 @@ void selfg_fc(DomainS *pD)
 
 #ifdef STAR_PARTICLE
        if (pG->Gstars != NULL){
-          pG->U[k][j][i].M3 -= 0.5*dtodx1*(dphir-dphil)*pG->U[k][j][i].d; 
+          pG->U[k][j][i].M3 -= 0.5*dtodx1*(dphir-dphil)*pG->U[k][j][i].d;
        } else {
 #endif
 /*  momentum fluxes in x3. gx, gy and gz centered at L and R x3-faces */
@@ -494,7 +494,7 @@ void selfg_fc(DomainS *pD)
         flx_m2l -= gzl*gyl/four_pi_G;
         flx_m2r -= gzr*gyr/four_pi_G;
 
-        flx_m3l -= 0.5*(gzl*gzl-gxl*gxl-gyl*gyl)/four_pi_G 
+        flx_m3l -= 0.5*(gzl*gzl-gxl*gxl-gyl*gyl)/four_pi_G
                  + grav_mean_rho*phil_old;
         flx_m3r -= 0.5*(gzr*gzr-gxr*gxr-gyr*gyr)/four_pi_G
                  + grav_mean_rho*phir_old;
@@ -523,7 +523,7 @@ void selfg_fc(DomainS *pD)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn VDFun_t selfg_init(MeshS *pM)
- *  \brief Initialize pointer to appropriate self-gravity f'n, 
+ *  \brief Initialize pointer to appropriate self-gravity f'n,
  *   allocates memory for dPhi array used for flux correction.
  */
 

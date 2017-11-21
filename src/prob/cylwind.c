@@ -41,7 +41,7 @@ void problem(DomainS *pDomain)
   GridS *pG = pDomain->Grid;
   int i,j,k,converged;
   int is,ie,il,iu,js,je,jl,ju,ks,ke,kl,ku;
-  int nx1,nx2,nx3; 
+  int nx1,nx2,nx3;
   Real x1,x2,x3,a,b;
   Real xs,vs,v,pgas0,pgas,beta;
 
@@ -131,7 +131,7 @@ void problem(DomainS *pDomain)
     }
   }
 
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
   bvals_mhd_fun(pDomain,left_x1,do_nothing_bc);
   bvals_mhd_fun(pDomain,right_x1,do_nothing_bc);
 
@@ -179,7 +179,7 @@ void Userwork_after_loop(MeshS *pM)
 
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 
-/*! \fn Real grav_pot(const Real x1, const Real x2, const Real x3) 
+/*! \fn Real grav_pot(const Real x1, const Real x2, const Real x3)
  *  \brief Gravitational potential  */
 Real grav_pot(const Real x1, const Real x2, const Real x3) {
   return -1.0/x1;
@@ -187,7 +187,7 @@ Real grav_pot(const Real x1, const Real x2, const Real x3) {
 
 /*----------------------------------------------------------------------------*/
 /*! \fn Real myfunc(const Real x, const Real v)
- *  \brief This funciton is used to calculate velocity v as a function of 
+ *  \brief This funciton is used to calculate velocity v as a function of
  *  position x
  *  using lambda_c, the critical value of the dimensionless mass wind/accretion
  *  rate.  Standard bisection is used to find the root(s). */

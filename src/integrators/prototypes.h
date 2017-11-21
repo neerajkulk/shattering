@@ -1,5 +1,5 @@
 #ifndef INTEGRATORS_PROTOTYPES_H
-#define INTEGRATORS_PROTOTYPES_H 
+#define INTEGRATORS_PROTOTYPES_H
 #include "../copyright.h"
 /*============================================================================*/
 /*! \file prototypes.h

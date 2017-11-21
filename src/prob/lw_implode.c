@@ -61,21 +61,21 @@ void problem(DomainS *pDomain)
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-	pGrid->U[k][j][i].M1 = 0.0;
-	pGrid->U[k][j][i].M2 = 0.0;
-	pGrid->U[k][j][i].M3 = 0.0;
+        pGrid->U[k][j][i].M1 = 0.0;
+        pGrid->U[k][j][i].M2 = 0.0;
+        pGrid->U[k][j][i].M3 = 0.0;
 
-	if(((j-js + pDomain->Disp[1])+(i-is + pDomain->Disp[0])) > (nx2*irefine)) {
-	  pGrid->U[k][j][i].d  = d_out;
+        if(((j-js + pDomain->Disp[1])+(i-is + pDomain->Disp[0])) > (nx2*irefine)) {
+          pGrid->U[k][j][i].d  = d_out;
 #ifndef ISOTHERMAL
-	  pGrid->U[k][j][i].E = p_out/Gamma_1;
+          pGrid->U[k][j][i].E = p_out/Gamma_1;
 #endif
-	} else {
-	  pGrid->U[k][j][i].d  = d_in;
+        } else {
+          pGrid->U[k][j][i].d  = d_in;
 #ifndef ISOTHERMAL
-	  pGrid->U[k][j][i].E = p_in/Gamma_1;
+          pGrid->U[k][j][i].E = p_in/Gamma_1;
 #endif
-	}
+        }
       }
     }
   }
@@ -121,7 +121,7 @@ void Userwork_in_loop(MeshS *pM)
 void Userwork_after_loop(MeshS *pM)
 {
 }
-/*! \fn static Real expr_diff_d(const GridS *pG, const int i, const int j, 
+/*! \fn static Real expr_diff_d(const GridS *pG, const int i, const int j,
  *				const int k)
  *  \brief computes difference d{i,j}-d{j,i} to test if solution is symmetric */
 static Real expr_diff_d(const GridS *pG, const int i, const int j, const int k)

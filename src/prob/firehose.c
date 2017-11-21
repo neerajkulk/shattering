@@ -233,7 +233,7 @@ void Userwork_after_loop(Grid *pGrid, Domain *pDomain)
 /*! \fn double ran2(long int *idum)
  *  \brief Extracted from the Numerical Recipes in C (version 2) code.  Modified
  *   to use doubles instead of floats. -- T. A. Gardiner -- Aug. 12, 2003
- * 
+ *
  * Long period (> 2 x 10^{18}) random number generator of L'Ecuyer
  * with Bays-Durham shuffle and added safeguards.  Returns a uniform
  * random deviate between 0.0 and 1.0 (exclusive of the endpoint

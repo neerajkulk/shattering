@@ -1,12 +1,12 @@
 #include "copyright.h"
 /*============================================================================*/
-/*! \file show_config.c 
+/*! \file show_config.c
  *  \brief Outputs information on configuration of Athena.
  *
  * PURPOSE: Outputs information on configuration of Athena.
  *
  * CONTAINS PUBLIC FUNCTIONS:
- * - show_config()     - prints diagnostic message showinf code configuration 
+ * - show_config()     - prints diagnostic message showinf code configuration
  * - show_config_par() - adds configuration information to database used by par
  *============================================================================*/
 

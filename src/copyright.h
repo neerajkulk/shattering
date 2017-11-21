@@ -1,7 +1,7 @@
 /*! \file copyright.h
  *  \brief Copyright and license information.
 
- ATHENA 
+ ATHENA
 
  AUTHORS:
      James M. Stone, Princeton Univeristy
@@ -9,7 +9,7 @@
      Peter J. Teuben, University of Maryland
      John F. Hawley, University of Virginia
 
-     This software was produced with support from NSF Grant AST-0113571 
+     This software was produced with support from NSF Grant AST-0113571
 
  Copyright 2003 James M. Stone, Thomas A. Gardiner,
                 Peter J. Teuben, John F. Hawley

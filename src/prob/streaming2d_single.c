@@ -67,7 +67,7 @@ char name[50];
  * OutputModeAmplitude() - output the perturbation amplitude
  * ShearingBoxPot()  - shearing box tidal gravitational potential
  * pert_???()        - perturbation wave form for linear growth rate test
- * property_mybin()  - particle property selection function 
+ * property_mybin()  - particle property selection function
  * property_???()    - particle property selection function
  *============================================================================*/
 double ran2(long int *idum);
@@ -185,10 +185,10 @@ void problem(DomainS *pDomain)
   if (ipert == 2) {
     Kxn   =  6.0;
     Kzn   =  6.0;
-    Reux  = -0.0174121*amp; 
-    Imux  = -0.2770347*amp; 
+    Reux  = -0.0174121*amp;
+    Imux  = -0.2770347*amp;
     Reuy  =  0.2767976*amp;
-    Imuy  = -0.0187568*amp; 
+    Imuy  = -0.0187568*amp;
     Reuz  =  0.0174130*amp;
     Imuz  =  0.2770423*amp;
     Rerho = -0.0000067*amp;
@@ -282,7 +282,7 @@ void problem(DomainS *pDomain)
   grproperty[0].m = rho0*mratio/Npar2;
 #endif
 
-  /* Adjust code units */ 
+  /* Adjust code units */
   if ((ipert == 1) || (ipert == 2) || (ipert > 10))
   {
     if (Lx != Lz)
@@ -368,7 +368,7 @@ void problem(DomainS *pDomain)
   Lz = pGrid->Nx[1]*pGrid->dx2;
 
   x1min = pGrid->MinX[0];
-  x2min = pGrid->MinX[1]; 
+  x2min = pGrid->MinX[1];
 
   for (j=pGrid->js; j<=pGrid->je; j++)
   {

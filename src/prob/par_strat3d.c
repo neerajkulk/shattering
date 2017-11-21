@@ -6,7 +6,7 @@
  *
  * PURPOSE: Problem generator for non-linear streaming instability in stratified
  *   disks. This code works in 3D ONLY. Isothermal eos is assumed, and the value
- *   etavk/iso_sound is fixed. MPI domain decomposition in x is allowed, but 
+ *   etavk/iso_sound is fixed. MPI domain decomposition in x is allowed, but
  *   not in z.
  *
  * Perturbation modes:
@@ -109,10 +109,10 @@ void problem(DomainS *pDomain)
   if (pDomain->Nx[2] == 1) {
     ath_error("[par_strat3d]: par_strat3d only works for 3D problem.\n");
   }
-  
+
 #ifdef MPI_PARALLEL
   if (pDomain->NGrid[2] > 2) {
-    ath_error(   
+    ath_error(
   "[par_strat3d]: The z-domain can not be decomposed into more than 2 grids\n");
   }
 #endif
@@ -179,7 +179,7 @@ void problem(DomainS *pDomain)
       if (tstop0[i] < tscrit) grproperty[i].integrator = 3;
     }
   }
-  else { 
+  else {
     amin = par_getd("problem","amin");
     amax = par_getd("problem","amax");
 
@@ -201,7 +201,7 @@ void problem(DomainS *pDomain)
   /* particle scale height */
   Hparmax = par_getd("problem","hparmax"); /* in unit of gas scale height */
   Hparmin = par_getd("problem","hparmin");
-  for (i=0; i<npartypes; i++) 
+  for (i=0; i<npartypes; i++)
     ScaleHpar[i] = Hparmax*
                    exp(-i*log(Hparmax/Hparmin)/MAX(npartypes-1,1.0));
 
@@ -476,7 +476,7 @@ void Userwork_after_loop(MeshS *pM)
 {
   return;
 }
- 
+
 
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 /*--------------------------------------------------------------------------- */
@@ -551,9 +551,9 @@ static int property_dense(const GrainS *gr, const GrainAux *grsub)
 /*----------------------------------------------------------------------------*/
 /*! \fn void MultiNSH(int n, Real *tstop, Real *mratio, Real etavk,
  *                   Real *uxNSH, Real *uyNSH, Real *wxNSH, Real *wyNSH)
- *  \brief Multi-species NSH equilibrium 
+ *  \brief Multi-species NSH equilibrium
  *
- * Input: # of particle types (n), dust stopping time and mass ratio array, and 
+ * Input: # of particle types (n), dust stopping time and mass ratio array, and
  *        drift speed etavk.
  * Output: gas NSH equlibrium velocity (u), and dust NSH equilibrium velocity
  *         array (w).

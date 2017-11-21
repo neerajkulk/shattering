@@ -45,7 +45,7 @@ void problem(DomainS *pDomain)
   GridS *pG = pDomain->Grid;
   int i,j,k;
   int is,ie,il,iu,js,je,jl,ju,ks,ke,kl,ku;
-  int nx1,nx2,nx3; 
+  int nx1,nx2,nx3;
   Real x1,x2,x3;
   Real Eint,Emag,Ekin;
   int mask=0;
@@ -160,7 +160,7 @@ void problem(DomainS *pDomain)
     }
   }
 
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
   if (iprob==2) {
     bvals_mhd_fun(pDomain, left_x1,  cyladvect_ix1);
     bvals_mhd_fun(pDomain, right_x1, cyladvect_ox1);

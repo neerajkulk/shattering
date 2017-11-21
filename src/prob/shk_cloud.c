@@ -20,7 +20,7 @@
  *   - (iprob=2): B perpendicular to shock normal -- NOT YET IMPLEMENTED
  *
  *   If the code is configured with nscalars>0, the cloud material is labeled
- *   with U[k][j][i].s[0]=1.						      
+ *   with U[k][j][i].s[0]=1.
  *
  * PRIVATE FUNCTION PROTOTYPES:
  * shk_cloud_iib() - fixes BCs on L-x1 (left edge) of grid to postshock flow. */
@@ -75,7 +75,7 @@ void problem(DomainS *pDomain)
 #ifdef MHD
   beta = par_getd("problem","beta");
 #endif
-  
+
 /* Set paramters in ambient medium ("R-state" for shock) */
 
   dr = 1.0;
@@ -123,7 +123,7 @@ void problem(DomainS *pDomain)
           pGrid->U[k][j][i].B3c = bzl;
 #endif
 #ifdef ADIABATIC
-          pGrid->U[k][j][i].E = pl/Gamma_1 
+          pGrid->U[k][j][i].E = pl/Gamma_1
 #ifdef MHD
             + 0.5*(bxl*bxl + byl*byl + bzl*bzl)
 #endif
@@ -280,7 +280,7 @@ void Userwork_after_loop(MeshS *pM)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void shk_cloud_iib(GridS *pGrid)
- *  \brief Sets boundary condition on left X boundary (iib) 
+ *  \brief Sets boundary condition on left X boundary (iib)
  *
  * Note quantities at this boundary are held fixed at the downstream state
  */

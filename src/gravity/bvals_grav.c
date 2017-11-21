@@ -2,7 +2,7 @@
 /*============================================================================*/
 /*! \file bvals_grav.c
  *  \brief Sets boundary conditions (quantities in ghost zones) for the
- *   gravitational potential on each edge of a Grid. 
+ *   gravitational potential on each edge of a Grid.
  *
  * PURPOSE: Sets boundary conditions (quantities in ghost zones) for the
  *   gravitational potential on each edge of a Grid.  See comments at
@@ -10,7 +10,7 @@
  * The only BC functions implemented here are for:
  *- 1 = reflecting, 4 = periodic, and MPI boundaries
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - bvals_grav()      - calls appropriate functions to set ghost cells
  * - bvals_grav_init() - sets function pointers used by bvals_grav()
  * - bvals_grav_fun()  - enrolls a pointer to a user-defined BC function */
@@ -76,7 +76,7 @@ static void unpack_Phi_ox3(GridS *pG);
 /*=========================== PUBLIC FUNCTIONS ===============================*/
 /*----------------------------------------------------------------------------*/
 /*! \fn void bvals_grav(DomainS *pD)
- *  \brief Calls appropriate functions to set ghost zones.  
+ *  \brief Calls appropriate functions to set ghost zones.
  *
  *   The function
  *   pointers (*_GBCFun) are set during initialization by bvals_grav_init() to
@@ -403,7 +403,7 @@ void bvals_grav(DomainS *pD)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void bvals_grav_init(MeshS *pM) 
+/*! \fn void bvals_grav_init(MeshS *pM)
  *  \brief Sets function pointers for physical boundaries during
  *   initialization, allocates memory for send/receive buffers with MPI
  */
@@ -461,7 +461,7 @@ void bvals_grav_init(MeshS *pM)
 #ifdef MPI_PARALLEL
             if(pG->lx1_Gid < 0 && pD->NGrid[0] > 1){
               pG->lx1_Gid = pD->GData[myN][myM][pD->NGrid[0]-1].ID_Comm_Domain;
-	    }
+            }
 #endif /* MPI_PARALLEL */
           break;
 
@@ -761,7 +761,7 @@ void bvals_grav_init(MeshS *pM)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void bvals_grav_fun(DomainS *pD, enum BCDirection dir, VGFun_t prob_bc)
- *  \brief Sets function pointers for user-defined BCs in problem 
+ *  \brief Sets function pointers for user-defined BCs in problem
  */
 
 void bvals_grav_fun(DomainS *pD, enum BCDirection dir, VGFun_t prob_bc)
@@ -1078,7 +1078,7 @@ static void periodic_Phi_ox3(GridS *pGrid)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn static void ProlongateLater(GridS *pGrid)
- *  \brief PROLONGATION boundary conditions.  
+ *  \brief PROLONGATION boundary conditions.
  *
  * Nothing is actually done here, the
  * prolongation is actually handled in ProlongateGhostZones in main loop, so

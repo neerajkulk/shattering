@@ -1,7 +1,7 @@
 #include "copyright.h"
 /*============================================================================*/
 /*! \file cylspiral.c
- *  \brief A test of Global Spiral Shocks in a Galactic Disk.              
+ *  \brief A test of Global Spiral Shocks in a Galactic Disk.
  */
 /*============================================================================*/
 
@@ -73,7 +73,7 @@ void problem(DomainS *pDomain)
   vcir        = par_getd("problem", "vcir");
 
   /* read the spiral arm parmeters*/
-  
+
   n_arm       = par_getd("problem","n_arm");
   i_pitch     = par_getd("problem","i_pitch");
   F_arm       = par_getd("problem", "F_arm");
@@ -84,7 +84,7 @@ void problem(DomainS *pDomain)
 
   atime = 0.0;
   mtani = n_arm/tan(i_pitch*PI/180.);
-  ephi  = F_arm*SQR(vcir)/mtani; 
+  ephi  = F_arm*SQR(vcir)/mtani;
 
   for (k=kl; k<=ku; k++) {
     for (j=jl; j<=ju; j++) {
@@ -121,7 +121,7 @@ void problem(DomainS *pDomain)
     }
   }
 
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
   bvals_mhd_fun(pDomain,left_x1,do_nothing_bc);
   bvals_mhd_fun(pDomain,right_x1,do_nothing_bc);
 #ifdef FARGO
@@ -154,7 +154,7 @@ void problem_read_restart(MeshS *pM, FILE *fp)
 #endif
   rho0        = par_getd("problem", "rho0");
 
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
 //   bvals_mhd_fun(pDomain,left_x1,do_nothing_bc);
 //   bvals_mhd_fun(pDomain,right_x1,do_nothing_bc);
   return;
@@ -180,7 +180,7 @@ void Userwork_after_loop(MeshS *pM)
 
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 
-/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3) 
+/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3)
  *  \brief Gravitational potential */
 static Real grav_pot(const Real x1, const Real x2, const Real x3) {
   Real arg,arm_amp,Phi_bg,Phi_sp;
@@ -198,4 +198,3 @@ static Real grav_pot(const Real x1, const Real x2, const Real x3) {
 
   return  Phi_bg+Phi_sp;
 }
-

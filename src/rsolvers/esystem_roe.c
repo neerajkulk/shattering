@@ -2,11 +2,11 @@
 /*============================================================================*/
 /*! \file esystem_roe.c
  *  \brief Functions to evaluate the eigenvalues, and left- and
- * right-eigenvectors of "Roe's matrix A" for the linearized system in the 
+ * right-eigenvectors of "Roe's matrix A" for the linearized system in the
  * CONSERVED variables.
  *
  * PURPOSE: Functions to evaluate the eigenvalues, and left- and
- * right-eigenvectors of "Roe's matrix A" for the linearized system in the 
+ * right-eigenvectors of "Roe's matrix A" for the linearized system in the
  * CONSERVED variables, i.e. U,t = AU,x, where U=(d,d*vx,d*vy,d*vz,[E],[By,Bz]).
  * The eigenvalues are returned through the argument list as a vector of length
  * NWAVE.  The eigenvectors are returned as matrices of size (NWAVE)x(NWAVE),
@@ -119,8 +119,8 @@ void esys_roe_iso_hyd(const Real v1, const Real v2, const Real v3,
 #endif
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void esys_roe_adb_hyd(const Real v1, const Real v2, const Real v3, 
- *			      const Real h, Real right_eigenmatrix[][5], 
+/*! \fn void esys_roe_adb_hyd(const Real v1, const Real v2, const Real v3,
+ *			      const Real h, Real right_eigenmatrix[][5],
  *			      Real left_eigenmatrix[][5])
  *  \brief ADIABATIC HYDRO
  *
@@ -216,9 +216,9 @@ void esys_roe_adb_hyd(const Real v1, const Real v2, const Real v3, const Real h,
 #endif
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void esys_roe_iso_mhd(const Real d, const Real v1, const Real v2, 
- *			const Real v3, const Real b1, const Real b2, 
- *			const Real b3, const Real x, const Real y, 
+/*! \fn void esys_roe_iso_mhd(const Real d, const Real v1, const Real v2,
+ *			const Real v3, const Real b1, const Real b2,
+ *			const Real b3, const Real x, const Real y,
  *                      Real eigenvalues[],
  *			Real right_eigenmatrix[][6], Real left_eigenmatrix[][6])
  *  \brief ISOTHERMAL MHD
@@ -230,7 +230,7 @@ void esys_roe_adb_hyd(const Real v1, const Real v2, const Real v3, const Real h,
 
 #if defined(ISOTHERMAL) && defined(MHD)
 void esys_roe_iso_mhd(const Real d, const Real v1, const Real v2, const Real v3,
-  const Real b1, const Real b2, const Real b3, const Real x, const Real y, 
+  const Real b1, const Real b2, const Real b3, const Real x, const Real y,
   Real eigenvalues[],
   Real right_eigenmatrix[][6], Real left_eigenmatrix[][6])
 {
@@ -265,7 +265,7 @@ void esys_roe_iso_mhd(const Real d, const Real v1, const Real v2, const Real v3,
   if (bt == 0.0) {
     bet2 = 1.0;
     bet3 = 0.0;
-  } 
+  }
   else {
     bet2 = b2/bt;
     bet3 = b3/bt;
@@ -417,9 +417,9 @@ void esys_roe_iso_mhd(const Real d, const Real v1, const Real v2, const Real v3,
 #endif
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void esys_roe_adb_mhd(const Real d, const Real v1, const Real v2, 
- *			const Real v3, const Real h, const Real b1, 
- *			const Real b2, const Real b3, Real eigenvalues[], 
+/*! \fn void esys_roe_adb_mhd(const Real d, const Real v1, const Real v2,
+ *			const Real v3, const Real h, const Real b1,
+ *			const Real b2, const Real b3, Real eigenvalues[],
  *			Real right_eigenmatrix[][7], Real left_eigenmatrix[][7])
  *  \brief ADIABATIC MHD
  *
@@ -430,7 +430,7 @@ void esys_roe_iso_mhd(const Real d, const Real v1, const Real v2, const Real v3,
 
 #if defined(ADIABATIC) && defined(MHD)
 void esys_roe_adb_mhd(const Real d, const Real v1, const Real v2, const Real v3,
-  const Real h, const Real b1, const Real b2, const Real b3, 
+  const Real h, const Real b1, const Real b2, const Real b3,
   const Real x, const Real y,
   Real eigenvalues[],
   Real right_eigenmatrix[][7], Real left_eigenmatrix[][7])
@@ -633,7 +633,7 @@ void esys_roe_adb_mhd(const Real d, const Real v1, const Real v2, const Real v3,
   left_eigenmatrix[2][5] = -af*q2_star - alpha_s*b2;
   left_eigenmatrix[2][6] = -af*q3_star - alpha_s*b3;
 
-  left_eigenmatrix[3][0] = 1.0 - norm*(0.5*vsq - Gamma_2*x/Gamma_1); 
+  left_eigenmatrix[3][0] = 1.0 - norm*(0.5*vsq - Gamma_2*x/Gamma_1);
   left_eigenmatrix[3][1] = norm*v1;
   left_eigenmatrix[3][2] = norm*v2;
   left_eigenmatrix[3][3] = norm*v3;

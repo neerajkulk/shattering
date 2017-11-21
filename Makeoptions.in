@@ -23,8 +23,8 @@ MPIINC =
 MPILIB =
 FFTWLIB =
 FFTWINC =
-BLOCKINC = 
-BLOCKLIB = 
+BLOCKINC =
+BLOCKLIB =
 CUSTLIBS = -ldl -lm
 
 ifeq (@FFT_MODE@,FFT_ENABLED)
@@ -34,8 +34,8 @@ ifeq (@FFT_MODE@,FFT_ENABLED)
 endif
 
 ifeq (@MPI_MODE@,MPI_PARALLEL)
-	CC = mpicc 
-	LDR = mpicc 
+	CC = mpicc
+	LDR = mpicc
 endif
 
 #-------------------  compiler/library definitions  ----------------------------
@@ -107,11 +107,11 @@ else
 ifeq ($(MACHINE),macosx)
 	CC = gcc
 	LDR = gcc
-	OPT = -O3	
-	MPIINC = -I/usr/local/include
-	MPILIB = -L/usr/local/lib -lmpi		
-	FFTWLIB = -L/opt/local/lib -lfftw3 
-	FFTWINC = -I/opt/local/include -I/usr/include/malloc/
+	OPT = -O3
+	MPIINC = -I/usr/local/include -I/usr/include/malloc
+	MPILIB = -L/usr/local/lib -lmpi
+	FFTWLIB = -L/usr/local/lib -lfftw3
+	FFTWINC = -I/usr/local/include
 else
 ifeq ($(MACHINE),macosx-mike)
 	CC = gcc
@@ -132,12 +132,12 @@ endif
 endif
 
 ifeq (@MPI_MODE@,NO_MPI_PARALLEL)
-	MPIINC = 
-	MPILIB = 
+	MPIINC =
+	MPILIB =
 endif
 ifeq (@FFT_MODE@,NO_FFT)
-	FFTWINC = 
-	FFTWLIB = 
+	FFTWINC =
+	FFTWLIB =
 endif
 
 CFLAGS = $(OPT) $(BLOCKINC) $(MPIINC) $(FFTWINC)

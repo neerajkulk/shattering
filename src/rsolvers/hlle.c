@@ -162,7 +162,7 @@ void HLLE_FUNCTION(const Cons1DS Ul, const Cons1DS Ur,
 #ifdef ISOTHERMAL
   asq = Iso_csound2;
 #else
-  asq = Gamma*Wr.P/Wr.d; 
+  asq = Gamma*Wr.P/Wr.d;
 #endif
 #ifdef MHD
   vaxsq = Bxi*Bxi/Wr.d;
@@ -213,7 +213,7 @@ void HLLE_FUNCTION(const Cons1DS Ul, const Cons1DS Ur,
 
   Fl.My -= Bxi*Wl.By;
   Fr.My -= Bxi*Wr.By;
-    
+
   Fl.Mz -= Bxi*Wl.Bz;
   Fr.Mz -= Bxi*Wr.Bz;
 
@@ -264,7 +264,7 @@ void HLLE_FUNCTION(const Cons1DS Ul, const Cons1DS Ur,
 #ifdef CYLINDRICAL
   n = NWAVE+NSCALARS;
   pF[n] = 0.5*(pFl[n] + pFr[n]) + (pFl[n] - pFr[n])*tmp;
-#endif 
+#endif
 
   return;
 }

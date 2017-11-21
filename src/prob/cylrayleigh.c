@@ -127,7 +127,7 @@ void problem(DomainS *pDomain)
     }
   }
 
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
   bvals_mhd_fun(pDomain,left_x1,do_nothing_bc);
   bvals_mhd_fun(pDomain,right_x1,do_nothing_bc);
 //   bvals_mhd_fun(pDomain,left_x1,diode_outflow_ix1);
@@ -165,7 +165,7 @@ void problem_read_restart(MeshS *pM, FILE *fp)
   pgas0       = par_getd("problem", "pgas0");
   q           = par_getd("problem", "q");
 
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
 //   bvals_mhd_fun(pDomain,left_x1,do_nothing_bc);
 //   bvals_mhd_fun(pDomain,right_x1,do_nothing_bc);
   return;
@@ -190,7 +190,7 @@ void Userwork_after_loop(MeshS *pM)
 
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 
-/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3) 
+/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3)
  *  \brief Gravitational potential */
 static Real grav_pot(const Real x1, const Real x2, const Real x3) {
   if (q == 1.0) {
@@ -322,7 +322,7 @@ void diode_outflow_ox1(GridS *pGrid)
         pGrid->B3i[k][j][ie+i] = B3/r[ie+i];
       }
     }
-  } 
+  }
 #endif /* MHD */
 
   return;

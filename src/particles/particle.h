@@ -1,5 +1,5 @@
 #ifndef PARTICLE_H
-#define PARTICLE_H 
+#define PARTICLE_H
 #include "../copyright.h"
 /*============================================================================*/
 /*! \file particle.h
@@ -29,11 +29,11 @@ Real x1lpar, x1upar, x2lpar, x2upar, x3lpar, x3upar;
 
 /*----------------- Quantities for Stopping time calculation -----------------*/
 /*! \var Real *tstop0
- *  \brief Array of particle stopping time (for tstop=const) for each particle 
+ *  \brief Array of particle stopping time (for tstop=const) for each particle
  *  type */
 Real *tstop0;
 /*! \var Real *grrhoa
- *  \brief an array of particle solid density times particle size in 
+ *  \brief an array of particle solid density times particle size in
  *  normalized unit */
 Real *grrhoa;
 /*! \var Real alamcoeff

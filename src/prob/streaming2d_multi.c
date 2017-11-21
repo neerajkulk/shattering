@@ -138,7 +138,7 @@ void problem(DomainS *pDomain)
 
   /* particle stopping time */
   tsmin = par_getd("problem","tsmin"); /* in code unit */
-  tsmax = par_getd("problem","tsmax"); 
+  tsmax = par_getd("problem","tsmax");
   tscrit= par_getd("problem","tscrit");
   if (par_geti("particle","tsmode") != 3)
     ath_error("[streaming2d]: This test works only for fixed stopping time!\n");
@@ -152,7 +152,7 @@ void problem(DomainS *pDomain)
 
   /* assign particle effective mass */
   epsilon= (Real*)calloc_1d_array(npartypes, sizeof(Real));
-  wxNSH  = (Real*)calloc_1d_array(npartypes, sizeof(Real)); 
+  wxNSH  = (Real*)calloc_1d_array(npartypes, sizeof(Real));
   wyNSH  = (Real*)calloc_1d_array(npartypes, sizeof(Real));
 
 #ifdef FEEDBACK
@@ -349,10 +349,10 @@ void problem_read_restart(MeshS *pM, FILE *fp)
   return;
 }
 
-/*! \fn static Real expr_rhopardif(const GridS *pG, 
+/*! \fn static Real expr_rhopardif(const GridS *pG,
  *                           const int i, const int j, const int k)
  *  \brief Particle density difference */
-static Real expr_rhopardif(const GridS *pG, 
+static Real expr_rhopardif(const GridS *pG,
                            const int i, const int j, const int k)
 {
   Real x1,x2,x3;

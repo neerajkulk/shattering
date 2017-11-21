@@ -12,10 +12,10 @@
  *   2nd ed., Springer-Verlag, Berlin, (1999) chpt. 10.
  *
  * - P. Batten, N. Clarke, C. Lambert, and D. M. Causon,
- *   "On the Choice of Wavespeeds for the HLLC Riemann Solver", 
+ *   "On the Choice of Wavespeeds for the HLLC Riemann Solver",
  *   SIAM J. Sci. & Stat. Comp. 18, 6, 1553-1570, (1997).
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - fluxes() - all Riemann solvers in Athena must have this function name and
  *              use the same argument list as defined in rsolvers/prototypes.h*/
 /*============================================================================*/
@@ -42,9 +42,9 @@
  *            const Real Bxi, Cons1DS *pFlux)
  *  \brief Computes 1D fluxes
  *   Input Arguments:
- *   - Ul,Ur = L/R-states of CONSERVED variables at cell interface 
+ *   - Ul,Ur = L/R-states of CONSERVED variables at cell interface
  *   Output Arguments:
- *   - pFlux = pointer to fluxes of CONSERVED variables at cell interface 
+ *   - pFlux = pointer to fluxes of CONSERVED variables at cell interface
  */
 
 void fluxes(const Cons1DS Ul, const Cons1DS Ur,

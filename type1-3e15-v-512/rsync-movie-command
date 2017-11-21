@@ -1,0 +1,1 @@
+rsync -var --include=*.*.*.vtk --exclude=*.vtk --exclude=*.rst 934531.gordon-fe2.local/ /oasis/projects/nsf/ucb111/mkmcc/type1-1e15-aniso-visc-512-movie

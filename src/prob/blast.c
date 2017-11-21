@@ -57,38 +57,39 @@ void problem(DomainS *pDomain)
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
-	rad = sqrt(x1*x1 + x2*x2 + x3*x3);
+        cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
+        rad = sqrt(x1*x1 + x2*x2 + x3*x3);
 #ifndef ISOTHERMAL
         W.P = pa;
-	if (rad < rin) W.P = prat*pa;
+        if (rad < rin) W.P = prat*pa;
 #endif
         W.d = da;
-	if (rad < rin) W.d = drat*da;
+        if (rad < rin) W.d = drat*da;
 
         U1d = Prim1D_to_Cons1D(&(W),&Bx);
-	pGrid->U[k][j][i].d  = U1d.d;
-	pGrid->U[k][j][i].M1 = U1d.Mx;
-	pGrid->U[k][j][i].M2 = U1d.My;
-	pGrid->U[k][j][i].M3 = U1d.Mz;
+
+        pGrid->U[k][j][i].d  = U1d.d;
+        pGrid->U[k][j][i].M1 = U1d.Mx;
+        pGrid->U[k][j][i].M2 = U1d.My;
+        pGrid->U[k][j][i].M3 = U1d.Mz;
 #ifndef ISOTHERMAL
-	pGrid->U[k][j][i].E  = U1d.E;
+        pGrid->U[k][j][i].E  = U1d.E;
 #endif
 #ifdef MHD
-	pGrid->B1i[k][j][i] = Bx;
-	pGrid->B2i[k][j][i] = U1d.By;
-	pGrid->B3i[k][j][i] = U1d.Bz;
-	pGrid->U[k][j][i].B1c = Bx;
-	pGrid->U[k][j][i].B2c = U1d.By;
-	pGrid->U[k][j][i].B3c = U1d.Bz;
-	if (i == ie && ie > is) pGrid->B1i[k][j][i+1] = Bx;
-	if (j == je && je > js) pGrid->B2i[k][j+1][i] = U1d.By;
-	if (k == ke && ke > ks) pGrid->B3i[k+1][j][i] = U1d.Bz;
+        pGrid->B1i[k][j][i] = Bx;
+        pGrid->B2i[k][j][i] = U1d.By;
+        pGrid->B3i[k][j][i] = U1d.Bz;
+        pGrid->U[k][j][i].B1c = Bx;
+        pGrid->U[k][j][i].B2c = U1d.By;
+        pGrid->U[k][j][i].B3c = U1d.Bz;
+        if (i == ie && ie > is) pGrid->B1i[k][j][i+1] = Bx;
+        if (j == je && je > js) pGrid->B2i[k][j+1][i] = U1d.By;
+        if (k == ke && ke > ks) pGrid->B3i[k+1][j][i] = U1d.Bz;
 #endif /* MHD */
       }
     }
   }
-#ifdef RESISTIVITY 
+#ifdef RESISTIVITY
   eta_Ohm = 0.0;
   Q_AD    = par_getd("problem","Q_AD");
   Q_Hall  = 0.0;

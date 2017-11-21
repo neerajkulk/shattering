@@ -1,13 +1,13 @@
 #include "copyright.h"
 /*============================================================================*/
 /*! \file output_vtk.c
- *  \brief Function to write a single variable in VTK "legacy" format. 
+ *  \brief Function to write a single variable in VTK "legacy" format.
  *
  * PURPOSE: Function to write a single variable in VTK "legacy" format.  With
  *   SMR, dumps are made for all levels and domains, unless nlevel and ndomain
  *   are specified in <output> block.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - output_vtk() - writes VTK file (single variable).
  *
  * PRIVATE FUNCTION PROTOTYPES:

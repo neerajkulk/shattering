@@ -470,4 +470,3 @@ void dump_parhistory_enroll(const Parfun_t pfun, const char *label,
 #undef MAX_USR_ARAY
 
 #endif /* PARTICLES */
-

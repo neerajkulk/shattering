@@ -1,17 +1,17 @@
 #include "../copyright.h"
 /*=============================================================================*/
 /*! \file selfg_fft_disk.c
- *  \brief Contains functions to solve Poisson's equation for self-gravity 
- *   in disk symmetry, in 1D, 2D and 3D using FFTs 
+ *  \brief Contains functions to solve Poisson's equation for self-gravity
+ *   in disk symmetry, in 1D, 2D and 3D using FFTs
  *
  *   For 1D, x1 is perpendicular to the plane
  *   For 2D, x1 is in plane and periodic, and x2 is perpendicular to the plane
- *   For 3D, x1 and x2 are in plane and periodic, and x3 is perpendicular 
- *   to the plane 
- *   
+ *   For 3D, x1 and x2 are in plane and periodic, and x3 is perpendicular
+ *   to the plane
  *
- *   The FFT's use the FFTW3.x libraries, and for MPI parallel use 
- *   Steve Plimpton's block decomposition routines added by N. Lemaster 
+ *
+ *   The FFT's use the FFTW3.x libraries, and for MPI parallel use
+ *   Steve Plimpton's block decomposition routines added by N. Lemaster
  *   to /athena/fftsrc.
  *   This means to use these fns the code must be
  *      (1) configured with --enable-fft
@@ -29,7 +29,7 @@
  *   selfg_by_fft_disk_3d_init() - initializes FFT plans for 3D
  *
  *  NOTE:     The functions in selfg_fft assume PERIODIC BC in ALL directions.
- *            The functions here implement OPEN BC in ONE direction and 
+ *            The functions here implement OPEN BC in ONE direction and
  *            PERIODIC BC in the other direction(s). */
 /*============================================================================*/
 
@@ -58,8 +58,8 @@ static ath_fft_data *work=NULL, *work2=NULL;
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void selfg_fft_disk_1d(DomainS *pD)
- *  \brief Actually uses recursion formula.  
- *  ONLY WORKS FOR SINGLE PROCESSOR! 
+ *  \brief Actually uses recursion formula.
+ *  ONLY WORKS FOR SINGLE PROCESSOR!
  */
 
 void selfg_fft_disk_1d(DomainS *pD)
@@ -79,22 +79,22 @@ void selfg_fft_disk_1d(DomainS *pD)
 
   pG->Phi[ks][js][is] = 0.0;
   for (i=is; i<=ie; i++) {
-    pG->Phi[ks][js][is] += pG->U[ks][js][i].d; 
+    pG->Phi[ks][js][is] += pG->U[ks][js][i].d;
   }
 
   pG->Phi[ks][js][is  ] *= 0.25*four_pi_G*dx1sq*(float)((pG->Nx[0])-1);
-  pG->Phi[ks][js][is+1] = pG->Phi[ks][js][is] + 
-           four_pi_G*dx1sq*pG->U[ks][js][is].d - 
+  pG->Phi[ks][js][is+1] = pG->Phi[ks][js][is] +
+           four_pi_G*dx1sq*pG->U[ks][js][is].d -
            2.*pG->Phi[ks][js][is]/(float)((pG->Nx[0])-1);
   for (i=is+2; i<=ie; i++) {
-    pG->Phi[ks][js][i] = four_pi_G*dx1sq*pG->U[ks][js][i-1].d 
+    pG->Phi[ks][js][i] = four_pi_G*dx1sq*pG->U[ks][js][i-1].d
       + 2.0*pG->Phi[ks][js][i-1] - pG->Phi[ks][js][i-2];
   }
 /* apply open BC in x1 direction to obtain values in ghost zones */
       pG->Phi[ks][js][ie+1] = 2.0*pG->Phi[ks][js][ie] - pG->Phi[ks][js][ie-1] +
-	dx1sq*four_pi_G*pG->U[ks][js][ie].d;
+        dx1sq*four_pi_G*pG->U[ks][js][ie].d;
       pG->Phi[ks][js][is-1] = 2.0*pG->Phi[ks][js][is] - pG->Phi[ks][js][is+1] +
-	dx1sq*four_pi_G*pG->U[ks][js][is].d;
+        dx1sq*four_pi_G*pG->U[ks][js][is].d;
 }
 
 
@@ -113,9 +113,9 @@ void selfg_fft_disk_2d(DomainS *pD)
   int ks = pG->ks;
   Real dkx;
   Real dx1sq=(pG->dx1*pG->dx1),dx2sq=(pG->dx2*pG->dx2);
-  Real xmin,xmax,Lperp; 
+  Real xmin,xmax,Lperp;
   static int coeff_set=0;
-  static Real **Acoeff=NULL,**Bcoeff=NULL; 
+  static Real **Acoeff=NULL,**Bcoeff=NULL;
   static Real dky=0.;
   int ip;
 
@@ -131,7 +131,7 @@ void selfg_fft_disk_2d(DomainS *pD)
     ath_error("[selfg_fft_disk]: malloc returned a NULL pointer\n");
 
 
-/* To compute kx,ky,kz, note that indices relative to whole Domain are needed */  
+/* To compute kx,ky,kz, note that indices relative to whole Domain are needed */
     dkx = 2.0*PI/(double)(pD->Nx[0]);
     dky = 2.0*PI/(double)(pD->Nx[1]);
 /* This is size of whole Domain perpendicular to the plane (=disk thickness)*/
@@ -144,21 +144,21 @@ void selfg_fft_disk_2d(DomainS *pD)
     for (i=is; i<=ie; i++){
     for (j=js; j<=je; j++){
       ip=KCOMP(i-is,pG->Disp[0],pD->Nx[0]);
-      if (((j-js)+pG->Disp[1])==0 && ((i-is)+pG->Disp[0])==0) 
+      if (((j-js)+pG->Disp[1])==0 && ((i-is)+pG->Disp[0])==0)
         Acoeff[0][0]=0.0;
       else{
-        Acoeff[i-is][j-js]= 0.5*(1.0-exp(-fabs(ip*dkx/pG->dx1)*Lperp))/ 
-	  (((2.0*cos(((i-is)+pG->Disp[0])*dkx)-2.0)/dx1sq) + 
-	   ((2.0*cos(((j-js)+pG->Disp[1])*dky)-2.0)/dx2sq));
+        Acoeff[i-is][j-js]= 0.5*(1.0-exp(-fabs(ip*dkx/pG->dx1)*Lperp))/
+          (((2.0*cos(((i-is)+pG->Disp[0])*dkx)-2.0)/dx1sq) +
+           ((2.0*cos(((j-js)+pG->Disp[1])*dky)-2.0)/dx2sq));
       }
-      Bcoeff[i-is][j-js]= 0.5*(1.0+exp(-fabs(ip*dkx/pG->dx1)*Lperp))/ 
-        (((2.0*cos((    (i-is)+pG->Disp[0])*dkx)-2.0)/dx1sq) + 
-	 ((2.0*cos((0.5+(j-js)+pG->Disp[1])*dky)-2.0)/dx2sq));
+      Bcoeff[i-is][j-js]= 0.5*(1.0+exp(-fabs(ip*dkx/pG->dx1)*Lperp))/
+        (((2.0*cos((    (i-is)+pG->Disp[0])*dkx)-2.0)/dx1sq) +
+         ((2.0*cos((0.5+(j-js)+pG->Disp[1])*dky)-2.0)/dx2sq));
     }
     }
   coeff_set=1; /* done computing coeffs */
   }
-  
+
 /* Copy current potential into old */
 
   for (j=js-nghost; j<=je+nghost; j++){
@@ -193,14 +193,14 @@ void selfg_fft_disk_2d(DomainS *pD)
 
   for (i=is; i<=ie; i++){
     for (j=js; j<=je; j++){
-      work[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][0] *=Acoeff[i-is][j-js]; 
-      work[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][1] *=Acoeff[i-is][j-js]; 
-      work2[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][0] *=Bcoeff[i-is][j-js]; 
-      work2[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][1] *=Bcoeff[i-is][j-js]; 
+      work[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][0] *=Acoeff[i-is][j-js];
+      work[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][1] *=Acoeff[i-is][j-js];
+      work2[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][0] *=Bcoeff[i-is][j-js];
+      work2[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][1] *=Bcoeff[i-is][j-js];
     }
   }
 
-  /* Backward FFT */ 
+  /* Backward FFT */
 
   ath_2d_fft(bplan2d, work);
   ath_2d_fft(bplan2d, work2);
@@ -211,7 +211,7 @@ void selfg_fft_disk_2d(DomainS *pD)
   for (j=js; j<=je; j++){
     for (i=is; i<=ie; i++){
       pG->Phi[ks][j][i] = (work[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][0]
-        +cos(0.5*((j-js)+pG->Disp[1])*dky)*work2[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][0] 
+        +cos(0.5*((j-js)+pG->Disp[1])*dky)*work2[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][0]
         -sin(0.5*((j-js)+pG->Disp[1])*dky)*work2[F2DI(i-is,j-js,pG->Nx[0],pG->Nx[1])][1])/
         bplan2d->gcnt;
     }
@@ -236,10 +236,10 @@ void selfg_fft_disk_3d(DomainS *pD)
   int ip, jp;
   Real kxtdx,kydy;
   Real dkx,dky,dkz;
-  Real dx1sq=(pG->dx1*pG->dx1),dx2sq=(pG->dx2*pG->dx2),dx3sq=(pG->dx3*pG->dx3); 
+  Real dx1sq=(pG->dx1*pG->dx1),dx2sq=(pG->dx2*pG->dx2),dx3sq=(pG->dx3*pG->dx3);
   Real xmin,xmax;
-  Real Lperp,den; 
-  Real ***Acoeff=NULL,***Bcoeff=NULL; 
+  Real Lperp,den;
+  Real ***Acoeff=NULL,***Bcoeff=NULL;
 
 #ifdef SHEARING_BOX
   int nx3=pG->Nx[2]+2*nghost;
@@ -295,19 +295,19 @@ void selfg_fft_disk_3d(DomainS *pD)
         kxtdx = ip*dkx;
 #endif
         kydy = jp*dky;
-	if (((k-ks)+pG->Disp[2])==0 && ((j-js)+pG->Disp[1])==0 && ((i-is)+pG->Disp[0])==0) 
+        if (((k-ks)+pG->Disp[2])==0 && ((j-js)+pG->Disp[1])==0 && ((i-is)+pG->Disp[0])==0)
           Acoeff[0][0][0] = 0.0;
         else{
-          Acoeff[i-is][j-js][k-ks] = 0.5*  
-            (1.0-exp(-sqrt(SQR(kxtdx)/dx1sq+SQR(kydy)/dx2sq)*Lperp))/ 
-            (((2.0*cos(  kxtdx                 )-2.0)/dx1sq) + 
-	     ((2.0*cos(  kydy                  )-2.0)/dx2sq) +
+          Acoeff[i-is][j-js][k-ks] = 0.5*
+            (1.0-exp(-sqrt(SQR(kxtdx)/dx1sq+SQR(kydy)/dx2sq)*Lperp))/
+            (((2.0*cos(  kxtdx                 )-2.0)/dx1sq) +
+             ((2.0*cos(  kydy                  )-2.0)/dx2sq) +
              ((2.0*cos(((k-ks)+pG->Disp[2])*dkz)-2.0)/dx3sq));
-	}
-        Bcoeff[i-is][j-js][k-ks] = 0.5*  
-          (1.0+exp(-sqrt(SQR(kxtdx)/dx1sq+SQR(kydy)/dx2sq)*Lperp))/ 
-          (((2.0*cos(      kxtdx                 )-2.0)/dx1sq) + 
-	   ((2.0*cos(      kydy                  )-2.0)/dx2sq) +
+        }
+        Bcoeff[i-is][j-js][k-ks] = 0.5*
+          (1.0+exp(-sqrt(SQR(kxtdx)/dx1sq+SQR(kydy)/dx2sq)*Lperp))/
+          (((2.0*cos(      kxtdx                 )-2.0)/dx1sq) +
+           ((2.0*cos(      kydy                  )-2.0)/dx2sq) +
            ((2.0*cos((0.5+(k-ks)+pG->Disp[2])*dkz)-2.0)/dx3sq));
       }
     }
@@ -349,9 +349,9 @@ the ghost zones? */
     }
   }
 
-#ifndef SHEARING_BOX 
+#ifndef SHEARING_BOX
 #ifdef STAR_PARTICLE
-   assign_starparticles_3d(pD,work); 
+   assign_starparticles_3d(pD,work);
 #endif
 #endif
 
@@ -361,10 +361,10 @@ the ghost zones? */
         work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] *=four_pi_G;
         work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][1] = 0.0;
 
-        work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] = 
+        work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] =
           cos(0.5*((k-ks)+pG->Disp[2])*dkz)*
               work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0];
-        work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][1] = 
+        work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][1] =
          -sin(0.5*((k-ks)+pG->Disp[2])*dkz)*
               work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0];
       }
@@ -380,13 +380,13 @@ the ghost zones? */
 #else
         den=pG->U[k][j][i].d-grav_mean_rho;
 #endif
-        work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] = 
+        work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] =
           four_pi_G*den;
         work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][1] = 0.0;
 
-        work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] = 
+        work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] =
           four_pi_G*den*cos(0.5*((k-ks)+pG->Disp[2])*dkz);
-        work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][1] = 
+        work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][1] =
          -four_pi_G*den*sin(0.5*((k-ks)+pG->Disp[2])*dkz);
       }
     }
@@ -404,13 +404,13 @@ the ghost zones? */
     for (j=js; j<=je; j++){
       for (k=ks; k<=ke; k++){
         work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] *=
-          Acoeff[i-is][j-js][k-ks]; 
+          Acoeff[i-is][j-js][k-ks];
         work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][1] *=
-          Acoeff[i-is][j-js][k-ks]; 
+          Acoeff[i-is][j-js][k-ks];
         work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] *=
-          Bcoeff[i-is][j-js][k-ks]; 
+          Bcoeff[i-is][j-js][k-ks];
         work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][1] *=
-          Bcoeff[i-is][j-js][k-ks]; 
+          Bcoeff[i-is][j-js][k-ks];
       }
     }
   }
@@ -426,15 +426,15 @@ the ghost zones? */
     for (j=js; j<=je; j++){
       for (i=is; i<=ie; i++){
 #ifdef SHEARING_BOX
-        UnRollPhi[k][i][j] = 
+        UnRollPhi[k][i][j] =
 #else
         pG->Phi[k][j][i] =
 #endif
                            (work[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0]
                          + cos(0.5*((k-ks)+pG->Disp[2])*dkz)*
-		           work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0] 
+                           work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][0]
                          - sin(0.5*((k-ks)+pG->Disp[2])*dkz)*
-		           work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][1])/
+                           work2[F3DI(i-is,j-js,k-ks,pG->Nx[0],pG->Nx[1],pG->Nx[2])][1])/
                            bplan3d->gcnt;
       }
     }
@@ -462,8 +462,8 @@ the ghost zones? */
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void selfg_fft_disk_2d_init(MeshS *pM)
- *  \brief Initializes plans for forward/backward FFTs, and allocates memory 
- *  needed by FFTW.  
+ *  \brief Initializes plans for forward/backward FFTs, and allocates memory
+ *  needed by FFTW.
  */
 
 void selfg_fft_disk_2d_init(MeshS *pM)
@@ -485,7 +485,7 @@ void selfg_fft_disk_2d_init(MeshS *pM)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void selfg_fft_disk_3d_init(MeshS *pM)
- *  \brief Initializes plans for forward/backward FFTs, and allocates memory 
+ *  \brief Initializes plans for forward/backward FFTs, and allocates memory
  *  needed by FFTW.
  */
 

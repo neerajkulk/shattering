@@ -1,5 +1,5 @@
 #ifndef RSOLVERS_PROTOTYPES_H
-#define RSOLVERS_PROTOTYPES_H 
+#define RSOLVERS_PROTOTYPES_H
 #include "../copyright.h"
 /*============================================================================*/
 /*! \file prototypes.h
@@ -39,8 +39,8 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 
 #ifdef SPECIAL_RELATIVITY
 void entropy_flux (const Cons1DS Ul, const Cons1DS Ur,
-		   const Prim1DS Wl, const Prim1DS Wr,
-		   const Real Bx, Real *pFlux);
+                   const Prim1DS Wl, const Prim1DS Wr,
+                   const Real Bx, Real *pFlux);
 #endif
 
 #endif /* RSOLVERS_PROTOTYPES_H */

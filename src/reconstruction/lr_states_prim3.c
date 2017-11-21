@@ -72,7 +72,7 @@ static Real **pW=NULL, **Whalf=NULL;
 void lr_states(const GridS *pG __attribute__((unused)),
                const Prim1DS W[], const Real Bxc[],
                const Real dt, const Real dx, const int il, const int iu,
-               Prim1DS Wl[], Prim1DS Wr[], 
+               Prim1DS Wl[], Prim1DS Wr[],
                const int dir __attribute__((unused)))
 {
   int i,n,m;
@@ -179,7 +179,7 @@ void lr_states(const GridS *pG __attribute__((unused)),
       alphal = Wlv[n] - pW[i][n];
       alphar = Wrv[n] - pW[i][n];
       if (fabs(alphar)>=2.0*fabs(alphal)) {
-        dalpha = pW[i+1][n] - pW[i][n]; 
+        dalpha = pW[i+1][n] - pW[i][n];
         dI = -0.25*alphar*alphar/(alphar + alphal);
         if (s*dI >= s*dalpha) {
           Wlv[n] = pW[i][n]-2.0*(dalpha + s*sqrt(dalpha*dalpha-dalpha*alphar));
@@ -187,7 +187,7 @@ void lr_states(const GridS *pG __attribute__((unused)),
         }
       }
       if (fabs(alphal)>=2.0*fabs(alphar)){
-        dalpha = pW[i-1][n] - pW[i][n]; 
+        dalpha = pW[i-1][n] - pW[i][n];
         dI = -0.25*alphal*alphal/(alphar + alphal);
         if (s*dI >= s*dalpha) {
           Wlv[n] = pW[i][n]-2.0*(dalpha + s*sqrt(dalpha*dalpha-dalpha*alphar));
@@ -286,13 +286,13 @@ void lr_states(const GridS *pG __attribute__((unused)),
 
     for (n=0; n<NWAVE; n++) {
       if (ev[n] > 0.) {
-	qa  = 0.0;
+        qa  = 0.0;
         qb = 0.5*dtodx*(ev[NWAVE-1]-ev[n]);
         qc = 0.5*dtodx*dtodx*TWO_3RDS*(ev[NWAVE-1]*ev[NWAVE-1] - ev[n]*ev[n]);
-	for (m=0; m<NWAVE; m++) {
-	  qa += lem[n][m]*(qb*(dW[m]-W6[m]) + qc*W6[m]);
-	}
-	for (m=0; m<NWAVE; m++) pWl[m] += qa*rem[m][n];
+        for (m=0; m<NWAVE; m++) {
+          qa += lem[n][m]*(qb*(dW[m]-W6[m]) + qc*W6[m]);
+        }
+        for (m=0; m<NWAVE; m++) pWl[m] += qa*rem[m][n];
 /* For HLL fluxes, subtract wave moving away from interface to 2nd order */
 #if defined(HLLE_FLUX) || defined(HLLC_FLUX) || defined(HLLD_FLUX) || defined(FORCE_FLUX)
         qa = 0.0;

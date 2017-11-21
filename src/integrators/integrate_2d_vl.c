@@ -3,7 +3,7 @@
 /*============================================================================*/
 /*! \file integrate_2d_vl.c
  *  \brief Integrate MHD equations using 2D version of the directionally
- *   unsplit MUSCL-Hancock (VL) integrator. 
+ *   unsplit MUSCL-Hancock (VL) integrator.
  *
  * PURPOSE: Integrate MHD equations using 2D version of the directionally
  *   unsplit MUSCL-Hancock (VL) integrator.  The variables updated are:
@@ -12,7 +12,7 @@
  *   Also adds gravitational source terms, self-gravity, and the H-correction
  *   of Sanders et al.
  *
- * REFERENCE: 
+ * REFERENCE:
  * - J.M Stone & T.A. Gardiner, "A simple, unsplit Godunov method
  *   for multidimensional MHD", NewA 14, 139 (2009)
  *
@@ -20,7 +20,7 @@
  *   upwind schemes: stability and applications to gas dynamics", JCP, 145, 511
  *   (1998)
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - integrate_2d_vl()
  * - integrate_destruct_2d()
  * - integrate_init_2d() */
@@ -43,6 +43,10 @@
 /* The L/R states of primitive variables and fluxes at each cell face */
 static Prim1DS **Wl_x1Face=NULL, **Wr_x1Face=NULL;
 static Prim1DS **Wl_x2Face=NULL, **Wr_x2Face=NULL;
+#ifdef H_CORRECTION
+static Cons1DS Ul_x1Face, Ur_x1Face;
+static Cons1DS Ul_x2Face, Ur_x2Face;
+#endif  /* H_CORRECTION */
 static Cons1DS **x1Flux=NULL, **x2Flux=NULL;
 #ifdef FIRST_ORDER_FLUX_CORRECTION
 static Cons1DS **x1FluxP=NULL, **x2FluxP=NULL;
@@ -74,8 +78,8 @@ static Real **eta1=NULL, **eta2=NULL;
 #endif
 
 /*==============================================================================
- * PRIVATE FUNCTION PROTOTYPES: 
- *   integrate_emf3_corner() - the upwind CT method of Gardiner & Stone (2005) 
+ * PRIVATE FUNCTION PROTOTYPES:
+ *   integrate_emf3_corner() - the upwind CT method of Gardiner & Stone (2005)
  *   FixCell() - apply first-order correction to one cell
  *============================================================================*/
 #ifdef MHD
@@ -90,7 +94,7 @@ static void ApplyCorr(GridS *pG, int i, int j,
 /*=========================== PUBLIC FUNCTIONS ===============================*/
 /*----------------------------------------------------------------------------*/
 /*! \fn void integrate_2d_vl(DomainS *pD)
- *  \brief Van Leer unsplit integrator in 2D. 
+ *  \brief Van Leer unsplit integrator in 2D.
  *
  *   The numbering of steps follows the numbering in the 3D version.
  *   NOT ALL STEPS ARE NEEDED IN 2D.
@@ -107,6 +111,7 @@ void integrate_2d_vl(DomainS *pD)
   int j, js = pG->js, je = pG->je;
   int ks = pG->ks;
   Real x1,x2,x3,phicl,phicr,phifc,phil,phir,phic,Bx;
+  Real dedt_cool, P_cool;
 #if (NSCALARS > 0)
   int n;
 #endif
@@ -131,7 +136,12 @@ void integrate_2d_vl(DomainS *pD)
   int flag_cell=0,negd=0,negP=0,superl=0,NaNFlux=0;
   Real Vsq;
   Int3Vect BadCell;
-#endif
+#ifdef MHD
+  Real beta;                    /* added by mkmcc */
+  int betaFlux=0;               /* "" */
+#endif  /* MHD */
+#endif  /* FIRST_ORDER_FLUX_CORRECTION */
+
   int il=is-(nghost-1), iu=ie+(nghost-1);
   int jl=js-(nghost-1), ju=je+(nghost-1);
 
@@ -407,13 +417,13 @@ void integrate_2d_vl(DomainS *pD)
  *    S_{M} = -(\rho) Grad(Phi);   S_{E} = -(\rho v) Grad{Phi}
  */
 
-  if (StaticGravPot != NULL){
+  if (ExternalGravPot != NULL){
     for (j=jl; j<=ju; j++) {
       for (i=il; i<=iu; i++) {
         cc_pos(pG,i,j,ks,&x1,&x2,&x3);
-        phic = (*StaticGravPot)( x1,             x2,x3);
-        phir = (*StaticGravPot)((x1+0.5*pG->dx1),x2,x3);
-        phil = (*StaticGravPot)((x1-0.5*pG->dx1),x2,x3);
+        phic = (*ExternalGravPot)( x1,             x2,x3, pG->time + 0.5*pG->dt);
+        phir = (*ExternalGravPot)((x1+0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+        phil = (*ExternalGravPot)((x1-0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
 
         g = (phir-phil)*dx1i;
 #ifdef CYLINDRICAL
@@ -428,8 +438,8 @@ void integrate_2d_vl(DomainS *pD)
         Uhalf[j][i].E -= hdtodx1*(lsf*x1Flux[j][i  ].d*(phic - phil)
                                 + rsf*x1Flux[j][i+1].d*(phir - phic));
 #endif
-        phir = (*StaticGravPot)(x1,(x2+0.5*pG->dx2),x3);
-        phil = (*StaticGravPot)(x1,(x2-0.5*pG->dx2),x3);
+        phir = (*ExternalGravPot)(x1,(x2+0.5*pG->dx2),x3, pG->time + 0.5*pG->dt);
+        phil = (*ExternalGravPot)(x1,(x2-0.5*pG->dx2),x3, pG->time + 0.5*pG->dt);
 
         Uhalf[j][i].M2 -= hdtodx2*(phir-phil)*pG->U[ks][j][i].d;
 #ifndef BAROTROPIC
@@ -468,6 +478,34 @@ void integrate_2d_vl(DomainS *pD)
     }
   }
 #endif /* SELF_GRAVITY */
+
+/*--- Step 6c ------------------------------------------------------------------
+ * Add source terms from optically thin cooling for 0.5*dt to predict
+ * step.
+ */
+
+#ifndef BAROTROPIC
+  if (CoolingFunc != NULL){
+    for (j=jl; j<=ju; j++) {
+      for (i=il; i<=iu; i++) {
+        P_cool = Uhalf[j][i].E;
+        P_cool -= (SQR(Uhalf[j][i].M1)
+                   + SQR(Uhalf[j][i].M2)
+                   + SQR(Uhalf[j][i].M3)) / (2.0*Uhalf[j][i].d);
+#ifdef MHD
+        P_cool -= 0.5 * (SQR(Uhalf[j][i].B1c)
+                         + SQR(Uhalf[j][i].B2c)
+                         + SQR(Uhalf[j][i].B3c));
+#endif  /* MHD */
+        P_cool *= Gamma_1;
+
+        dedt_cool = (*CoolingFunc)(Uhalf[j][i].d, P_cool, 0.5 * pG->dt);
+
+        Uhalf[j][i].E -= dedt_cool * (0.5 * pG->dt);
+      }
+    }
+  }
+#endif  /* BAROTROPIC */
 
 /*--- Step 6c -----------------------------------------------------------
  * Add source terms for shearing box (Coriolis forces) for 0.5*dt arising from
@@ -544,7 +582,7 @@ void integrate_2d_vl(DomainS *pD)
 
 /*--- Step 6d ------------------------------------------------------------------
  * Add the geometric source-term now using cell-centered conserved variables
- *   at time t^n 
+ *   at time t^n
  */
 
 #ifdef CYLINDRICAL
@@ -677,10 +715,13 @@ void integrate_2d_vl(DomainS *pD)
 #ifdef MHD
       Bx = B1_x1Face[j][i];
 #endif
-      cfr = cfast(&(Ur_x1Face[j][i]),&Bx);
-      cfl = cfast(&(Ul_x1Face[j][i]),&Bx);
-      lambdar = Ur_x1Face[j][i].Mx/Ur_x1Face[j][i].d + cfr;
-      lambdal = Ul_x1Face[j][i].Mx/Ul_x1Face[j][i].d - cfl;
+      Ur_x1Face = Prim1D_to_Cons1D(&(Wr_x1Face[j][i]), &Bx);
+      Ul_x1Face = Prim1D_to_Cons1D(&(Wl_x1Face[j][i]), &Bx);
+
+      cfr = cfast(&(Ur_x1Face),&Bx);
+      cfl = cfast(&(Ul_x1Face),&Bx);
+      lambdar = Ur_x1Face.Mx/Ur_x1Face.d + cfr;
+      lambdal = Ul_x1Face.Mx/Ul_x1Face.d - cfl;
       eta1[j][i] = 0.5*fabs(lambdar - lambdal);
     }
   }
@@ -690,10 +731,13 @@ void integrate_2d_vl(DomainS *pD)
 #ifdef MHD
       Bx = B2_x2Face[j][i];
 #endif
-      cfr = cfast(&(Ur_x2Face[j][i]),&Bx);
-      cfl = cfast(&(Ul_x2Face[j][i]),&Bx);
-      lambdar = Ur_x2Face[j][i].Mx/Ur_x2Face[j][i].d + cfr;
-      lambdal = Ul_x2Face[j][i].Mx/Ul_x2Face[j][i].d - cfl;
+      Ur_x2Face = Prim1D_to_Cons1D(&(Wr_x2Face[j][i]), &Bx);
+      Ul_x2Face = Prim1D_to_Cons1D(&(Wl_x2Face[j][i]), &Bx);
+
+      cfr = cfast(&(Ur_x2Face),&Bx);
+      cfl = cfast(&(Ul_x2Face),&Bx);
+      lambdar = Ur_x2Face.Mx/Ur_x2Face.d + cfr;
+      lambdal = Ul_x2Face.Mx/Ul_x2Face.d - cfl;
       eta2[j][i] = 0.5*fabs(lambdar - lambdal);
     }
   }
@@ -718,6 +762,20 @@ void integrate_2d_vl(DomainS *pD)
       Ur[i] = Prim1D_to_Cons1D(&Wr_x1Face[j][i],&Bx);
 
       fluxes(Ul[i],Ur[i],Wl_x1Face[j][i],Wr_x1Face[j][i],Bx,&x1Flux[j][i]);
+
+      /* added by mkmcc: */
+      /* revert to first order flux if beta gets too low */
+#ifdef FIRST_ORDER_FLUX_CORRECTION
+#ifdef MHD
+      W = Cons_to_Prim(&(pG->U[ks][j][i]));
+      beta = 2.0 * W.P / (SQR(W.B1c)+SQR(W.B2c)+SQR(W.B3c));
+
+      if (beta < 0.1) {
+        betaFlux++;
+        x1Flux[j][i] = x1FluxP[j][i];
+      }
+#endif  /* MHD */
+#endif  /* FIRST_ORDER_FLUX_CORRECTION */
 
 #ifdef FIRST_ORDER_FLUX_CORRECTION
 /* revert to predictor flux if this flux Nan'ed */
@@ -784,7 +842,14 @@ void integrate_2d_vl(DomainS *pD)
     printf("[Step10] %i second-order fluxes replaced\n",NaNFlux);
     NaNFlux=0;
   }
-#endif
+#ifdef MHD
+  if (betaFlux != 0) {
+    printf("[Step10] %i second-order fluxes replaced (beta)\n",betaFlux);
+    betaFlux=0;
+  }
+#endif  /* MHD */
+#endif  /* FIRST_ORDER_FLUX_CORRECTION */
+
 
 
 /*=== STEP 11: Update face-centered B for a full timestep ====================*/
@@ -844,7 +909,7 @@ void integrate_2d_vl(DomainS *pD)
 #endif /* MHD */
 
 /*=== STEP 12: Add source terms for a full timestep using n+1/2 states =======*/
-       
+
 /*--- Step 12a -----------------------------------------------------------------
  * Add gravitational (or shearing box) source terms as a Static Potential.
  *   A Crank-Nicholson update is used for shearing box terms.
@@ -953,13 +1018,13 @@ void integrate_2d_vl(DomainS *pD)
 #endif /* SHEARING_BOX */
 
 
-  if (StaticGravPot != NULL){
+  if (ExternalGravPot != NULL){
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
         cc_pos(pG,i,j,ks,&x1,&x2,&x3);
-        phic = (*StaticGravPot)( x1,             x2,x3);
-        phir = (*StaticGravPot)((x1+0.5*pG->dx1),x2,x3);
-        phil = (*StaticGravPot)((x1-0.5*pG->dx1),x2,x3);
+        phic = (*ExternalGravPot)( x1,             x2,x3, pG->time + 0.5*pG->dt);
+        phir = (*ExternalGravPot)((x1+0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+        phil = (*ExternalGravPot)((x1-0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
 
         g = (phir-phil)*dx1i;
 #ifdef CYLINDRICAL
@@ -974,8 +1039,8 @@ void integrate_2d_vl(DomainS *pD)
         pG->U[ks][j][i].E -= dtodx1*(lsf*x1Flux[j][i  ].d*(phic - phil)
                                    + rsf*x1Flux[j][i+1].d*(phir - phic));
 #endif
-        phir = (*StaticGravPot)(x1,(x2+0.5*pG->dx2),x3);
-        phil = (*StaticGravPot)(x1,(x2-0.5*pG->dx2),x3);
+        phir = (*ExternalGravPot)(x1,(x2+0.5*pG->dx2),x3, pG->time + 0.5*pG->dt);
+        phil = (*ExternalGravPot)(x1,(x2-0.5*pG->dx2),x3, pG->time + 0.5*pG->dt);
 
         pG->U[ks][j][i].M2 -= dtodx2*(phir-phil)*Uhalf[j][i].d;
 #ifndef BAROTROPIC
@@ -1070,6 +1135,33 @@ void integrate_2d_vl(DomainS *pD)
     }
   }
 #endif /* SELF_GRAVITY */
+
+/*--- Step 12c -----------------------------------------------------------------
+ * Add source terms due to optically thin cooling
+ */
+
+#ifndef BAROTROPIC
+  if (CoolingFunc != NULL){
+    for (j=js; j<=je; j++) {
+      for (i=is; i<=ie; i++) {
+        P_cool = Uhalf[j][i].E;
+        P_cool -= (SQR(Uhalf[j][i].M1)
+                   + SQR(Uhalf[j][i].M2)
+                   + SQR(Uhalf[j][i].M3)) / (2.0*Uhalf[j][i].d);
+#ifdef MHD
+        P_cool -= 0.5 * (SQR(Uhalf[j][i].B1c)
+                         + SQR(Uhalf[j][i].B2c)
+                         + SQR(Uhalf[j][i].B3c));
+#endif  /* MHD */
+        P_cool *= Gamma_1;
+
+        dedt_cool = (*CoolingFunc)(Uhalf[j][i].d, P_cool, pG->dt);
+
+        pG->U[ks][j][i].E -= dedt_cool * pG->dt;
+      }
+    }
+  }
+#endif  /* BAROTROPIC */
 
 /*--- Step 12c -----------------------------------------------------------------
  * Add the geometric source-term now using cell-centered conserved variables
@@ -1442,14 +1534,14 @@ void integrate_init_2d(MeshS *pM)
     == NULL) goto on_error;
   if ((Wr_x2Face = (Prim1DS**)calloc_2d_array(size2,size1, sizeof(Prim1DS)))
     == NULL) goto on_error;
-  if ((x1Flux    = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS))) 
+  if ((x1Flux    = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS)))
     == NULL) goto on_error;
-  if ((x2Flux    = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS))) 
+  if ((x2Flux    = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS)))
     == NULL) goto on_error;
 #ifdef FIRST_ORDER_FLUX_CORRECTION
-  if ((x1FluxP = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS))) 
+  if ((x1FluxP = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS)))
     == NULL) goto on_error;
-  if ((x2FluxP = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS))) 
+  if ((x2FluxP = (Cons1DS**)calloc_2d_array(size2,size1, sizeof(Cons1DS)))
     == NULL) goto on_error;
 #ifdef MHD
   if ((emf3P = (Real**)calloc_2d_array(size2, size1, sizeof(Real))) == NULL)
@@ -1468,7 +1560,7 @@ void integrate_init_2d(MeshS *pM)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void integrate_destruct_2d(void) 
+/*! \fn void integrate_destruct_2d(void)
  *  \brief Free temporary integration arrays */
 void integrate_destruct_2d(void)
 {
@@ -1524,7 +1616,7 @@ void integrate_destruct_2d(void)
  *  - x1Flux.Bz = VxBz - BxVz = v1*b3-b1*v3 = EMFY
  *  - x2Flux.By = VxBy - BxVy = v2*b3-b2*v3 = -EMFX
  *  - x2Flux.Bz = VxBz - BxVz = v2*b1-b2*v1 = EMFZ
- */ 
+ */
 
 #ifdef MHD
 static void integrate_emf3_corner(GridS *pG)
@@ -1608,7 +1700,7 @@ static void integrate_emf3_corner(GridS *pG)
 /*----------------------------------------------------------------------------*/
 /*! \fn static void FixCell(GridS *pG, Int3Vect ix)
  *  \brief Uses first order fluxes to fix negative d,P or superluminal v
- */ 
+ */
 static void FixCell(GridS *pG, Int3Vect ix)
 {
   int ks=pG->ks;
@@ -1677,7 +1769,7 @@ static void FixCell(GridS *pG, Int3Vect ix)
 /* Use flux differences to correct bad cell-centered quantities */
 
   ApplyCorr(pG,ix.i,ix.j,1,1,1,1);
- 
+
 #ifdef SELF_GRAVITY
 /* Save mass fluxes in Grid structure for source term correction in main loop */
   pG->x1MassFlux[ks][ix.j][ix.i] = x1FluxP[ix.j][ix.i].d;
@@ -1711,8 +1803,8 @@ static void FixCell(GridS *pG, Int3Vect ix)
 
 // #ifdef STATIC_MESH_REFINEMENT
 // /* With SMR, replace higher-order fluxes with predict fluxes in case they are
-//  * used at fine/coarse grid boundaries */ 
-// 
+//  * used at fine/coarse grid boundaries */
+//
 //   x1Flux[ix.j][ix.i] = x1FluxP[ix.j][ix.i];
 //   x2Flux[ix.j][ix.i] = x2FluxP[ix.j][ix.i];
 // #endif /* STATIC_MESH_REFINEMENT */
@@ -1736,7 +1828,7 @@ static void FixCell(GridS *pG, Int3Vect ix)
 /*----------------------------------------------------------------------------*/
 /*! \fn static void ApplyCorr(GridS *pG, int i, int j, int lx1, int rx1, int lx2, int rx2)
  *  \brief Uses first order fluxes to fix negative d,P or superluminal v
- */ 
+ */
 static void ApplyCorr(GridS *pG, int i, int j,
                       int lx1, int rx1, int lx2, int rx2)
 {
@@ -1779,7 +1871,7 @@ static void ApplyCorr(GridS *pG, int i, int j,
   pG->U[ks][j][i].M1 += dtodx2*(rx2*x2FD_jp1.Mz - lx2*x2FD_j.Mz);
   pG->U[ks][j][i].M2 += dtodx2*(rx2*x2FD_jp1.Mx - lx2*x2FD_j.Mx);
   pG->U[ks][j][i].M3 += dtodx2*(rx2*x2FD_jp1.My - lx2*x2FD_j.My);
-#ifndef BAROTROPIC                                   
+#ifndef BAROTROPIC
   pG->U[ks][j][i].E  += dtodx2*(rx2*x2FD_jp1.E  - lx2*x2FD_j.E );
 #endif /* BAROTROPIC */
 #ifdef MHD
@@ -1877,19 +1969,19 @@ static void ApplyCorr(GridS *pG, int i, int j,
 #endif
 #endif /* SHEARING_BOX */
 
-  if (StaticGravPot != NULL){
+  if (ExternalGravPot != NULL){
     cc_pos(pG,i,j,ks,&x1,&x2,&x3);
-    phic = (*StaticGravPot)(x1,x2,x3);
-    phir = (*StaticGravPot)((x1+rx1*0.5*pG->dx1),x2,x3);
-    phil = (*StaticGravPot)((x1-lx1*0.5*pG->dx1),x2,x3);
+    phic = (*ExternalGravPot)(x1,x2,x3, pG->time + 0.5*pG->dt);
+    phir = (*ExternalGravPot)((x1+rx1*0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
+    phil = (*ExternalGravPot)((x1-lx1*0.5*pG->dx1),x2,x3, pG->time + 0.5*pG->dt);
 
 #ifndef BAROTROPIC
     pG->U[ks][j][i].E += dtodx1*(lsf*lx1*x1FD_i.d*(phic - phil) +
                                  rsf*rx1*x1FD_ip1.d*(phir - phic));
 #endif
 
-    phir = (*StaticGravPot)(x1,(x2+rx2*0.5*pG->dx2),x3);
-    phil = (*StaticGravPot)(x1,(x2-lx2*0.5*pG->dx2),x3);
+    phir = (*ExternalGravPot)(x1,(x2+rx2*0.5*pG->dx2),x3, pG->time + 0.5*pG->dt);
+    phil = (*ExternalGravPot)(x1,(x2-lx2*0.5*pG->dx2),x3, pG->time + 0.5*pG->dt);
 
 #ifndef BAROTROPIC
     pG->U[ks][j][i].E += dtodx2*(lx2*x2FD_j.d*(phic - phil) +
@@ -1930,7 +2022,7 @@ static void ApplyCorr(GridS *pG, int i, int j,
   pG->B1i[ks][j][i+1] += dtodx2*(rx2*emf3D_jp1ip1 - lx2*emf3D_jip1);
   pG->B2i[ks][j  ][i] -= dtodx1*(rx1*emf3D_jip1   - lx1*emf3D_ji);
   pG->B2i[ks][j+1][i] -= dtodx1*(rx1*emf3D_jp1ip1 - lx1*emf3D_jp1i);
-#endif 
+#endif
 
 }
 #endif /* FIRST_ORDER_FLUX_CORRECTION */

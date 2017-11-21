@@ -3,7 +3,7 @@
  * FILE: msa.c
  *
  * PURPOSE:  Problem generator for MSA test
- *   3D shearing box code. 
+ *   3D shearing box code.
  *
  * Code must be configured using --enable-shearing-box
  *
@@ -85,7 +85,7 @@ void problem(DomainS *pDomain)
   amp = par_getd("problem","amp");
 
 /* Read parameters for magnetic field */
-  beta = par_getd("problem","beta"); 
+  beta = par_getd("problem","beta");
 
 /* Read parameters for self gravity */
   Q=par_getd("problem","Q");
@@ -134,7 +134,7 @@ void problem(DomainS *pDomain)
   for (j=js; j<=je; j++) {
     for (i=is; i<=ie; i++) {
       cc_pos(pG,i,j,k,&x1,&x2,&x3);
-      if (((i-pG->Disp[0]) == 58) && ((j-pG->Disp[1]) == 16)) 
+      if (((i-pG->Disp[0]) == 58) && ((j-pG->Disp[1]) == 16))
         printf("i=%d j=%d k=%d x1=%e x2=%e\n",i,j,k,x1,x2);
 
       rd  = 1.0+amp*cos(kxt*x1+ky*x2);
@@ -156,7 +156,7 @@ void problem(DomainS *pDomain)
       pG->U[k][j][i].M3 = rd*rvz;
 #ifdef ADIABATIC
       pG->U[k][j][i].E = (P0+rp)/Gamma_1
-         + 0.5*(SQR(pG->U[k][j][i].M1) + SQR(pG->U[k][j][i].M2) 
+         + 0.5*(SQR(pG->U[k][j][i].M1) + SQR(pG->U[k][j][i].M2)
          + SQR(pG->U[k][j][i].M3))/rd;
 #endif
 
@@ -224,7 +224,7 @@ void problem(DomainS *pDomain)
 #ifdef ADIABATIC
   dump_history_enroll(hst_dE, "<dE>");
 #endif
-  
+
   printf("=== end of problem setting ===\n");
   return;
 }
@@ -257,7 +257,7 @@ void problem_read_restart(MeshS *pM, FILE *fp)
   qshear = par_getd("problem","qshear");
 
 /* Read parameters for magnetic field */
-  beta = par_getd("problem","beta"); 
+  beta = par_getd("problem","beta");
 
 /* Read parameters for self gravity */
   Q=par_getd("problem","Q");
@@ -571,8 +571,8 @@ static Real hst_dE(const GridS *pG, const int i, const int j, const int k)
   cs2 = SQR(cs);
   E0 = cs2/Gamma/Gamma_1;
   if(ii == 58 && jj == 16 && kk == ks) {
-  dE = pG->U[kk][jj][ii].E 
-       - 0.5*(SQR(pG->U[kk][jj][ii].M1) + SQR(pG->U[kk][jj][ii].M2) 
+  dE = pG->U[kk][jj][ii].E
+       - 0.5*(SQR(pG->U[kk][jj][ii].M1) + SQR(pG->U[kk][jj][ii].M2)
          + SQR(pG->U[kk][jj][ii].M3))/pG->U[kk][jj][ii].d;
 #ifdef MHD
   dE -= 0.5*(SQR(pG->U[kk][jj][ii].B1c)

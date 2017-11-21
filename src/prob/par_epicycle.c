@@ -80,7 +80,7 @@ void problem(DomainS *pDomain)
 
   x2min = pDomain->RootMinX[1];
   x2max = pDomain->RootMaxX[1];
-  Ly = x2max - x2min; 
+  Ly = x2max - x2min;
 
 /* Read initial conditions */
   Omega_0 = par_getd("problem","omega");
@@ -279,7 +279,7 @@ void Userwork_after_loop(MeshS *pM)
 {
   return;
 }
- 
+
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 /*--------------------------------------------------------------------------- */
 /*! \fn static Real UnstratifiedDisk(const Real x1, const Real x2,const Real x3)

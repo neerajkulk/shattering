@@ -173,8 +173,8 @@ void init_particle(MeshS *pM)
  */
 void particle_destruct(MeshS *pM)
 {
-  DomainS *pD = (DomainS*)&(pM->Domain[0][0]); 
-  GridS *pG = pD->Grid; 
+  DomainS *pD = (DomainS*)&(pM->Domain[0][0]);
+  GridS *pG = pD->Grid;
 
   free_1d_array(pG->particle);
   free_1d_array(pG->parsub);
@@ -231,7 +231,7 @@ void grid_limit(MeshS *pM)
   DomainS *pD;
   GridS   *pG;
   pD = (DomainS*)&(pM->Domain[0][0]);
-  pG = pD->Grid; 
+  pG = pD->Grid;
 
   int m1, m2, m3;	/* dimension flags */
   int my_iproc, my_jproc, my_kproc;

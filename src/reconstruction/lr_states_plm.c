@@ -2,14 +2,14 @@
 /*============================================================================*/
 /*! \file lr_states_plm.c
  *  \brief Second order (piecewise linear) spatial reconstruction using
- *   characteristic interpolation in the primitive variables.  
+ *   characteristic interpolation in the primitive variables.
  *
  * PURPOSE: Second order (piecewise linear) spatial reconstruction using
  *   characteristic interpolation in the primitive variables.  With the CTU
  *   integrator, a time-evolution (characteristic tracing) step is used to
- *   interpolate interface values to the half time level {n+1/2}. 
+ *   interpolate interface values to the half time level {n+1/2}.
  *
- * NOTATION: 
+ * NOTATION:
  * - W_{L,i-1/2} is reconstructed value on the left-side of interface at i-1/2
  * - W_{R,i-1/2} is reconstructed value on the right-side of interface at i-1/2
  *
@@ -48,8 +48,8 @@
 static Real **pW=NULL;
 
 /*----------------------------------------------------------------------------*/
-/*! \fn void lr_states(const GridS *pG, const Prim1DS W[], const Real Bxc[], 
- *               const Real dt, const Real dx, const int il, const int iu, 
+/*! \fn void lr_states(const GridS *pG, const Prim1DS W[], const Real Bxc[],
+ *               const Real dt, const Real dx, const int il, const int iu,
  *               Prim1DS Wl[], Prim1DS Wr[], const int dir)
  *  \brief Computes L/R states
  * Input Arguments:
@@ -64,8 +64,8 @@ static Real **pW=NULL;
  */
 
 void lr_states(const GridS *pG __attribute__((unused)),
-               const Prim1DS W[], const Real Bxc[], 
-               const Real dt, const Real dx, const int il, const int iu, 
+               const Prim1DS W[], const Real Bxc[],
+               const Real dt, const Real dx, const int il, const int iu,
                Prim1DS Wl[], Prim1DS Wr[],
                const int dir __attribute__((unused)))
 {
@@ -161,10 +161,10 @@ void lr_states(const GridS *pG __attribute__((unused)),
       dar[n] = lem[n][0]*dWr[0];
       dag[n] = lem[n][0]*dWg[0];
       for (m=1; m<NWAVE; m++) {
-	dac[n] += lem[n][m]*dWc[m];
-	dal[n] += lem[n][m]*dWl[m];
-	dar[n] += lem[n][m]*dWr[m];
-	dag[n] += lem[n][m]*dWg[m];
+        dac[n] += lem[n][m]*dWc[m];
+        dal[n] += lem[n][m]*dWl[m];
+        dar[n] += lem[n][m]*dWr[m];
+        dag[n] += lem[n][m]*dWg[m];
       }
     }
 
@@ -210,7 +210,7 @@ void lr_states(const GridS *pG __attribute__((unused)),
 
 /*--- Step 6. ------------------------------------------------------------------
  * Limit velocity difference to sound speed (deleted).  Was added to make
- * turbulence runs more robust, but found added noise to Noh shocktube and 
+ * turbulence runs more robust, but found added noise to Noh shocktube and
  * other tests.  See r995 and earlier for this step */
 
 /*--- Step 7. ------------------------------------------------------------------
@@ -260,11 +260,11 @@ void lr_states(const GridS *pG __attribute__((unused)),
       pWr[n] = Wlv[n];
     }
 
-#else  /* include steps 8-9 only if using CTU integrator */   
+#else  /* include steps 8-9 only if using CTU integrator */
 
     qx = 0.5*MAX(ev[NWAVE-1],0.0)*dtodx;
 #ifdef CYLINDRICAL
-    if (dir==1) 
+    if (dir==1)
       qx *= 1.0 - dx*qx/(3.0*(ri[i+1]-dx*qx));
 #endif
     for (n=0; n<(NWAVE+NSCALARS); n++) {
@@ -273,7 +273,7 @@ void lr_states(const GridS *pG __attribute__((unused)),
 
     qx = -0.5*MIN(ev[0],0.0)*dtodx;
 #ifdef CYLINDRICAL
-    if (dir==1) 
+    if (dir==1)
       qx *= 1.0 + dx*qx/(3.0*(ri[i]+dx*qx));
 #endif
     for (n=0; n<(NWAVE+NSCALARS); n++) {

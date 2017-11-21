@@ -1,8 +1,8 @@
 #include "copyright.h"
 /*============================================================================*/
 /*! \file cylwindrot.c
- *  \brief The cylindrical analogue of the Bondi accretion (Parker wind) 
- *  problem with rotation.  Hydrodynamic, axisymmetric. 
+ *  \brief The cylindrical analogue of the Bondi accretion (Parker wind)
+ *  problem with rotation.  Hydrodynamic, axisymmetric.
  */
 /*============================================================================*/
 
@@ -134,7 +134,7 @@ void problem(DomainS *pDomain)
     }
   }
 
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
   bvals_mhd_fun(pDomain,left_x1,do_nothing_bc);
   bvals_mhd_fun(pDomain,right_x1,do_nothing_bc);
 
@@ -182,18 +182,18 @@ void Userwork_after_loop(MeshS *pM)
 
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 
-/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3) 
+/*! \fn static Real grav_pot(const Real x1, const Real x2, const Real x3)
  *  \brief Gravitational potential */
 static Real grav_pot(const Real x1, const Real x2, const Real x3) {
   return -SQR(c_infty)/x1;
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn Real myfunc(Real x, Real v) 
- * \brief This function is used to calculate v as a function of x, gamma, and 
+/*! \fn Real myfunc(Real x, Real v)
+ * \brief This function is used to calculate v as a function of x, gamma, and
  *  lambda  using the bisection method.   */
 /*----------------------------------------------------------------------------*/
-Real myfunc(Real x, Real v) 
+Real myfunc(Real x, Real v)
 {
   return Gamma_1*(1/x + 1/Gamma_1 - 0.5*(SQR(v/c_infty)+SQR(ang_mom/x)))*pow(v*x/c_infty,Gamma_1) - pow(lambda_s,Gamma_1);
 }

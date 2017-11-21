@@ -176,7 +176,7 @@ void problem(DomainS *pDomain)
       if (tstop0[i] < tscrit) grproperty[i].integrator = 3;
     }
   }
-  else { 
+  else {
     amin = par_getd("problem","amin");
     amax = par_getd("problem","amax");
 
@@ -198,7 +198,7 @@ void problem(DomainS *pDomain)
   /* particle scale height */
   Hparmax = par_getd("problem","hparmax"); /* in unit of gas scale height */
   Hparmin = par_getd("problem","hparmin");
-  for (i=0; i<npartypes; i++) 
+  for (i=0; i<npartypes; i++)
     ScaleHpar[i] = Hparmax*
                    exp(-i*log(Hparmax/Hparmin)/MAX(npartypes-1,1.0));
 
@@ -472,7 +472,7 @@ void Userwork_after_loop(MeshS *pM)
 {
   return;
 }
- 
+
 /*=========================== PRIVATE FUNCTIONS ==============================*/
 /*--------------------------------------------------------------------------- */
 /*! \fn static Real StratifiedDisk(const Real x1, const Real x2, const Real x3)

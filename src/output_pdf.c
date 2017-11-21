@@ -2,7 +2,7 @@
 /*============================================================================*/
 /*! \file output_pdf.c
  *  \brief Outputs Probability Distribution Functions of selected variables
- *   in formatted tabular form.  
+ *   in formatted tabular form.
  *
  * PURPOSE: Outputs Probability Distribution Functions of selected variables
  *   in formatted tabular form.  Fully MPI enabled, which requires passing
@@ -11,7 +11,7 @@
  *   ndomain are specified in <output> block.
 
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - output_pdf() - output PDFs
  *============================================================================*/
 
@@ -253,14 +253,14 @@ void output_pdf(MeshS *pM, OutputS *pOut)
         fprintf(pfile,"# Time = %21.15e\n",pG->time);
         fprintf(pfile,"# expr = \"%s\"\n",pOut->out);
         fprintf(pfile,"# Nbin = %d\n",((dmax - dmin) > 0.0 ? size_pdf : 1));
-        fprintf(pfile,"# dmin = %21.15e\n",dmin); 
-        fprintf(pfile,"# dmax = %21.15e\n",dmax); 
-        fprintf(pfile,"# mean = %21.15e\n",mean); 
-        fprintf(pfile,"# variance = %21.15e\n",var); 
-        fprintf(pfile,"# std. dev. = %21.15e\n",sdev); 
-        fprintf(pfile,"# avg. dev. = %21.15e\n",adev); 
-        fprintf(pfile,"# skewness = %21.15e\n",skew); 
-        fprintf(pfile,"# kurtosis = %21.15e\n#\n",kurt); 
+        fprintf(pfile,"# dmin = %21.15e\n",dmin);
+        fprintf(pfile,"# dmax = %21.15e\n",dmax);
+        fprintf(pfile,"# mean = %21.15e\n",mean);
+        fprintf(pfile,"# variance = %21.15e\n",var);
+        fprintf(pfile,"# std. dev. = %21.15e\n",sdev);
+        fprintf(pfile,"# avg. dev. = %21.15e\n",adev);
+        fprintf(pfile,"# skewness = %21.15e\n",skew);
+        fprintf(pfile,"# kurtosis = %21.15e\n#\n",kurt);
 
 /* Add a white space to the format */
         if(pOut->dat_fmt == NULL)

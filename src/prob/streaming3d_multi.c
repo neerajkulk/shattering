@@ -2,7 +2,7 @@
 /*============================================================================*/
 /*! \file streaming3d_multi.c
  *  \brief Problem generator for non-linear streaming instability in
- *   non-stratified disks. 
+ *   non-stratified disks.
  *
  * PURPOSE: Problem generator for non-linear streaming instability in
  *   non-stratified disks. This code works in 3D ONLY. It generalizes the NSH
@@ -437,7 +437,7 @@ void Userwork_in_loop(MeshS *pM)
 }
 
 /*---------------------------------------------------------------------------
- * Userwork_after_loop 
+ * Userwork_after_loop
  */
 
 void Userwork_after_loop(MeshS *pM)
@@ -633,4 +633,3 @@ double ran2(long int *idum)
 #undef NTAB
 #undef NDIV
 #undef RNMX
-

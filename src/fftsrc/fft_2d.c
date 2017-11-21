@@ -6,7 +6,7 @@
 
    Copyright (2003) Sandia Corporation.  Under the terms of Contract
    DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-   certain rights in this software.  This software is distributed under 
+   certain rights in this software.  This software is distributed under
    the GNU General Public License.
 
    See the README file in the top-level directory of the distribution.
@@ -35,9 +35,9 @@
    my subsection must not overlap with any other proc's subsection,
      i.e. the union of all proc's input (or output) subsections must
      exactly tile the global Nfast x Nslow data set
-   when called from C, all subsection indices are 
+   when called from C, all subsection indices are
      C-style from 0 to N-1 where N = Nfast or Nslow
-   when called from F77, all subsection indices are 
+   when called from F77, all subsection indices are
      F77-style from 1 to N where N = Nfast or Nslow
    a proc can own 0 elements on input or output
      by specifying hi index < lo index
@@ -74,7 +74,7 @@ void fft_2d(FFT_DATA *in, FFT_DATA *out, int flag, struct fft_plan_2d *plan)
     else
       copy = plan->copy;
     remap_2d((double *) in, (double *) copy, (double *) plan->scratch,
-	     plan->pre_plan);
+             plan->pre_plan);
     data = copy;
   }
   else
@@ -95,7 +95,7 @@ void fft_2d(FFT_DATA *in, FFT_DATA *out, int flag, struct fft_plan_2d *plan)
   else
     copy = plan->copy;
   remap_2d((double *) data, (double *) copy, (double *) plan->scratch,
-	   plan->mid_plan);
+           plan->mid_plan);
   data = copy;
 
 /* 1d FFTs along slow axis */
@@ -110,7 +110,7 @@ void fft_2d(FFT_DATA *in, FFT_DATA *out, int flag, struct fft_plan_2d *plan)
 
   if (plan->post_plan)
     remap_2d((double *) data, (double *) out, (double *) plan->scratch,
-	     plan->post_plan);
+             plan->post_plan);
 
 /* scaling if required */
 
@@ -139,7 +139,7 @@ void fft_2d(FFT_DATA *in, FFT_DATA *out, int flag, struct fft_plan_2d *plan)
    scaled               0 = no scaling of result, 1 = scaling
    permute              permutation in storage order of indices on output
                           0 = no permutation
-			  1 = permute = slow->fast, fast->slow
+                          1 = permute = slow->fast, fast->slow
    nbuf                 returns size of internal storage buffers used by FFT
 */
 
@@ -193,8 +193,8 @@ struct fft_plan_2d *fft_2d_create_plan(
     first_jhi = (me+1)*nslow/nprocs - 1;
     plan->pre_plan =
       remap_2d_create_plan(comm,in_ilo,in_ihi,in_jlo,in_jhi,
-			   first_ilo,first_ihi,first_jlo,first_jhi,
-			   FFT_PRECISION,0,0,2);
+                           first_ilo,first_ihi,first_jlo,first_jhi,
+                           FFT_PRECISION,0,0,2);
     if (plan->pre_plan == NULL) return NULL;
   }
 
@@ -230,15 +230,15 @@ struct fft_plan_2d *fft_2d_create_plan(
 
   plan->mid_plan =
     remap_2d_create_plan(comm,first_ilo,first_ihi,first_jlo,first_jhi,
-			 second_ilo,second_ihi,second_jlo,second_jhi,
-			 FFT_PRECISION,1,0,2);
+                         second_ilo,second_ihi,second_jlo,second_jhi,
+                         FFT_PRECISION,1,0,2);
   if (plan->mid_plan == NULL) return NULL;
 
 /* 1d FFTs along slow axis */
 
   plan->length2 = nslow;
   plan->total2 = (second_ihi-second_ilo+1) * nslow;
-  
+
 /* remap from 2nd FFT to final distribution
    not needed if permute = 1 and second indices = out indices on all procs */
 
@@ -257,8 +257,8 @@ struct fft_plan_2d *fft_2d_create_plan(
   else {
     plan->post_plan =
       remap_2d_create_plan(comm,second_jlo,second_jhi,second_ilo,second_ihi,
-			   out_jlo,out_jhi,out_ilo,out_ihi,
-			   FFT_PRECISION,(permute+1)%2,0,2);
+                           out_jlo,out_jhi,out_ilo,out_ihi,
+                           FFT_PRECISION,(permute+1)%2,0,2);
     if (plan->post_plan == NULL) return NULL;
   }
 
@@ -315,7 +315,7 @@ struct fft_plan_2d *fft_2d_create_plan(
   }
   else plan->scratch = NULL;
 
-/* system specific pre-computation of 1d FFT coeffs 
+/* system specific pre-computation of 1d FFT coeffs
    and scaling normalization */
 
   plan->plan_fast_forward =

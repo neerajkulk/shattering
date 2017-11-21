@@ -1,26 +1,26 @@
 #include "copyright.h"
 /*============================================================================*/
 /*! \file cc_pos.c
- *  \brief Functions to compute (x1,x2,x3) positions of cells i,j,k.  
+ *  \brief Functions to compute (x1,x2,x3) positions of cells i,j,k.
  *
- * PURPOSE: Functions to compute (x1,x2,x3) positions of cells i,j,k.  
+ * PURPOSE: Functions to compute (x1,x2,x3) positions of cells i,j,k.
  *   In a nested grid, each Grid structure is a patch in a larger computational
  *   domain (with the exception of the level0 grid).  The displacement of the
- *   origin of the Grid from the origin of the computational domain (level0 
+ *   origin of the Grid from the origin of the computational domain (level0
  *   grid) is x1_{disp} = idisp*dx1.  Furthermore, the origin of the level0
  *   grid can be displaced by a distance x1_{0} from the origin of x1.  Thus,
  *   the x1 position of the center of cell i (x1_{cc,i}) in any level Grid is
  *            x1_{cc,i} = x1_{0} + ((i + idisp) + 0.5)*dx1
  *   Similarly for x2 and x3.
  *
- * CONTAINS PUBLIC FUNCTIONS: 
+ * CONTAINS PUBLIC FUNCTIONS:
  * - cc_pos() - given i,j,k returns cell-centered x1,x2,x3
  * - fc_pos() - given i,j,k returns face-centered x1,x2,x3
  * - x1cc() - given i, returns cell-centered x1.
  * - x2cc() - given j, returns cell-centered x2.
  * - x3cc() - given k, returns cell-centered x3.
- * - celli() - given x, returns containing cell first index. 
- * - cellj() - given y, returns containing cell first index.  
+ * - celli() - given x, returns containing cell first index.
+ * - cellj() - given y, returns containing cell first index.
  * - cellk() - given y, returns containing cell first index.		      */
 /*============================================================================*/
 
@@ -34,7 +34,7 @@
  *  \brief given i,j,k returns cell-centered x1,x2,x3
  */
 void cc_pos(const GridS *pG, const int i, const int j,const int k,
-	    Real *px1, Real *px2, Real *px3)
+            Real *px1, Real *px2, Real *px3)
 {
   *px1 = pG->MinX[0] + ((Real)(i - pG->is) + 0.5)*pG->dx1;
   *px2 = pG->MinX[1] + ((Real)(j - pG->js) + 0.5)*pG->dx2;
@@ -49,7 +49,7 @@ void cc_pos(const GridS *pG, const int i, const int j,const int k,
  */
 
 void fc_pos(const GridS *pG, const int i, const int j,const int k,
-	    Real *px1, Real *px2, Real *px3)
+            Real *px1, Real *px2, Real *px3)
 {
   *px1 = pG->MinX[0] + ((Real)(i - pG->is))*pG->dx1;
   *px2 = pG->MinX[1] + ((Real)(j - pG->js))*pG->dx2;
@@ -67,7 +67,7 @@ Real x1vc(const GridS* pG, const int i)
 
 #ifdef PARTICLES
 /*============================================================================
-cell-location functions 
+cell-location functions
 ============================================================================*/
 
 /*----------------------------------------------------------------------------*/
@@ -78,7 +78,7 @@ cell-location functions
  *         1: x is on the right of the ith cell;
  */
 
-/*! \fn int celli(const GridS* pG, const Real x, const Real dx1_1, 
+/*! \fn int celli(const GridS* pG, const Real x, const Real dx1_1,
  *		  int *i, Real *a)
  *  \brief given x, returns containing cell first index.  */
 int celli(const GridS* pG, const Real x, const Real dx1_1, int *i, Real *a)
@@ -96,7 +96,7 @@ Real x1cc(const GridS* pG, const int i)
   return (pG->MinX[0] + ((Real)(i - pG->is) + 0.5) * pG->dx1);
 }
 
-/*! \fn cellj(const GridS* pG, const Real y, const Real dx2_1, 
+/*! \fn cellj(const GridS* pG, const Real y, const Real dx2_1,
  *	      int *j, Real *b)
  *  \brief given y, returns containing cell first index.  */
 int cellj(const GridS* pG, const Real y, const Real dx2_1, int *j, Real *b)
@@ -114,9 +114,9 @@ Real x2cc(const GridS* pG, const int j)
   return (pG->MinX[1] + ((Real)(j - pG->js) + 0.5) * pG->dx2);
 }
 
-/*! \fn int cellk(const GridS* pG, const Real z, const Real dx3_1, 
+/*! \fn int cellk(const GridS* pG, const Real z, const Real dx3_1,
  *                int *k, Real *c)
- *  \brief given z, returns containing cell first index.  */ 
+ *  \brief given z, returns containing cell first index.  */
 int cellk(const GridS* pG, const Real z, const Real dx3_1, int *k, Real *c)
 {
   *c = (z - pG->MinX[2]) * dx3_1 + pG->ks;

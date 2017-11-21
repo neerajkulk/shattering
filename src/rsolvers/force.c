@@ -31,7 +31,7 @@
 
 #ifdef FORCE_FLUX
 /*----------------------------------------------------------------------------*/
-/*! \fn void fluxes(const Cons1DS Ul, const Cons1DS Ur, 
+/*! \fn void fluxes(const Cons1DS Ul, const Cons1DS Ur,
  *            const Prim1DS Wl, const Prim1DS Wr,
  *            const Real Bxi, Cons1DS *pFlux)
  *  \brief Computes 1D fluxes
@@ -42,7 +42,7 @@
  *  -  pFlux = pointer to fluxes of CONSERVED variables at cell interface
  */
 
-void fluxes(const Cons1DS Ul, const Cons1DS Ur, 
+void fluxes(const Cons1DS Ul, const Cons1DS Ur,
             const Prim1DS Wl, const Prim1DS Wr,
             const Real Bxi, Cons1DS *pFlux)
 {
@@ -147,7 +147,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 #ifdef ISOTHERMAL
   asq = Iso_csound2;
 #else
-  asq = Gamma*Wr.P/Wr.d; 
+  asq = Gamma*Wr.P/Wr.d;
 #endif
 #ifdef MHD
   vaxsq = Bxi*Bxi/Wr.d;
@@ -198,7 +198,7 @@ void fluxes(const Cons1DS Ul, const Cons1DS Ur,
 
   Fl.My -= Bxi*Wl.By;
   Fr.My -= Bxi*Wr.By;
-    
+
   Fl.Mz -= Bxi*Wl.Bz;
   Fr.Mz -= Bxi*Wr.Bz;
 

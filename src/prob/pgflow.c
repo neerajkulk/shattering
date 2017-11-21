@@ -44,7 +44,7 @@ static Real H, S, Phi; /* Bernoulli const., specific entropy, mass flux */
 static Real sin_a, cos_a; /* sin and cos of alpha */
 static Real lambda, k_par; /* Wavelength, 2.0*PI/wavelength */
 static Real E0; /* The total initial energy (including the potential)
-		   averaged over the computational grid. */
+                   averaged over the computational grid. */
 static int root; /* 0 -> super-sonic root, otherwise -> sub-sonic root */
 static Real ***d0=NULL;  /* initial density, used by expr_drho */
 
@@ -57,7 +57,7 @@ static Real ***d0=NULL;  /* initial density, used by expr_drho */
  *============================================================================*/
 
 static int rtbis(double (*pfun)(double), const double x1, const double x2,
-		 const double xacc, const int imax, double *prt);
+                 const double xacc, const int imax, double *prt);
 static Real grav_pot(const Real x1, const Real x2, const Real x3);
 static double Bfunc(double rho);
 static Real expr_drho(const GridS *pG, const int i, const int j, const int k);
@@ -151,25 +151,25 @@ void problem(DomainS *pDomain)
       psi = -grav*sin((double)k_par*(x1*cos_a + x2*sin_a))/k_par;
 
       if(H <= psi)
-	ath_error("[problem]: H < Psi -- No solution exists\n");
+        ath_error("[problem]: H < Psi -- No solution exists\n");
 
       if(Bfunc((double)rho_e) < 0.0)
-	ath_error("[problem]: Bfunc(rho_e) < 0.0 -- No solution exists\n");
+        ath_error("[problem]: Bfunc(rho_e) < 0.0 -- No solution exists\n");
 
       if(root){ /* Choose the heavy (subsonic) root */
 /* The root is bounded: rho_e <= rho < rho_s */
-	rho_s = pow((double)(Gamma_1*(H-psi)/(Gamma*S)),(double)(1.0/Gamma_1));
+        rho_s = pow((double)(Gamma_1*(H-psi)/(Gamma*S)),(double)(1.0/Gamma_1));
 
-	if(rtbis(Bfunc,rho_e,rho_s,1.0e-12*rho_e,100,&rho)){
-	  exit(1);
-	}
+        if(rtbis(Bfunc,rho_e,rho_s,1.0e-12*rho_e,100,&rho)){
+          exit(1);
+        }
       } else { /* Choose the light (supersonic) root */
 /* The root is bounded: rho_p < rho <= rho_e */
-	rho_p = fabs((double)Phi)/sqrt((double)(2.0*(H-psi)));
+        rho_p = fabs((double)Phi)/sqrt((double)(2.0*(H-psi)));
 
-	if(rtbis(Bfunc,rho_p,rho_e,1.0e-12*rho_e,100,&rho)){
-	  exit(1);
-	}
+        if(rtbis(Bfunc,rho_p,rho_e,1.0e-12*rho_e,100,&rho)){
+          exit(1);
+        }
       }
 
       d0[k][j][i] = rho;
@@ -188,7 +188,7 @@ void problem(DomainS *pDomain)
   E0 /= (Real)((ie - is + 1)*(je - js + 1)*(ke - ks + 1));
 
 /* Enroll the gravitational potential function */
-  StaticGravPot = grav_pot;
+  ExternalGravPot = grav_pot;
 
   return;
 }
@@ -253,18 +253,18 @@ void Userwork_after_loop(MeshS *pM)
  *		  const double xacc, const int imax, double *prt)
  *  \brief  Using bisection, find the root of a function "pfun" known to lie
  * between x1 and x2 to an accuracy <= "xacc", but do not exceed
- * "imax" bisections.  
+ * "imax" bisections.
  *
  * The root is returned through the pointer "prt".
  * RETURN VALUE: 0 on Success, 1 on Error
  * ASSUMPTIONS: This routine assumes that a first order zero lies
  * between x1 and x2, i.e. the function is continuous between x1 and
  * x2 and in a sufficiently small neighborhood of the root, the
- * function is monotonic. Written by T. A. Gardiner -- Sept. 24, 2003 
+ * function is monotonic. Written by T. A. Gardiner -- Sept. 24, 2003
  */
 
 int rtbis(double (*pfun)(double), const double x1, const double x2,
-	  const double xacc, const int imax, double *prt)
+          const double xacc, const int imax, double *prt)
 {
   int i;
   double xn, xm, xp, dx;
@@ -287,7 +287,7 @@ int rtbis(double (*pfun)(double), const double x1, const double x2,
   else{
     ath_perr(-1,"[rtbis]: Root must be bracketed for bisection\n");
     ath_perr(-1,"[rtbis]: x1=%g, x2=%g, F(x1)=%g, F(x2)=%g\n",
-	     x1,x2,fn,fp);
+             x1,x2,fn,fp);
     return 1; /* Error */
   }
 
@@ -330,8 +330,8 @@ static Real grav_pot(const Real x1, const Real x2, const Real x3)
  */
 
 static double Bfunc(double rho){
-  return (H - psi - 0.5*Phi*Phi/(rho*rho) 
-	  - (Gamma*S/Gamma_1)*pow((double)rho,(double)Gamma_1));
+  return (H - psi - 0.5*Phi*Phi/(rho*rho)
+          - (Gamma*S/Gamma_1)*pow((double)rho,(double)Gamma_1));
 }
 
 /*----------------------------------------------------------------------------*/

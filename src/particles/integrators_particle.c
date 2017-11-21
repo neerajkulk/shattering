@@ -5,7 +5,7 @@
  *
  * PURPOSE: provide three kinds of particle integrators, namely, 2nd order
  *   explicit, 2nd order semi-implicit and 2nd order fully implicit.
- * 
+ *
  * CONTAINS PUBLIC FUNCTIONS:
  * - Integrate_Particles();
  * - int_par_exp   ()
@@ -169,16 +169,16 @@ void Integrate_Particles(DomainS *pD)
 }
 
 /* ------------ 2nd order fully implicit particle integrator -----------------*/
-/*! \fn void int_par_fulimp(Grid *pG, Grain *curG, Real3Vect cell1, 
+/*! \fn void int_par_fulimp(Grid *pG, Grain *curG, Real3Vect cell1,
  *                            Real *dv1, Real *dv2, Real *dv3, Real *ts)
  *  \brief 2nd order fully implicit particle integrator
  *
- * Input: 
+ * Input:
  *   grid pointer (pG), grain pointer (curG), cell size indicator (cell1)
  * Output:
  *   dv1,dv2,dv3: velocity update
  */
-void int_par_fulimp(GridS *pG, GrainS *curG, Real3Vect cell1, 
+void int_par_fulimp(GridS *pG, GrainS *curG, Real3Vect cell1,
                               Real *dv1, Real *dv2, Real *dv3, Real *ts)
 {
   Real x1n, x2n, x3n;	/* first order new position at half a time step */
@@ -290,16 +290,16 @@ void int_par_fulimp(GridS *pG, GrainS *curG, Real3Vect cell1,
 
 
 /*--------------- 2nd order semi-implicit particle integrator ----------------*/
-/*! \fn void int_par_semimp(Grid *pG, Grain *curG, Real3Vect cell1, 
+/*! \fn void int_par_semimp(Grid *pG, Grain *curG, Real3Vect cell1,
  *                            Real *dv1, Real *dv2, Real *dv3, Real *ts)
- *  \brief 2nd order semi-implicit particle integrator 
+ *  \brief 2nd order semi-implicit particle integrator
  *
- * Input: 
+ * Input:
  *   grid pointer (pG), grain pointer (curG), cell size indicator (cell1)
  * Output:
  *   dv1,dv2,dv3: velocity update
  */
-void int_par_semimp(GridS *pG, GrainS *curG, Real3Vect cell1, 
+void int_par_semimp(GridS *pG, GrainS *curG, Real3Vect cell1,
                               Real *dv1, Real *dv2, Real *dv3, Real *ts)
 {
   Real3Vect fd, fr, ft;	/* drag force and other forces, total force */
@@ -388,9 +388,9 @@ void int_par_semimp(GridS *pG, GrainS *curG, Real3Vect cell1,
 /*------------------- 2nd order explicit particle integrator -----------------*/
 /*! \fn void int_par_exp(Grid *pG, Grain *curG, Real3Vect cell1,
  *                         Real *dv1, Real *dv2, Real *dv3, Real *ts)
- *  \brief 2nd order explicit particle integrator 
+ *  \brief 2nd order explicit particle integrator
  *
- * Input: 
+ * Input:
  *   grid pointer (pG), grain pointer (curG), cell size indicator (cell1)
  * Output:
  *   dv1,dv2,dv3: velocity update
@@ -572,7 +572,7 @@ void feedback_predictor(DomainS *pD)
 /*----------------------------------------------------------------------------*/
 /*! \fn void feedback_corrector(GridS *pG, GrainS *gri, GrainS *grf,
  *                    Real3Vect cell1, Real dv1, Real dv2, Real dv3, Real ts)
- *  \brief  Calculate the feedback of the drag force from the particle 
+ *  \brief  Calculate the feedback of the drag force from the particle
  *	    to the gas.
  *
  * Serves for the corrector step. It deals with one particle at a time.
@@ -677,7 +677,7 @@ void JudgeCrossing(GridS *pG, Real x1, Real x2, Real x3, GrainS *gr)
 /*--------------------------------------------------------------------------- */
 /*! \fn Real3Vect Get_Drag(GridS *pG, int type, Real x1, Real x2, Real x3,
  *              Real v1, Real v2, Real v3, Real3Vect cell1, Real *tstop1)
- *  \brief Calculate the drag force to the particles 
+ *  \brief Calculate the drag force to the particles
  *
  * Input:
  *   pG: grid;	type: particle type;	cell1: 1/dx1,1/dx2,1/dx3;

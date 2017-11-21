@@ -1,0 +1,11 @@
+# vtk DataFile Version 2.0
+Really cool Athena data at time= 1.084040e-01, level= 0, domain= 0
+BINARY
+DATASET STRUCTURED_POINTS
+DIMENSIONS 17 33 1
+ORIGIN 0.000000e+00 -5.000000e-01 -5.000000e-01 
+SPACING 3.125000e-02 3.125000e-02 1.000000e+00 
+CELL_DATA 512 
+SCALARS B1c float
+LOOKUP_TABLE default
+8Å÷ó8Äl\8Â+ç8¿I&8»ÚH8·÷j8³¹8¯6Ù8ª†ˆ8¥»l8 æ8œC8—Q8’¥*8Ž8‰«›8Äd«8Âª!8À'8¼ô58¹+8´éi8°L8«nv8¦i8¡Q8œ8>8—,¥8’9Y8f—8ˆºA8„8I8Â}ì8ÀŒ8½½‘8º-ä8µÿ8±TT8¬OÞ8§!8¡³8œN!8–óD8‘±98Œ’Ž8‡ž²8‚Ú‡8|‘Û8À,28½ú¡8ºÓ8¶Ùù8²98­è8§§×8¢Å8œLú8–›Ø8‘!8‹™8†MÒ8@÷8xÛ8oª8½O¢8ºÒÏ8·D±8²ÓÜ8­´8¨è8¢1Ž8œ&‹8–¨8!8ŠR)8„¸x8~·å8t÷8jÒš8a©r8¹¼Ž8¶ç·8²ã£8­ì8¨AW8¢!¸8›ÃØ8•T—8Žö{8ˆÂ„8‚Éž8z,‹8o\)8e&+8[‰°8R‚8µ6u8±ûr8­qD8§ä°8¡¥í8šÿ8”.b8d48†Ãu8€c†8t¥D8i0O8^m/8TZJ8JñÃ8B+28¯hÕ8«¹;8¦š(8 nR8™˜´8’pF8‹9ù8„'Ó8z¶/8mÏa8a¯[8V\‘8KÔ}8B89;80žA8§Ýi8£­D8ð$8—$8Á+8ˆ*Ô8€ªT8ràÌ8e3Ð8XjX8LT8A™=87ƒ?8.<®8%µF8Üˆ8ïÿ8™;²8’å$8‹ŠR8ƒ¸ú8w»Å8h„²8Z#q8LÂ½8@p 85'T8*Ú%8!u–8äõ8¶8	îa8Âö8‹ša8„Ê¸8z&a8j&e8Ztë8K˜8=Ò™81:ú8%Íp8xQ8#»8	¶87öYg7éÉ²8~}08s®Í8e¾8V]Ð8FÚ‹88P8*IÂ8Ï³8—z8M7ÿ)­7ïQ7àÀç7ÓØò7È87½´ò8Pgê8F488ë8*áå8å8AG8œk7ôq`7â	;7ÑÄ¨7Ãaœ7¶ ­7«H´7¡'Ú7˜i7ç8—38×8Ê7ï4Y7Ú3Ï7Ç¸7µ÷Õ7¦÷Ò7™Öþ7ŽY«7„E%7vÉ	7g7Y#7L¦77Av,7KÞ7“y:7‡½7vç.7_ÿÛ7Kf79Ix7)„ù7ÓÐ7ët7†˜6øÑÌ6è¾Õ6Ú‡6ÍÍÁ6Âo«áÉªs!×(€áQ&Þ¦y%¶v$°üt$xú®$,½\#ï•3#§RB#lQÝ#)Ú"ônÞ"×_/¨3£{¨3“·KÅ·“xî·‡¬·vç-·_ÿÛ·Kf·9Ix·)„ù·ÓÐ·ët·†˜¶øÑÌ¶è¾Õ¶Ú‡¶ÍÍÁ¶Âo¸—%¸Ä¸É·ï4Y·Ú3Ï·Ç¸·µ÷Õ·¦÷Ò·™Öþ·ŽY«·„E%·vÉ	·g·Y#·L¦7·Av,¸Pgê¸F4¸8ë¸*áå¸å¸AG¸œk·ôq`·â	;·ÑÄ¨·Ãaœ·¶ ­·«H´·¡'Ú·˜i·ç¸~}0¸s®Í¸e¾¸V]Ð¸FÚ‹¸8P¸*IÂ¸Ï³¸—z¸M·ÿ)­·ïQ·àÀç·ÓØò·È8·½´ò¸Âö¸‹ša¸„Ê¸¸z&a¸j&e¸Ztë¸K˜¸=Ò™¸1:ú¸%Íp¸xQ¸#»¸	¶¸·öYg·éÉ²¸ïÿ¸™;²¸’å$¸‹ŠR¸ƒ¸ú¸w»Å¸h„²¸Z#q¸LÂ½¸@p ¸5'T¸*Ú%¸!u–¸äõ¸¶¸	îa¸§Ýi¸£­D¸ð$¸—$¸Á+¸ˆ*Ô¸€ªT¸ràÌ¸e3Ð¸XjX¸LT¸A™=¸7ƒ?¸.<®¸%µF¸Üˆ¸¯hÕ¸«¹;¸¦š(¸ nR¸™˜´¸’pF¸‹9ù¸„'Ó¸z¶/¸mÏa¸a¯[¸V\‘¸KÔ}¸B¸9;¸0žA¸µ6u¸±ûr¸­qD¸§ä°¸¡¥í¸šÿ¸”.b¸d4¸†Ãu¸€c†¸t¥D¸i0O¸^m/¸TZJ¸JñÃ¸B+2¸¹¼Ž¸¶ç·¸²ã£¸­ì¸¨AW¸¢!¸¸›ÃØ¸•T—¸Žö{¸ˆÂ„¸‚Éž¸z,‹¸o\)¸e&+¸[‰°¸R‚¸½O¢¸ºÒÏ¸·D±¸²ÓÜ¸­´¸¨è¸¢1Ž¸œ&‹¸–¨¸!¸ŠR)¸„¸x¸~·å¸t÷¸jÒš¸a©r¸À,2¸½ú¡¸ºÓ¸¶Ùù¸²9¸­è¸§§×¸¢Å¸œLú¸–›Ø¸‘!¸‹™¸†MÒ¸@÷¸xÛ¸oª¸Â}ì¸ÀŒ¸½½‘¸º-ä¸µÿ¸±TT¸¬OÞ¸§!¸¡³¸œN!¸–óD¸‘±9¸Œ’Ž¸‡ž²¸‚Ú‡¸|‘Û¸Äd«¸Âª!¸À'¸¼ô5¸¹+¸´éh¸°L¸«nu¸¦i¸¡Q¸œ8<¸—,£¸’9W¸f”¸ˆº>¸„8F¸Å÷ô¸Äl\¸Â+ç¸¿I'¸»ÚI¸·÷k¸³¹¸¯6Ü¸ª†‹¸¥»p¸ æ¸œG¸—Q¸’¥/¸Ž¸‰«¡¸ÇIY¸Åæ¸ÃÞØ¸ÁBŸ¸¾#¢¸º•ô¸¶®W¸²+¸®! ¸©¡!¸¥ÿ¸ xP¸›ç÷¸—fÁ¸’ûš¸Ž«È

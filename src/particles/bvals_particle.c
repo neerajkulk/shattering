@@ -1,7 +1,7 @@
 #include "../copyright.h"
 /*============================================================================*/
 /*! \file bvals_particle.c
- *  \brief Sets boundary conditions for particles. 
+ *  \brief Sets boundary conditions for particles.
  *
  * PURPOSE: Sets boundary conditions for particles. The basic algorithm is
  *   similar to the MHD boundary conditions. In setting B.C., particles are
@@ -12,7 +12,7 @@
  *   data. The shearing box B.C. is first treated as periodic B.C., then move
  *   the particles in the ghost cells accordingly. Advection of particles when
  *   FARGO is turned on is also included.
- * 
+ *
  * CONTAINS PUBLIC FUNCTIONS:
  * - set_bvals_particle()
  * - advect_particles()
@@ -142,7 +142,7 @@ extern void Delete_Ghost(GridS *pG);
 /*=========================== PUBLIC FUNCTIONS ===============================*/
 /*----------------------------------------------------------------------------*/
 /*! \fn void bvals_particle(GridS *pG, Domain *pD)
- *  \brief Calls appropriate functions to set particle BCs. 
+ *  \brief Calls appropriate functions to set particle BCs.
  *
  *   The
  *   function pointers (*apply_???) are set during initialization by
@@ -699,7 +699,7 @@ void bvals_particle(DomainS *pD)
       if(err) ath_error("[send_ix3_particle]: MPI_Send error = %d\n",err);
 
       /* physical boundary on the rignt in periodic B.C. */
-      if (my_kproc == pD->NGrid[2]-1) 
+      if (my_kproc == pD->NGrid[2]-1)
         shift_packed_particle(send_buf, cnt_send, 3, -Lx3);
 
       /* receive buffer size from the left grid */
@@ -1084,30 +1084,30 @@ void bvals_particle_init(MeshS *pM)
       switch(pM->BCFlag_ix1){
 
       case 1: /* Reflecting */
-	apply_ix1 = reflect_ix1_particle;
-	break;
+        apply_ix1 = reflect_ix1_particle;
+        break;
       case 5: /* Reflecting */
-	apply_ix1 = reflect_ix1_particle;
-	break;
+        apply_ix1 = reflect_ix1_particle;
+        break;
 
       case 2: /* Outflow */
-	apply_ix1 = outflow_particle;
-	break;
+        apply_ix1 = outflow_particle;
+        break;
 
       case 4: /* Periodic */
-	apply_ix1 = periodic_ix1_particle;
+        apply_ix1 = periodic_ix1_particle;
 #ifdef MPI_PARALLEL
-	if(pG->lx1_id < 0 && pD->NGrid[0] > 1){
-	  pG->lx1_id =
+        if(pG->lx1_id < 0 && pD->NGrid[0] > 1){
+          pG->lx1_id =
           pD->GData[my_kproc][my_jproc][pD->NGrid[0]-1].ID_Comm_Domain;
-	}
+        }
 #endif /* MPI_PARALLEL */
-	break;
+        break;
 
       default:
-	ath_perr(-1,"[set_bvals_particle_init]: bc_ix1 = %d unknown\n",
+        ath_perr(-1,"[set_bvals_particle_init]: bc_ix1 = %d unknown\n",
                     pM->BCFlag_ix1);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
 
     }
@@ -1117,29 +1117,29 @@ void bvals_particle_init(MeshS *pM)
       switch(pM->BCFlag_ox1){
 
       case 1: /* Reflecting */
-	apply_ox1 = reflect_ox1_particle;
-	break;
+        apply_ox1 = reflect_ox1_particle;
+        break;
       case 5: /* Reflecting */
-	apply_ox1 = reflect_ox1_particle;
-	break;
+        apply_ox1 = reflect_ox1_particle;
+        break;
 
       case 2: /* Outflow */
-	apply_ox1 = outflow_particle;
-	break;
+        apply_ox1 = outflow_particle;
+        break;
 
       case 4: /* Periodic */
-	apply_ox1 = periodic_ox1_particle;
+        apply_ox1 = periodic_ox1_particle;
 #ifdef MPI_PARALLEL
-	if(pG->rx1_id < 0 && pD->NGrid[0] > 1){
-	  pG->rx1_id = pD->GData[my_kproc][my_jproc][0].ID_Comm_Domain;
-	}
+        if(pG->rx1_id < 0 && pD->NGrid[0] > 1){
+          pG->rx1_id = pD->GData[my_kproc][my_jproc][0].ID_Comm_Domain;
+        }
 #endif /* MPI_PARALLEL */
-	break;
+        break;
 
       default:
-	ath_perr(-1,"[set_bvals_particle_init]: bc_ox1 = %d unknown\n",
+        ath_perr(-1,"[set_bvals_particle_init]: bc_ox1 = %d unknown\n",
                     pM->BCFlag_ox1);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
 
     }
@@ -1153,30 +1153,30 @@ void bvals_particle_init(MeshS *pM)
       switch(pM->BCFlag_ix2){
 
       case 1: /* Reflecting */
-	apply_ix2 = reflect_ix2_particle;
-	break;
+        apply_ix2 = reflect_ix2_particle;
+        break;
       case 5: /* Reflecting */
-	apply_ix2 = reflect_ix2_particle;
-	break;
+        apply_ix2 = reflect_ix2_particle;
+        break;
 
       case 2: /* Outflow */
-	apply_ix2 = outflow_particle;
-	break;
+        apply_ix2 = outflow_particle;
+        break;
 
       case 4: /* Periodic */
-	apply_ix2 = periodic_ix2_particle;
+        apply_ix2 = periodic_ix2_particle;
 #ifdef MPI_PARALLEL
-	if(pG->lx2_id < 0 && pD->NGrid[1] > 1){
-	  pG->lx2_id =
+        if(pG->lx2_id < 0 && pD->NGrid[1] > 1){
+          pG->lx2_id =
           pD->GData[my_kproc][pD->NGrid[1]-1][my_iproc].ID_Comm_Domain;
-	}
+        }
 #endif /* MPI_PARALLEL */
-	break;
+        break;
 
       default:
-	ath_perr(-1,"[set_bvals_particle_init]: bc_ix2 = %d unknown\n",
+        ath_perr(-1,"[set_bvals_particle_init]: bc_ix2 = %d unknown\n",
                     pM->BCFlag_ix2);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
 
     }
@@ -1186,29 +1186,29 @@ void bvals_particle_init(MeshS *pM)
       switch(pM->BCFlag_ox2){
 
       case 1: /* Reflecting */
-	apply_ox2 = reflect_ox2_particle;
-	break;
+        apply_ox2 = reflect_ox2_particle;
+        break;
       case 5: /* Reflecting */
-	apply_ox2 = reflect_ox2_particle;
-	break;
+        apply_ox2 = reflect_ox2_particle;
+        break;
 
       case 2: /* Outflow */
-	apply_ox2 = outflow_particle;
-	break;
+        apply_ox2 = outflow_particle;
+        break;
 
       case 4: /* Periodic */
-	apply_ox2 = periodic_ox2_particle;
+        apply_ox2 = periodic_ox2_particle;
 #ifdef MPI_PARALLEL
-	if(pG->rx2_id < 0 && pD->NGrid[1] > 1){
-	  pG->rx2_id = pD->GData[my_kproc][0][my_iproc].ID_Comm_Domain;
-	}
+        if(pG->rx2_id < 0 && pD->NGrid[1] > 1){
+          pG->rx2_id = pD->GData[my_kproc][0][my_iproc].ID_Comm_Domain;
+        }
 #endif /* MPI_PARALLEL */
-	break;
+        break;
 
       default:
-	ath_perr(-1,"[set_bvals_particle_init]: bc_ox2 = %d unknown\n",
+        ath_perr(-1,"[set_bvals_particle_init]: bc_ox2 = %d unknown\n",
                                                          pM->BCFlag_ox2);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
 
     }
@@ -1222,30 +1222,30 @@ void bvals_particle_init(MeshS *pM)
       switch(pM->BCFlag_ix3){
 
       case 1: /* Reflecting */
-	apply_ix3 = reflect_ix3_particle;
-	break;
+        apply_ix3 = reflect_ix3_particle;
+        break;
       case 5: /* Reflecting */
-	apply_ix3 = reflect_ix3_particle;
-	break;
+        apply_ix3 = reflect_ix3_particle;
+        break;
 
       case 2: /* Outflow */
-	apply_ix3 = outflow_particle;
-	break;
+        apply_ix3 = outflow_particle;
+        break;
 
       case 4: /* Periodic */
-	apply_ix3 = periodic_ix3_particle;
+        apply_ix3 = periodic_ix3_particle;
 #ifdef MPI_PARALLEL
-	if(pG->lx3_id < 0 && pD->NGrid[2] > 1){
-	  pG->lx3_id =
+        if(pG->lx3_id < 0 && pD->NGrid[2] > 1){
+          pG->lx3_id =
           pD->GData[pD->NGrid[2]-1][my_jproc][my_iproc].ID_Comm_Domain;
-	}
+        }
 #endif /* MPI_PARALLEL */
-	break;
+        break;
 
       default:
-	ath_perr(-1,"[set_bvals_particle_init]: bc_ix3 = %d unknown\n",
+        ath_perr(-1,"[set_bvals_particle_init]: bc_ix3 = %d unknown\n",
                     pM->BCFlag_ix3);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
 
     }
@@ -1255,29 +1255,29 @@ void bvals_particle_init(MeshS *pM)
       switch(pM->BCFlag_ox3){
 
       case 1: /* Reflecting */
-	apply_ox3 = reflect_ox3_particle;
-	break;
+        apply_ox3 = reflect_ox3_particle;
+        break;
       case 5: /* Reflecting */
-	apply_ox3 = reflect_ox3_particle;
-	break;
+        apply_ox3 = reflect_ox3_particle;
+        break;
 
       case 2: /* Outflow */
-	apply_ox3 = outflow_particle;
-	break;
+        apply_ox3 = outflow_particle;
+        break;
 
       case 4: /* Periodic */
-	apply_ox3 = periodic_ox3_particle;
+        apply_ox3 = periodic_ox3_particle;
 #ifdef MPI_PARALLEL
-	if(pG->rx3_id < 0 && pD->NGrid[2] > 1){
-	  pG->rx3_id = pD->GData[0][my_jproc][my_iproc].ID_Comm_Domain;
-	}
+        if(pG->rx3_id < 0 && pD->NGrid[2] > 1){
+          pG->rx3_id = pD->GData[0][my_jproc][my_iproc].ID_Comm_Domain;
+        }
 #endif /* MPI_PARALLEL */
-	break;
+        break;
 
       default:
-	ath_perr(-1,"[set_bvals_particle_init]: bc_ox3 = %d unknown\n",
+        ath_perr(-1,"[set_bvals_particle_init]: bc_ox3 = %d unknown\n",
                     pM->BCFlag_ox3);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
 
     }
@@ -1864,7 +1864,7 @@ static long packing_ix2_particle(GridS *pG, int nlayer)
       else if (gr->pos != 22) /* it's not from ox2 */
       {/* crossing particle in the boundary */
         /* pack as crossing particle from ox1 */
-        packing_one_particle(gr, n, 12); 
+        packing_one_particle(gr, n, 12);
         n += 1;
       }
     }
@@ -1954,7 +1954,7 @@ static long packing_ix3_particle(GridS *pG, int nlayer)
       else if (gr->pos != 23) /* it's not from ox3 */
       {/* crossing particle in the boundary */
         /* pack as crossing particle from ix3 */
-        packing_one_particle(gr, n, 13); 
+        packing_one_particle(gr, n, 13);
         n += 1;
       }
     }
@@ -2042,9 +2042,9 @@ static void packing_one_particle(GrainS *gr, long n, short pos)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn static void shift_packed_particle(double *buf, long n, int index, 
+/*! \fn static void shift_packed_particle(double *buf, long n, int index,
  *					  double shift)
- *  \brief shift the coordinate/velocity of the packed particles by a constant 
+ *  \brief shift the coordinate/velocity of the packed particles by a constant
  *  amount
  *
  * Input:
@@ -2555,7 +2555,7 @@ static long packing_ox1_particle_shear(GridS *pG, int reg, long numpar)
 /*! \fn static long packing_particle_fargo(GridS *pG, Real yl, Real yu)
  *  \brief Packing the particle for FARGO
  *
- * Input: pG: grid; 
+ * Input: pG: grid;
  *        yl, yu: lower and upper limit of x2 (y) coordinate for particles to
  *                be packed
  * Return: number of packed particles in the specified region.

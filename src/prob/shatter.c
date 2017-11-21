@@ -40,6 +40,16 @@ static int cooling_flag;
 static int heating_flag;
 
 
+  /*adding in mike's temperature depedant viscosity routine*/
+
+  #ifdef VISCOSITY
+/* viscosity won't work without conduction... */
+static Real nu_fun(const Real d, const Real T,
+                   const Real x1, const Real x2, const Real x3);
+#endif  /* VISCOSITY */
+ 
+
+
 // helper functions to reduce code
 //
 static inline Real window(Real x, Real width, Real a);
@@ -92,6 +102,11 @@ void problem(DomainS *pDomain)
   cooling_flag = par_geti("cooling", "cooling");
   heating_flag = par_geti("cooling", "heating");
 
+
+#ifdef VISCOSITY
+  NuFun_i = nu_fun;
+  NuFun_a = NULL;
+#endif  /* VISCOSITY */
 
   //gm and f are used in cooling routines
   f = pow(gm, 1.5)/(gm-1.0)/(2.0-alpha);
@@ -152,13 +167,18 @@ void problem(DomainS *pDomain)
     }
   }
 
-#ifdef VISCOSITY
-  extern Real nu_iso, nu_aniso;
-  nu_aniso = 0.0;
-  Real dx = 1.0/(par_getd("domain1","Nx1"));
-  nu_iso =  par_getd_def("problem","nu_iso",0.0); // in units of dx*cs
-  nu_iso *= dx * sqrt(gm);
-#endif /* VISCOSITY */
+
+  
+
+  /*OLD VISCOSITY ROUTINE*/
+  
+/* #ifdef VISCOSITY */
+/*   extern Real nu_iso, nu_aniso; */
+/*   nu_aniso = 0.0; */
+/*   Real dx = 1.0/(par_getd("domain1","Nx1")); */
+/*   nu_iso =  par_getd_def("problem","nu_iso",0.0); // in units of dx*cs */
+/*   nu_iso *= dx * sqrt(gm); */
+/* #endif /\* VISCOSITY *\/ */
 
 
   
@@ -462,3 +482,12 @@ Real hst_rhosq(const GridS *pG, const int i, const int j, const int k)
 }
 
 
+
+#ifdef VISCOSITY
+static Real nu_fun(const Real d, const Real T,
+                   const Real x1, const Real x2, const Real x3)
+{				/* simple test of temperature depedant viscosity  */
+  
+  return (0.01* pow(T,2.5));
+}
+#endif  /* VISCOSITY */

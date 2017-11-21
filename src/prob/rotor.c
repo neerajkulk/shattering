@@ -22,7 +22,7 @@
 #ifndef MHD
 #error : The rotor problem can only be run with MHD.
 #endif
-#ifdef ISOTHERMAL 
+#ifdef ISOTHERMAL
 #error : The rotor problem can only be run with an ADIABATIC eos.
 #endif
 

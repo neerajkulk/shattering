@@ -1,5 +1,5 @@
 #ifndef PARTICLES_PROTOTYPES_H
-#define PARTICLES_PROTOTYPES_H 
+#define PARTICLES_PROTOTYPES_H
 #include "../copyright.h"
 /*============================================================================*/
 /*! \file prototypes.h

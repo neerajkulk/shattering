@@ -10,14 +10,14 @@
  *
  *   For particle binning, there can be many choices since particles may have
  *   different properties. We provide a default (and trivial) particle selection
- *   function, which select all the particles with different properties. The 
+ *   function, which select all the particles with different properties. The
  *   user can define their own particle selection functions in the problem
  *   generator and pass them to the main code.
  *
  *   The output quantities include, density, momentum density and velocity of
  *   the selected particles averaged in one grid cell. The binned data are
  *   saved in arrays dpar, and grid_v. The latter is borrowed from particle.c
- *   to save memory. The expression functions expr_??? are used to pick the 
+ *   to save memory. The expression functions expr_??? are used to pick the
  *   relevant quantities, which is part of the output data structure. The way
  *   to output these binned particle quantities are then exactly the same as
  *   other gas quantities.
@@ -26,7 +26,7 @@
  * - particle_to_grid();
  * - dump_particle_binary();
  * - property_all();
- * 
+ *
  *============================================================================*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -140,8 +140,8 @@ void particle_to_grid(DomainS *pD, PropFun_t par_prop)
  */
 void dump_particle_binary(MeshS *pM, OutputS *pOut)
 {
-  DomainS *pD = (DomainS*)&(pM->Domain[0][0]);  
-  GridS   *pG = pD->Grid; 
+  DomainS *pD = (DomainS*)&(pM->Domain[0][0]);
+  GridS   *pG = pD->Grid;
   int dnum = pOut->num;
   FILE *pfile;
   char *fname;
@@ -273,7 +273,7 @@ void dump_particle_binary(MeshS *pM, OutputS *pOut)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn int property_all(const Grain *gr, const GrainAux *grsub)
- *  \brief Default choice for binning particles to the grid: 
+ *  \brief Default choice for binning particles to the grid:
  * All the particles are binned, return true for any value.
  */
 int property_all(const GrainS *gr, const GrainAux *grsub)
@@ -289,7 +289,7 @@ int property_all(const GrainS *gr, const GrainAux *grsub)
 
 /* expr_*: where * are variables d,M1,M2,M3,V1,V2,V3 for particles */
 
-/*! \fn Real expr_dpar(const Grid *pG, const int i, const int j, const int k) 
+/*! \fn Real expr_dpar(const Grid *pG, const int i, const int j, const int k)
  *  \brief Wrapper for particle density */
 Real expr_dpar(const GridS *pG, const int i, const int j, const int k) {
   return pG->Coup[k][j][i].grid_d;
@@ -305,12 +305,12 @@ Real expr_M1par(const GridS *pG, const int i, const int j, const int k) {
 Real expr_M2par(const GridS *pG, const int i, const int j, const int k) {
   return pG->Coup[k][j][i].grid_v2;
 }
-/*! \fn Real expr_M3par(const Grid *pG, const int i, const int j, const int k) 
+/*! \fn Real expr_M3par(const Grid *pG, const int i, const int j, const int k)
  *  \brief Wrapper for particle 3-momentum */
 Real expr_M3par(const GridS *pG, const int i, const int j, const int k) {
   return pG->Coup[k][j][i].grid_v3;
 }
-/*! \fn Real expr_V1par(const Grid *pG, const int i, const int j, const int k) 
+/*! \fn Real expr_V1par(const Grid *pG, const int i, const int j, const int k)
  *  \brief Wrapper for particle 1-velocity */
 Real expr_V1par(const GridS *pG, const int i, const int j, const int k) {
   if (pG->Coup[k][j][i].grid_d>0.0)

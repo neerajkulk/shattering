@@ -21,7 +21,7 @@
  * - send_???
  * - receive_???
  * where ???=[ix1,ox1,ix2,ox2,ix3,ox3]
- * 
+ *
  *============================================================================*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -171,8 +171,8 @@ void exchange_gpcouple(DomainS *pD, short lab)
 #ifdef MPI_PARALLEL
   int cnt1, cnt2, cnt3, cnt, ierr, mIndex;
 #endif /* MPI_PARALLEL */
-	
-/*--- Step 1. ------------------------------------------------------------------	
+
+/*--- Step 1. ------------------------------------------------------------------
  * Copy the information in the Gas-Particle coupling array into temporary array
  * This step depends on the parameter "lab", where for
  * lab = 0: particle binning for output purpose
@@ -181,29 +181,29 @@ void exchange_gpcouple(DomainS *pD, short lab)
  * All the operations in this routine are performed on the temporary array,
  * which will be copied back to the main array GPCoup at the end.
  *----------------------------------------------------------------------------*/
- 
+
 #ifdef SHEARING_BOX
-  Delta = 0.0; 
+  Delta = 0.0;
 #endif
 
   switch (lab) {
     case 0: /* particle binning for output purpose */
-		  
+
       NVar = 4; NExc = 1; NOfst = 0;
 
       for (k=klp; k<=kup; k++) {
        for (j=jlp; j<=jup; j++) {
         for (i=ilp; i<=iup; i++) {
-	  myCoup[k][j][i].U[0]=pG->Coup[k][j][i].grid_v1;
+          myCoup[k][j][i].U[0]=pG->Coup[k][j][i].grid_v1;
           myCoup[k][j][i].U[1]=pG->Coup[k][j][i].grid_v2;
           myCoup[k][j][i].U[2]=pG->Coup[k][j][i].grid_v3;
           myCoup[k][j][i].U[3]=pG->Coup[k][j][i].grid_d;
       }}}
       break;
-		  
-#ifdef FEEDBACK		  
+
+#ifdef FEEDBACK
     case 1: /* predictor step of feedback exchange */
-		  
+
       NVar = 5; NExc = 1; NOfst = nghost;
 
       for (k=klp; k<=kup; k++) {
@@ -216,9 +216,9 @@ void exchange_gpcouple(DomainS *pD, short lab)
           myCoup[k][j][i].U[4]=pG->Coup[k][j][i].Eloss;
       }}}
       break;
-		  
+
     case 2: /* corrector step of feedback exchange */
-		  
+
       NVar = 4; NExc = 2; NOfst = 0;
 #ifdef SHEARING_BOX
 #ifndef FARGO
@@ -231,7 +231,7 @@ void exchange_gpcouple(DomainS *pD, short lab)
           myCoup[k][j][i].U[0]=pG->Coup[k][j][i].fb1;
           myCoup[k][j][i].U[1]=pG->Coup[k][j][i].fb2;
           myCoup[k][j][i].U[2]=pG->Coup[k][j][i].fb3;
-          myCoup[k][j][i].U[3]=pG->Coup[k][j][i].Eloss;		  
+          myCoup[k][j][i].U[3]=pG->Coup[k][j][i].Eloss;
       }}}
       break;
 
@@ -249,15 +249,15 @@ void exchange_gpcouple(DomainS *pD, short lab)
     ib = pG->is - NOfst;        it = pG->ie + NOfst;
   } else {
     il = ib = pG->is;           iu = it = pG->ie;
-  }   
-      
+  }
+
   if (pG->Nx[1] > 1) {
     jl = pG->js - NExc;         ju = pG->je + NExc;
     jb = pG->js - NOfst;        jt = pG->je + NOfst;
   } else {
     jl = jb = pG->js;           ju = jt = pG->je;
-  }   
-  
+  }
+
   if (pG->Nx[2] > 1) {
     kl = pG->ks - NExc;         ku = pG->ke + NExc;
     kb = pG->ks - NOfst;        kt = pG->ke + NOfst;
@@ -323,11 +323,11 @@ void exchange_gpcouple(DomainS *pD, short lab)
 
       /* check non-blocking send has completed. */
       ierr = MPI_Wait(&(send_rq[1]), MPI_STATUS_IGNORE);
-      
+
       /* wait on non-blocking receive from R and unpack data */
       ierr = MPI_Wait(&(recv_rq[1]), MPI_STATUS_IGNORE);
       unpack_ox3_exchange(pG);
-      
+
     }
 
     /* MPI block on left, Physical boundary on right */
@@ -514,7 +514,7 @@ void exchange_gpcouple(DomainS *pD, short lab)
     }
 #ifndef FARGO
     /* 2D shearing-box in x-z, no fargo, for output */
-    else if (lab == 0) 
+    else if (lab == 0)
     {
       if (myL == 0) {
         for (j=jb; j<=jt; j++) {
@@ -626,17 +626,17 @@ void exchange_gpcouple(DomainS *pD, short lab)
     if (pG->rx1_id < 0 && pG->lx1_id < 0) {
       (*apply_ix1)(pG);
       (*apply_ox1)(pG);
-    } 
+    }
   }
 
-/*--- Step 5. ------------------------------------------------------------------	
+/*--- Step 5. ------------------------------------------------------------------
  * Copy the variables from the temporary array where exchange has finished back
  * to the Gas-Particle coupling array. Again, for
  * lab = 0: particle binning for output purpose
  * lab = 1: predictor step of feedback exchange
  * lab = 2: corrector step of feedback exchange
  *----------------------------------------------------------------------------*/
-	
+
   switch (lab) {
     case 0:	/* particle binning for output purpose */
       for (k=kb; k<=kt; k++) {
@@ -648,8 +648,8 @@ void exchange_gpcouple(DomainS *pD, short lab)
           pG->Coup[k][j][i].grid_d = myCoup[k][j][i].U[3];
       }}}
       break;
-			
-#ifdef FEEDBACK		  
+
+#ifdef FEEDBACK
     case 1: /* predictor step of feedback exchange */
       for (k=kb; k<=kt; k++) {
        for (j=jb; j<=jt; j++) {
@@ -661,7 +661,7 @@ void exchange_gpcouple(DomainS *pD, short lab)
           pG->Coup[k][j][i].Eloss  = myCoup[k][j][i].U[4];
       }}}
       break;
-			
+
     case 2: /* corrector step of feedback exchange */
       for (k=kb; k<=kt; k++) {
        for (j=jb; j<=jt; j++) {
@@ -669,10 +669,10 @@ void exchange_gpcouple(DomainS *pD, short lab)
           pG->Coup[k][j][i].fb1  = myCoup[k][j][i].U[0];
           pG->Coup[k][j][i].fb2  = myCoup[k][j][i].U[1];
           pG->Coup[k][j][i].fb3  = myCoup[k][j][i].U[2];
-          pG->Coup[k][j][i].Eloss= myCoup[k][j][i].U[3];		  
+          pG->Coup[k][j][i].Eloss= myCoup[k][j][i].U[3];
       }}}
       break;
-			
+
     default:
       ath_perr(-1,"[exchange_GPCouple]: lab must be equal to 0, 1, or 2!\n");
 #else
@@ -680,7 +680,7 @@ void exchange_gpcouple(DomainS *pD, short lab)
       ath_perr(-1,"[exchange_GPCouple]: lab must be equal to 0!\n");
 #endif /* FEEDBACK */
   }
-	
+
   return;
 
 }
@@ -688,7 +688,7 @@ void exchange_gpcouple(DomainS *pD, short lab)
 #ifdef SHEARING_BOX
 /*----------------------------------------------------------------------------*/
 /*! \fn void Remap_exchange_ix1(DomainS *pD);
- *  \brief Remap of the gas-particle coupling array for 3D shearing-box in ix1.  
+ *  \brief Remap of the gas-particle coupling array for 3D shearing-box in ix1.
  *
  * It applies a remap in Y for the radial ghost cells before they are sent to
  * the opposite side exchange_gpcouple.c
@@ -716,17 +716,17 @@ void Remap_exchange_ix1(DomainS *pD)
   xmin = pD->RootMinX[0];
   xmax = pD->RootMaxX[0];
   Lx = xmax - xmin;
-  
+
   xmin = pD->RootMinX[1];
   xmax = pD->RootMaxX[1];
   Ly = xmax - xmin;
-  
+
   qomL = qshear*Omega_0*Lx;
   yshear = qomL*(pG->time+Delta*pG->dt);
   deltay = fmod(yshear, Ly);
   joffset = (int)(deltay/pG->dx2);
   epso = -(fmod(deltay,pG->dx2))/pG->dx2;
-  
+
 #ifdef MPI_PARALLEL
   if (pG->Nx[2] > 1) {
     Nx3 = pG->Nx[2]+2*NOfst;
@@ -737,29 +737,29 @@ void Remap_exchange_ix1(DomainS *pD)
 
 /*--- Step 1. ------------------------------------------------------------------
  * Copy myCoup to the ghost zone array where j is the fastest varying index.
- * Apply periodic BC in x2 to the ghost array.  Requires MPI calls if 
+ * Apply periodic BC in x2 to the ghost array.  Requires MPI calls if
  * NGrid_x2 > 1 */
-      
+
   for(k=kb; k<=kt; k++){
    for(j=jb; j<=jt; j++){
     for(i=0; i<NExc+NOfst; i++){
       for (n=0; n<NVar; n++){
-	TempZns[k][i][j].U[n] = myCoup[k][j][is-NExc+i].U[n];
-      }     
-  }}}     
+        TempZns[k][i][j].U[n] = myCoup[k][j][is-NExc+i].U[n];
+      }
+  }}}
 
   if (NOfst < nghost) {
     if (pD->NGrid[1] == 1) {
-  
+
       for(k=kb; k<=kt; k++){
        for(i=0; i<NExc+NOfst; i++){
         for(j=1; j<=nghost; j++){
-	 for (n=0; n<NVar; n++){
-	   TempZns[k][i][js-j].U[n] = TempZns[k][i][je-(j-1)].U[n];
-	   TempZns[k][i][je+j].U[n] = TempZns[k][i][js+(j-1)].U[n];
-	 }
-      }}}     
-        
+         for (n=0; n<NVar; n++){
+           TempZns[k][i][js-j].U[n] = TempZns[k][i][je-(j-1)].U[n];
+           TempZns[k][i][je+j].U[n] = TempZns[k][i][js+(j-1)].U[n];
+         }
+      }}}
+
 #ifdef MPI_PARALLEL
     } else {
 
@@ -803,7 +803,7 @@ void Remap_exchange_ix1(DomainS *pD)
    for(i=0; i<NExc+NOfst; i++){
     for (n=0; n<NVar; n++) {
       for(j=js-nghost; j<=je+nghost; j++){
-	UBuf[j] = TempZns[k][i][j].U[n];
+        UBuf[j] = TempZns[k][i][j].U[n];
       }
       RemapFlux(UBuf,epso,js,je+1,Flx);
       for(j=js; j<=je; j++){
@@ -870,9 +870,9 @@ void Remap_exchange_ix1(DomainS *pD)
       for (k=kb; k<=kt; k++) {
        for(i=0; i<NExc+NOfst; i++){
         for (j=js; j<=js+(joverlap-1); j++) {
-	  for (n=0; n<NVar; n++) {
+          for (n=0; n<NVar; n++) {
             *(pSnd++) = TempZns[k][i][j].U[n];
-	  }
+          }
       }}}
       ierr = MPI_Send(&(send_buf[0][0]),cnt,MPI_DOUBLE,sendto_id,
                       shearing_sheet_ix1_tag, pD->Comm_Domain);
@@ -888,10 +888,10 @@ void Remap_exchange_ix1(DomainS *pD)
 
       for (k=kb; k<=kt; k++) {
        for(i=0; i<NExc+NOfst; i++){
-	for (j=je-(joverlap-1); j<=je; j++) {
-	  for (n=0; n<NVar; n++) {
+        for (j=je-(joverlap-1); j<=je; j++) {
+          for (n=0; n<NVar; n++) {
             GhstZns_ix1[k][i][j].U[n] = *(pRcv++);
-	  }
+          }
       }}}
     }
 
@@ -905,8 +905,8 @@ void Remap_exchange_ix1(DomainS *pD)
       for(k=kb; k<=kt; k++) {
        for(i=0; i<NExc+NOfst; i++){
         for(j=js; j<=je-joverlap; j++){
-	  jremap = j+joverlap;
-	  for (n=0; n<NVar; n++) {
+          jremap = j+joverlap;
+          for (n=0; n<NVar; n++) {
             GhstZns_ix1[k][i][j].U[n]  = TempZns[k][i][jremap].U[n];
           }
       }}}
@@ -936,13 +936,13 @@ void Remap_exchange_ix1(DomainS *pD)
 
       for (k=kb; k<=kt; k++) {
        for(i=0; i<NExc+NOfst; i++){
-	for (j=js; j<=je-joverlap; j++) {
-	  for (n=0; n<NVar; n++) {
+        for (j=js; j<=je-joverlap; j++) {
+          for (n=0; n<NVar; n++) {
             *(pSnd++) = TempZns[k][i][j].U[n];
-	  }
+          }
       }}}
       ierr = MPI_Send(&(send_buf[1][0]),cnt,MPI_DOUBLE,sendto_id,
-		      shearing_sheet_ix1_tag, pD->Comm_Domain);
+                      shearing_sheet_ix1_tag, pD->Comm_Domain);
 
 /* unpack data sent from [js+overlap:je], and remap into cells in
  * [js:je-joverlap] in myCoup */
@@ -952,10 +952,10 @@ void Remap_exchange_ix1(DomainS *pD)
       pRcv = &(recv_buf[1][0]);
       for (k=kb; k<=kt; k++) {
        for(i=0; i<NExc+NOfst; i++){
-	for (j=js; j<=je-joverlap; j++) {
-	  for (n=0; n<NVar; n++) {
-	    GhstZns_ix1[k][i][j].U[n] = *(pRcv++);
-	  }
+        for (j=js; j<=je-joverlap; j++) {
+          for (n=0; n<NVar; n++) {
+            GhstZns_ix1[k][i][j].U[n] = *(pRcv++);
+          }
       }}}
     } /* end of step 5e - shear is more than one Grid */
 
@@ -966,7 +966,7 @@ void Remap_exchange_ix1(DomainS *pD)
  */
   if (NOfst > 0) {
     if (pD->NGrid[1] == 1) {
-      
+
       for(k=kb; k<=kt; k++){
        for(i=0; i<NExc+NOfst; i++){
         for(j=1; j<=nghost; j++){
@@ -974,8 +974,8 @@ void Remap_exchange_ix1(DomainS *pD)
            GhstZns_ix1[k][i][js-j].U[n] = GhstZns_ix1[k][i][je-(j-1)].U[n];
            GhstZns_ix1[k][i][je+j].U[n] = GhstZns_ix1[k][i][js+(j-1)].U[n];
          }
-      }}}     
-     
+      }}}
+
 #ifdef MPI_PARALLEL
     } else {
 
@@ -1007,7 +1007,7 @@ void Remap_exchange_ix1(DomainS *pD)
       ierr = MPI_Waitany(2,recv_rq,&mIndex,MPI_STATUS_IGNORE);
       if (mIndex == 0) unpack_ix2_remap(pG, GhstZns_ix1);
       if (mIndex == 1) unpack_ox2_remap(pG, GhstZns_ix1);
-    
+
 #endif /* MPI_PARALLEL */
     }
   } /* If NOfst > 0 */
@@ -1017,7 +1017,7 @@ void Remap_exchange_ix1(DomainS *pD)
 
 /*----------------------------------------------------------------------------*/
 /*! \fn void Remap_exchange_ox1(DomainS *pD);
- *  \brief Remap of the gas-particle coupling array for 3D shearing-box in ox1.  
+ *  \brief Remap of the gas-particle coupling array for 3D shearing-box in ox1.
  *
  * It applies a remap in Y for the radial ghost cells before they are sent to
  * the opposite side exchange_gpcouple.c
@@ -1066,14 +1066,14 @@ void Remap_exchange_ox1(DomainS *pD)
 
 /*--- Step 1. ------------------------------------------------------------------
  * Copy myCoup to the ghost zone array where j is the fastest varying index.
- * Apply periodic BC in x2 to the ghost array.  Requires MPI calls if 
+ * Apply periodic BC in x2 to the ghost array.  Requires MPI calls if
  * NGrid_x2 > 1 */
-	
+
   for(k=kb; k<=kt; k++){
    for(j=jb; j<=jt; j++){
     for(i=0; i<NExc+NOfst; i++){
       for (n=0; n<NVar; n++){
-	TempZns[k][i][j].U[n] = myCoup[k][j][ie-NOfst+i+1].U[n];
+        TempZns[k][i][j].U[n] = myCoup[k][j][ie-NOfst+i+1].U[n];
       }
   }}}
 
@@ -1083,10 +1083,10 @@ void Remap_exchange_ox1(DomainS *pD)
       for(k=kb; k<=kt; k++){
        for(i=0; i<NExc+NOfst; i++){
         for(j=1; j<=nghost; j++){
-	  for (n=0; n<NVar; n++){
-	    TempZns[k][i][js-j].U[n] = TempZns[k][i][je-(j-1)].U[n];
+          for (n=0; n<NVar; n++){
+            TempZns[k][i][js-j].U[n] = TempZns[k][i][je-(j-1)].U[n];
             TempZns[k][i][je+j].U[n] = TempZns[k][i][js+(j-1)].U[n];
-	  }
+          }
       }}}
 
 #ifdef MPI_PARALLEL
@@ -1124,7 +1124,7 @@ void Remap_exchange_ox1(DomainS *pD)
 #endif /* MPI_PARALLEL */
     }
   } /* If NOfst < nghost */
-  
+
 /*--- Step 3. ------------------------------------------------------------------
  * Apply a conservative remap of solution over the fractional part of a cell */
 
@@ -1132,7 +1132,7 @@ void Remap_exchange_ox1(DomainS *pD)
    for(i=0; i<NExc+NOfst; i++){
     for (n=0; n<NVar; n++) {
       for(j=js-nghost; j<=je+nghost; j++){
-	UBuf[j] = TempZns[k][i][j].U[n];
+        UBuf[j] = TempZns[k][i][j].U[n];
       }
       RemapFlux(UBuf,epsi,js,je+1,Flx);
       for(j=js; j<=je; j++){
@@ -1151,7 +1151,7 @@ void Remap_exchange_ox1(DomainS *pD)
       for(j=js; j<=je; j++){
         jremap = j - joffset;
         if (jremap < (int)js) jremap += pG->Nx[1];
-	for (n=0; n<NVar; n++)
+        for (n=0; n<NVar; n++)
           GhstZns_ox1[k][i][j].U[n]  = TempZns[k][i][jremap].U[n];
     }}}
 
@@ -1198,9 +1198,9 @@ void Remap_exchange_ox1(DomainS *pD)
       for (k=kb; k<=kt; k++) {
        for(i=0; i<NExc+NOfst; i++){
         for (j=je-(joverlap-1); j<=je; j++) {
-	 for (n=0; n<NVar; n++) {
+         for (n=0; n<NVar; n++) {
           *(pSnd++) = TempZns[k][i][j].U[n];
-	 }
+         }
      }}}
      ierr = MPI_Send(&(send_buf[0][0]),cnt,MPI_DOUBLE,sendto_id,
                      shearing_sheet_ox1_tag, pD->Comm_Domain);
@@ -1213,13 +1213,13 @@ void Remap_exchange_ox1(DomainS *pD)
       ierr = MPI_Wait(&(recv_rq[0]), MPI_STATUS_IGNORE);
 
       pRcv = &(recv_buf[0][0]);
-	
+
       for (k=kb; k<=kt; k++) {
        for(i=0; i<NExc+NOfst; i++){
         for (j=js; j<=js+(joverlap-1); j++) {
           for (n=0; n<NVar; n++) {
-	    GhstZns_ox1[k][i][j].U[n] = *(pRcv++);
-	  }
+            GhstZns_ox1[k][i][j].U[n] = *(pRcv++);
+          }
       }}}
     }
 
@@ -1233,10 +1233,10 @@ void Remap_exchange_ox1(DomainS *pD)
       for(k=kb; k<=kt; k++) {
        for(i=0; i<NExc+NOfst; i++){
         for(j=js+joverlap; j<=je; j++){
-	  jremap = j-joverlap;
-	  for (n=0; n<NVar; n++) {
+          jremap = j-joverlap;
+          for (n=0; n<NVar; n++) {
             GhstZns_ox1[k][i][j].U[n]  = TempZns[k][i][jremap].U[n];
-	  }
+          }
       }}}
 
 /*--- Step 5e. -----------------------------------------------------------------
@@ -1261,12 +1261,12 @@ void Remap_exchange_ox1(DomainS *pD)
                       shearing_sheet_ox1_tag, pD->Comm_Domain, &(recv_rq[1]));
 
       pSnd = &(send_buf[1][0]);
-      
+
       for (k=kb; k<=kt; k++) {
        for(i=0; i<NExc+NOfst; i++){
         for (j=js; j<=je-joverlap; j++) {
-	  for (n=0; n<NVar; n++) {
-	    *(pSnd++) = TempZns[k][i][j].U[n];
+          for (n=0; n<NVar; n++) {
+            *(pSnd++) = TempZns[k][i][j].U[n];
           }
       }}}
       ierr = MPI_Send(&(send_buf[1][0]),cnt,MPI_DOUBLE,sendto_id,
@@ -1281,9 +1281,9 @@ void Remap_exchange_ox1(DomainS *pD)
       for (k=kb; k<=kt; k++) {
        for(i=0; i<NExc+NOfst; i++){
         for (j=js+joverlap; j<=je; j++) {
-	  for (n=0; n<NVar; n++) {
-	    GhstZns_ox1[k][i][j].U[n] = *(pRcv++);
-	  }
+          for (n=0; n<NVar; n++) {
+            GhstZns_ox1[k][i][j].U[n] = *(pRcv++);
+          }
       }}}
     } /* end of step 5e - shear is more than one Grid */
 
@@ -1291,10 +1291,10 @@ void Remap_exchange_ox1(DomainS *pD)
   } /* end of step 5 - MPI decomposition in Y */
 
 /*-----Step 6. Apply periodic BC in Y if necessary-----------------
- */   
+ */
   if (NOfst > 0) {
     if (pD->NGrid[1] == 1) {
-    
+
       for(k=kb; k<=kt; k++){
        for(i=0; i<NExc+NOfst; i++){
         for(j=1; j<=nghost; j++){
@@ -1303,7 +1303,7 @@ void Remap_exchange_ox1(DomainS *pD)
             GhstZns_ox1[k][i][je+j].U[n] = GhstZns_ox1[k][i][js+(j-1)].U[n];
           }
       }}}
-  
+
 #ifdef MPI_PARALLEL
     } else {
 
@@ -1338,7 +1338,7 @@ void Remap_exchange_ox1(DomainS *pD)
 
 #endif /* MPI_PARALLEL */
     }
-  } /* if NOfst > 0 */ 
+  } /* if NOfst > 0 */
 
   return;
 }
@@ -1378,24 +1378,24 @@ void exchange_gpcouple_init(MeshS *pM)
       switch(pM->BCFlag_ix1){
 
       case 1: /* Reflecting */
-	apply_ix1 = reflect_ix1_exchange;
-	break;
+        apply_ix1 = reflect_ix1_exchange;
+        break;
       case 5: /* Reflecting */
-	apply_ix1 = reflect_ix1_exchange;
-	break;
+        apply_ix1 = reflect_ix1_exchange;
+        break;
 
       case 2: /* Outflow */
-	apply_ix1 = outflow_exchange;
-	break;
+        apply_ix1 = outflow_exchange;
+        break;
 
       case 4: /* Periodic */
-	apply_ix1 = periodic_ix1_exchange;
-	break;
+        apply_ix1 = periodic_ix1_exchange;
+        break;
 
       default:
-	ath_perr(-1,"[exchange_init]: bc_ix1 = %d unknown\n",
+        ath_perr(-1,"[exchange_init]: bc_ix1 = %d unknown\n",
                     pM->BCFlag_ix1);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
     }
 
@@ -1404,24 +1404,24 @@ void exchange_gpcouple_init(MeshS *pM)
       switch(pM->BCFlag_ox1){
 
       case 1: /* Reflecting */
-	apply_ox1 = reflect_ox1_exchange;
-	break;
+        apply_ox1 = reflect_ox1_exchange;
+        break;
       case 5: /* Reflecting */
-	apply_ox1 = reflect_ox1_exchange;
-	break;
+        apply_ox1 = reflect_ox1_exchange;
+        break;
 
       case 2: /* Outflow */
-	apply_ox1 = outflow_exchange;
-	break;
+        apply_ox1 = outflow_exchange;
+        break;
 
       case 4: /* Periodic */
-	apply_ox1 = periodic_ox1_exchange;
-	break;
+        apply_ox1 = periodic_ox1_exchange;
+        break;
 
       default:
-	ath_perr(-1,"[exchange_init]: bc_ox1 = %d unknown\n",
+        ath_perr(-1,"[exchange_init]: bc_ox1 = %d unknown\n",
                     pM->BCFlag_ox1);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
     }
   }
@@ -1434,24 +1434,24 @@ void exchange_gpcouple_init(MeshS *pM)
       switch(pM->BCFlag_ix2){
 
       case 1: /* Reflecting */
-	apply_ix2 = reflect_ix2_exchange;
-	break;
+        apply_ix2 = reflect_ix2_exchange;
+        break;
       case 5: /* Reflecting */
-	apply_ix2 = reflect_ix2_exchange;
-	break;
+        apply_ix2 = reflect_ix2_exchange;
+        break;
 
       case 2: /* Outflow */
-	apply_ix2 = outflow_exchange;
-	break;
+        apply_ix2 = outflow_exchange;
+        break;
 
       case 4: /* Periodic */
-	apply_ix2 = periodic_ix2_exchange;
-	break;
+        apply_ix2 = periodic_ix2_exchange;
+        break;
 
       default:
-	ath_perr(-1,"[exchange_init]: bc_ix2 = %d unknown\n",
+        ath_perr(-1,"[exchange_init]: bc_ix2 = %d unknown\n",
                     pM->BCFlag_ix2);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
     }
 
@@ -1460,24 +1460,24 @@ void exchange_gpcouple_init(MeshS *pM)
       switch(pM->BCFlag_ox2){
 
       case 1: /* Reflecting */
-	apply_ox2 = reflect_ox2_exchange;
-	break;
+        apply_ox2 = reflect_ox2_exchange;
+        break;
       case 5: /* Reflecting */
-	apply_ox2 = reflect_ox2_exchange;
-	break;
+        apply_ox2 = reflect_ox2_exchange;
+        break;
 
       case 2: /* Outflow */
-	apply_ox2 = outflow_exchange;
-	break;
+        apply_ox2 = outflow_exchange;
+        break;
 
       case 4: /* Periodic */
-	apply_ox2 = periodic_ox2_exchange;
-	break;
+        apply_ox2 = periodic_ox2_exchange;
+        break;
 
       default:
-	ath_perr(-1,"[exchange_init]: bc_ox2 = %d unknown\n",
+        ath_perr(-1,"[exchange_init]: bc_ox2 = %d unknown\n",
                     pM->BCFlag_ox2);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
     }
   }
@@ -1490,24 +1490,24 @@ void exchange_gpcouple_init(MeshS *pM)
       switch(pM->BCFlag_ix3){
 
       case 1: /* Reflecting */
-	apply_ix3 = reflect_ix3_exchange;
-	break;
+        apply_ix3 = reflect_ix3_exchange;
+        break;
       case 5: /* Reflecting */
-	apply_ix3 = reflect_ix3_exchange;
-	break;
+        apply_ix3 = reflect_ix3_exchange;
+        break;
 
       case 2: /* Outflow */
-	apply_ix3 = outflow_exchange;
-	break;
+        apply_ix3 = outflow_exchange;
+        break;
 
       case 4: /* Periodic */
-	apply_ix3 = periodic_ix3_exchange;
-	break;
+        apply_ix3 = periodic_ix3_exchange;
+        break;
 
       default:
-	ath_perr(-1,"[exchange_init]: bc_ix3 = %d unknown\n",
+        ath_perr(-1,"[exchange_init]: bc_ix3 = %d unknown\n",
                     pM->BCFlag_ix3);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
     }
 
@@ -1516,28 +1516,28 @@ void exchange_gpcouple_init(MeshS *pM)
       switch(pM->BCFlag_ox3){
 
       case 1: /* Reflecting */
-	apply_ox3 = reflect_ox3_exchange;
-	break;
+        apply_ox3 = reflect_ox3_exchange;
+        break;
       case 5: /* Reflecting */
-	apply_ox3 = reflect_ox3_exchange;
-	break;
+        apply_ox3 = reflect_ox3_exchange;
+        break;
 
       case 2: /* Outflow */
-	apply_ox3 = outflow_exchange;
-	break;
+        apply_ox3 = outflow_exchange;
+        break;
 
       case 4: /* Periodic */
-	apply_ox3 = periodic_ox3_exchange;
-	break;
+        apply_ox3 = periodic_ox3_exchange;
+        break;
 
       default:
-	ath_perr(-1,"[exchange_init]: bc_ox3 = %d unknown\n",
+        ath_perr(-1,"[exchange_init]: bc_ox3 = %d unknown\n",
                     pM->BCFlag_ox3);
-	exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
     }
   }
-	
+
   if (pG->Nx[0] > 1) {
       N1T = pG->Nx[0]+2*nghost;
   } else {
@@ -1556,7 +1556,7 @@ void exchange_gpcouple_init(MeshS *pM)
 
   if ((myCoup = (GPExc***)calloc_3d_array(N3T,N2T,N1T, sizeof(GPExc))) == NULL)
     ath_error("[exchange_init]: Failed to allocate the myCoup array.\n");
-	
+
 #ifdef SHEARING_BOX
   if ((Flx = (Real*)calloc_1d_array(N2T,sizeof(Real))) == NULL)
     ath_error("[exchange_init]: Failed to allocate the Flux array.\n");
@@ -1569,7 +1569,7 @@ void exchange_gpcouple_init(MeshS *pM)
   if ((TempZns = (GPExc***)calloc_3d_array(N3T,NLayer_Max,N2T,sizeof(GPExc))) == NULL)
     ath_error("[exchange_init]: Failed to allocate the Ghost array.\n");
 #endif
-	
+
 #ifdef MPI_PARALLEL
   x1cnt = x2cnt = x3cnt = 0;
 
@@ -1594,17 +1594,17 @@ void exchange_gpcouple_init(MeshS *pM)
           if(nx3t > 1) nx3t += 2*NLayer_Max;
 
           x2cnt = nx1t*nx3t > x2cnt ? nx1t*nx3t : x2cnt;
-    	}
+        }
 
         if(pD->NGrid[0] > 1){
-    	  nx2t = pD->GData[k][j][i].Nx[1];
+          nx2t = pD->GData[k][j][i].Nx[1];
           if(nx2t > 1) nx2t += 2*NLayer_Max;
 
           nx3t = pD->GData[k][j][i].Nx[2];
           if(nx3t > 1) nx3t += 2*NLayer_Max;
 
           x1cnt = nx2t*nx3t > x1cnt ? nx2t*nx3t : x1cnt;
-    	}
+        }
 
       }
     }
@@ -1734,8 +1734,8 @@ static void reflect_ix3_exchange(GridS *pG)
           myCoup[k][j][i].U[n] = myCoup[kr][j][i].U[n];
         for (n=3;n<NVar; n++)
           myCoup[k][j][i].U[n] = myCoup[kr][j][i].U[n];
-      } 
-    }   
+      }
+    }
   }
 
   return;
@@ -1797,13 +1797,13 @@ static void reflect_ix2_exchange(GridS *pG)
         for (n=2;n<NVar; n++)
           myCoup[k][jr][i].U[n] += myCoup[k][j][i].U[n];
       }
-    } 
-  } 
-    
+    }
+  }
+
   for (k=kb; k<=kt; k++) {
     for (j=jb; j<pG->js; j++) {
       jr = 2*pG->js-j-1;
-      for (i=il; i<=iu; i++) { 
+      for (i=il; i<=iu; i++) {
         myCoup[k][j][i].U[0] = myCoup[k][jr][i].U[0];
         myCoup[k][j][i].U[1] = -myCoup[k][jr][i].U[1];
         for (n=2;n<NVar; n++)
@@ -1846,8 +1846,8 @@ static void reflect_ox2_exchange(GridS *pG)
         for (n=2;n<NVar; n++)
           myCoup[k][j][i].U[n] = myCoup[k][jr][i].U[n];
       }
-    } 
-  } 
+    }
+  }
 
   return;
 }
@@ -1897,7 +1897,7 @@ static void reflect_ox1_exchange(GridS *pG)
   int ir;
   int i,j,k,n;
 
-  for (k=kb; k<=kt; k++) { 
+  for (k=kb; k<=kt; k++) {
     for (j=jb; j<=jt; j++) {
       for (i=pG->ie+1; i<=iu; i++) {
         ir = 2*pG->ie-i+1;
@@ -1907,8 +1907,8 @@ static void reflect_ox1_exchange(GridS *pG)
       }
     }
   }
-  
-  for (k=kb; k<=kt; k++) { 
+
+  for (k=kb; k<=kt; k++) {
     for (j=jb; j<=jt; j++) {
       for (i=pG->ie+1; i<=it; i++) {
         ir = 2*pG->ie-i+1;
@@ -1963,7 +1963,7 @@ static void periodic_ix3_exchange(GridS *pG)
 }
 
 /*----------------------------------------------------------------------------*/
-/*! \fn static void periodic_ox3_exchange(GridS *pG) 
+/*! \fn static void periodic_ox3_exchange(GridS *pG)
  *  \brief PERIODIC boundary conditions, Outer x3 boundary (obc_x3=4)
  */
 
@@ -2170,7 +2170,7 @@ static void pack_ox2_exchange(GridS *pG)
 static void pack_ix1_exchange(GridS *pG)
 {
   int i,j,k,n;
-  double *pd; 
+  double *pd;
   pd = (double*)&(send_buf[0][0]);
 
 #ifdef SHEARING_BOX
@@ -2204,7 +2204,7 @@ static void pack_ix1_exchange(GridS *pG)
 static void pack_ox1_exchange(GridS *pG)
 {
   int i,j,k,n;
-  double *pd; 
+  double *pd;
   pd = (double*)&(send_buf[1][0]);
 
 #ifdef SHEARING_BOX
@@ -2239,17 +2239,17 @@ static void pack_ox1_exchange(GridS *pG)
 static void pack_ix2_remap(GridS *pG, GPExc ***myZns)
 {
   int i,j,k,n;
-  double *pd; 
+  double *pd;
   pd = (double*)&(send_buf[0][0]);
-	
+
   for (k=kb; k<=kt; k++) {
    for (i=0; i<NExc+NOfst; i++) {
     for (j=pG->js; j<pG->js+nghost; j++) {
       for (n=0;n<NVar; n++) {
-	*(pd++) = myZns[k][i][j].U[n];
+        *(pd++) = myZns[k][i][j].U[n];
       }
   }}}
-	
+
   return;
 }
 
@@ -2261,9 +2261,9 @@ static void pack_ix2_remap(GridS *pG, GPExc ***myZns)
 static void pack_ox2_remap(GridS *pG, GPExc ***myZns)
 {
   int i,j,k,n;
-  double *pd; 
+  double *pd;
   pd = (double*)&(send_buf[1][0]);
-	
+
   for (k=kb; k<=kt; k++) {
    for (i=0; i<NExc+NOfst; i++) {
     for (j=pG->je-nghost+1; j<=pG->je; j++) {
@@ -2418,9 +2418,9 @@ static void unpack_ox1_exchange(GridS *pG)
 static void unpack_ix2_remap(GridS *pG, GPExc ***myZns)
 {
   int i,j,k,n;
-  double *pd; 
+  double *pd;
   pd = (double*)&(recv_buf[0][0]);
-	
+
   for (k=kb; k<=kt; k++) {
    for (i=0; i<NExc+NOfst; i++) {
     for (j=pG->js-nghost; j<pG->js; j++) {
@@ -2440,7 +2440,7 @@ static void unpack_ix2_remap(GridS *pG, GPExc ***myZns)
 static void unpack_ox2_remap(GridS *pG, GPExc ***myZns)
 {
   int i,j,k,n;
-  double *pd; 
+  double *pd;
   pd = (double*)&(recv_buf[1][0]);
 
   for (k=kb; k<=kt; k++) {
@@ -2450,7 +2450,7 @@ static void unpack_ox2_remap(GridS *pG, GPExc ***myZns)
         myZns[k][i][j].U[n] = *(pd++);
       }
   }}}
-	
+
   return;
 }
 #endif /* SHEARING_BOX */

@@ -1,7 +1,7 @@
 #include "copyright.h"
 /*============================================================================*/
 /*! \file par_collision.c
- *  \brief Problem generator for particle feedback test in 2D. 
+ *  \brief Problem generator for particle feedback test in 2D.
  *
  * PURPOSE: Problem generator for particle feedback test in 2D. The particles
  *   and gas are initialized to have the same total momentum in the opposite
@@ -263,7 +263,7 @@ PropFun_t get_usr_par_prop(const char *name)
   return NULL;
 }
 
-void gasvshift(const Real x1, const Real x2, const Real x3, 
+void gasvshift(const Real x1, const Real x2, const Real x3,
                      Real *u1, Real *u2, Real *u3)
 {
   return;
@@ -290,7 +290,7 @@ void Userwork_in_loop(MeshS *pM)
   p = 0;  lab = -1;
   while (p<pGrid->nparticle) {
 #ifdef MPI_PARALLEL
-    if ((pGrid->particle[p].my_id == idlab) && 
+    if ((pGrid->particle[p].my_id == idlab) &&
         (pGrid->particle[p].init_id == cpuid))
 #else
     if (pGrid->particle[p].my_id == idlab)
@@ -328,7 +328,7 @@ void Userwork_in_loop(MeshS *pM)
 
     /* output */
     fid = fopen(name,"a+");
-    fprintf(fid,"%e	%e	%e	%e	%e	%e\n", 
+    fprintf(fid,"%e	%e	%e	%e	%e	%e\n",
                   t,     s,     ds,     v,       dv,   Mtot);
     fclose(fid);
   }
