@@ -154,7 +154,7 @@ void viscosity(DomainS *pD)
     for (k=kl; k<=ku; k++) {
     for (j=js-1; j<=je+1; j++) {
       for (i=is-1; i<=ie+1; i++) {
-        divv[k][j][i] += (Vel[k][j+1][i].x2 - Vel[k][j-1][i].x2)/(2.0*pG->dx2);
+	divv[k][j][i] += (Vel[k][j+1][i].x2 - Vel[k][j-1][i].x2)/(2.0*pG->dx2);
       }
     }}
   }
@@ -163,7 +163,7 @@ void viscosity(DomainS *pD)
     for (k=ks-1; k<=ke+1; k++) {
     for (j=js-1; j<=je+1; j++) {
       for (i=is-1; i<=ie+1; i++) {
-        divv[k][j][i] += (Vel[k+1][j][i].x3 - Vel[k-1][j][i].x3)/(2.0*pG->dx3);
+	divv[k][j][i] += (Vel[k+1][j][i].x3 - Vel[k-1][j][i].x3)/(2.0*pG->dx3);
       }
     }}
   }
@@ -174,25 +174,25 @@ void viscosity(DomainS *pD)
     for (j=jl; j<=ju; j++) {
       for (i=is-2; i<=ie+2; i++) {
 
-        Temp[k][j][i] = pG->U[k][j][i].E - (0.5/pG->U[k][j][i].d)*
-          (SQR(pG->U[k][j][i].M1) +SQR(pG->U[k][j][i].M2) +SQR(pG->U[k][j][i].M3));
+	Temp[k][j][i] = pG->U[k][j][i].E - (0.5/pG->U[k][j][i].d)*
+	  (SQR(pG->U[k][j][i].M1) +SQR(pG->U[k][j][i].M2) +SQR(pG->U[k][j][i].M3));
 #ifdef MHD
-        Temp[k][j][i] -= (0.5)*(SQR(pG->U[k][j][i].B1c) +
-                                SQR(pG->U[k][j][i].B2c) + SQR(pG->U[k][j][i].B3c));
+	Temp[k][j][i] -= (0.5)*(SQR(pG->U[k][j][i].B1c) +
+				SQR(pG->U[k][j][i].B2c) + SQR(pG->U[k][j][i].B3c));
 #endif
-        Temp[k][j][i] *= (Gamma_1/pG->U[k][j][i].d);
+	Temp[k][j][i] *= (Gamma_1/pG->U[k][j][i].d);
 
-        /* also compute the pressure so we can detect shocks.  (at a
-           contact discontinuity, temp can be discontinuous, but pressure
-           isn't.  we want to turn off conduction at shocks, but not
-           contact discontinuities.) */
-        Press[k][j][i] = Temp[k][j][i] * pG->U[k][j][i].d;
+	/* also compute the pressure so we can detect shocks.  (at a
+	   contact discontinuity, temp can be discontinuous, but pressure
+	   isn't.  we want to turn off conduction at shocks, but not
+	   contact discontinuities.) */
+	Press[k][j][i] = Temp[k][j][i] * pG->U[k][j][i].d;
 
-        if (NuFun_a != NULL) {
-          cc_pos(pG, i, j, k, &x1, &x2, &x3);
-          nud_aniso[k][j][i] = (*NuFun_a)(pG->U[k][j][i].d, Temp[k][j][i], x1, x2, x3);
-          nud_aniso[k][j][i] *= pG->U[k][j][i].d;
-        }
+	if (NuFun_a != NULL) {
+	  cc_pos(pG, i, j, k, &x1, &x2, &x3);
+	  nud_aniso[k][j][i] = (*NuFun_a)(pG->U[k][j][i].d, Temp[k][j][i], x1, x2, x3);
+	  nud_aniso[k][j][i] *= pG->U[k][j][i].d;
+	}
   }}}
 
 /* Compute isotropic and anisotropic viscous fluxes.  Fluxes, V and div(V)
@@ -221,11 +221,11 @@ void viscosity(DomainS *pD)
     for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-        pG->U[k][j][i].M1 += dtodx2*(x2Flux[k][j+1][i].Mx - x2Flux[k][j][i].Mx);
-        pG->U[k][j][i].M2 += dtodx2*(x2Flux[k][j+1][i].My - x2Flux[k][j][i].My);
-        pG->U[k][j][i].M3 += dtodx2*(x2Flux[k][j+1][i].Mz - x2Flux[k][j][i].Mz);
+	pG->U[k][j][i].M1 += dtodx2*(x2Flux[k][j+1][i].Mx - x2Flux[k][j][i].Mx);
+	pG->U[k][j][i].M2 += dtodx2*(x2Flux[k][j+1][i].My - x2Flux[k][j][i].My);
+	pG->U[k][j][i].M3 += dtodx2*(x2Flux[k][j+1][i].Mz - x2Flux[k][j][i].Mz);
 #ifndef BAROTROPIC
-        pG->U[k][j][i].E  += dtodx2*(x2Flux[k][j+1][i].E  - x2Flux[k][j][i].E );
+	pG->U[k][j][i].E  += dtodx2*(x2Flux[k][j+1][i].E  - x2Flux[k][j][i].E );
 #endif /* BAROTROPIC */
       }
     }}
@@ -237,11 +237,11 @@ void viscosity(DomainS *pD)
     for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-        pG->U[k][j][i].M1 += dtodx3*(x3Flux[k+1][j][i].Mx - x3Flux[k][j][i].Mx);
-        pG->U[k][j][i].M2 += dtodx3*(x3Flux[k+1][j][i].My - x3Flux[k][j][i].My);
-        pG->U[k][j][i].M3 += dtodx3*(x3Flux[k+1][j][i].Mz - x3Flux[k][j][i].Mz);
+	pG->U[k][j][i].M1 += dtodx3*(x3Flux[k+1][j][i].Mx - x3Flux[k][j][i].Mx);
+	pG->U[k][j][i].M2 += dtodx3*(x3Flux[k+1][j][i].My - x3Flux[k][j][i].My);
+	pG->U[k][j][i].M3 += dtodx3*(x3Flux[k+1][j][i].Mz - x3Flux[k][j][i].Mz);
 #ifndef BAROTROPIC
-        pG->U[k][j][i].E  += dtodx3*(x3Flux[k+1][j][i].E  - x3Flux[k][j][i].E );
+	pG->U[k][j][i].E  += dtodx3*(x3Flux[k+1][j][i].E  - x3Flux[k][j][i].E );
 #endif /* BAROTROPIC */
       }
     }}
@@ -268,7 +268,7 @@ void ViscStress_iso(DomainS *pD)
   Real dTdx, dTdy, dTdz;
   Real dPdx, dPdy, dPdz;
 
-  const Real shock_thresh = 0.15; /* TODO: choose this based on a value that reflects hot-interface */
+  const Real shock_thresh = 0.50;
 
 /* Add viscous fluxes in 1-direction */
 
@@ -276,50 +276,36 @@ void ViscStress_iso(DomainS *pD)
   for (j=js; j<=je; j++) {
     for (i=is; i<=ie+1; i++) {
       VStress.Mx = 2.0*(Vel[k][j][i].x1 - Vel[k][j][i-1].x1)/pG->dx1
-         - ONE_3RD*(divv[k][j][i] + divv[k][j][i-1]);
+	 - ONE_3RD*(divv[k][j][i] + divv[k][j][i-1]);
 
       VStress.My = (Vel[k][j][i].x2 - Vel[k][j][i-1].x2)/pG->dx1;
       if (pG->Nx[1] > 1) {
-        VStress.My +=(0.25/pG->dx2)*((Vel[k][j+1][i].x1 + Vel[k][j+1][i-1].x1)
-                                   - (Vel[k][j-1][i].x1 + Vel[k][j-1][i-1].x1));
+	VStress.My +=(0.25/pG->dx2)*((Vel[k][j+1][i].x1 + Vel[k][j+1][i-1].x1)
+				   - (Vel[k][j-1][i].x1 + Vel[k][j-1][i-1].x1));
       }
 
       VStress.Mz = (Vel[k][j][i].x3 - Vel[k][j][i-1].x3)/pG->dx1;
       if (pG->Nx[2] > 1) {
-        VStress.Mz += (0.25/pG->dx3)*((Vel[k+1][j][i].x1 + Vel[k+1][j][i-1].x1) -
-                                      (Vel[k-1][j][i].x1 + Vel[k-1][j][i-1].x1));
+	VStress.Mz += (0.25/pG->dx3)*((Vel[k+1][j][i].x1 + Vel[k+1][j][i-1].x1) -
+				      (Vel[k-1][j][i].x1 + Vel[k-1][j][i-1].x1));
       }
 
-      /* TODO: rewrite this part so viscosity is 0 at hot-cold interface (plasma physics) */
-      
       /* Calculate nu, but zero it at shocks */
       cc_pos(pG, i, j, k, &x1, &x2, &x3);
       nu = (*NuFun_i)(pG->U[k][j][i].d, Temp[k][j][i], x1, x2, x3);
 
       /* Calculate the temperature gradient */
       dTdx = dTdy = dTdz = 0.0;
-                         dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+			 dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
       if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
       if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
 
-      /* temp should be continuous... */
+      /* setting the viscosity = 0 at the hot cold interface (comes from plasma physics). */
       if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
-          (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
-          (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+	  (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
+	  (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
 
-        /* Calculate the pressure gradient */
-        dPdx = dPdy = dPdz = 0.0;
-                           dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
-        if (pG->Nx[1] > 1) dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
-        if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
-
-        /* check that pressure is continuous */
-        if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
-            (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
-            (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
-
-          nu = 0.0;
-        }
+	nu = 0.0;
       }
 
       nud = nu*0.5*(pG->U[k][j][i].d + pG->U[k][j][i-1].d);
@@ -329,9 +315,9 @@ void ViscStress_iso(DomainS *pD)
 
 #ifndef BAROTROPIC
       x1Flux[k][j][i].E  +=
-         0.5*(Vel[k][j][i-1].x1 + Vel[k][j][i].x1)*VStress.Mx +
-         0.5*(Vel[k][j][i-1].x2 + Vel[k][j][i].x2)*VStress.My +
-         0.5*(Vel[k][j][i-1].x3 + Vel[k][j][i].x3)*VStress.Mz;
+	 0.5*(Vel[k][j][i-1].x1 + Vel[k][j][i].x1)*VStress.Mx +
+	 0.5*(Vel[k][j][i-1].x2 + Vel[k][j][i].x2)*VStress.My +
+	 0.5*(Vel[k][j][i-1].x3 + Vel[k][j][i].x3)*VStress.Mz;
 #endif /* BAROTROPIC */
     }
   }}
@@ -342,60 +328,49 @@ void ViscStress_iso(DomainS *pD)
     for (k=ks; k<=ke; k++) {
     for (j=js; j<=je+1; j++) {
       for (i=is; i<=ie; i++) {
-        VStress.Mx = (Vel[k][j][i].x1 - Vel[k][j-1][i].x1)/pG->dx2
-          + ((Vel[k][j][i+1].x2 + Vel[k][j-1][i+1].x2) -
-             (Vel[k][j][i-1].x2 + Vel[k][j-1][i-1].x2))/(4.0*pG->dx1);
+	VStress.Mx = (Vel[k][j][i].x1 - Vel[k][j-1][i].x1)/pG->dx2
+	  + ((Vel[k][j][i+1].x2 + Vel[k][j-1][i+1].x2) -
+	     (Vel[k][j][i-1].x2 + Vel[k][j-1][i-1].x2))/(4.0*pG->dx1);
 
-        VStress.My = 2.0*(Vel[k][j][i].x2 - Vel[k][j-1][i].x2)/pG->dx2
-           - ONE_3RD*(divv[k][j][i] + divv[k][j-1][i]);
+	VStress.My = 2.0*(Vel[k][j][i].x2 - Vel[k][j-1][i].x2)/pG->dx2
+	   - ONE_3RD*(divv[k][j][i] + divv[k][j-1][i]);
 
-        VStress.Mz = (Vel[k][j][i].x3 - Vel[k][j-1][i].x3)/pG->dx2;
-        if (pG->Nx[2] > 1) {
-          VStress.Mz +=
-            ((Vel[k+1][j][i].x2 + Vel[k+1][j-1][i].x2) -
-             (Vel[k-1][j][i].x2 + Vel[k-1][j-1][i].x2))/(4.0*pG->dx3);
-        }
+	VStress.Mz = (Vel[k][j][i].x3 - Vel[k][j-1][i].x3)/pG->dx2;
+	if (pG->Nx[2] > 1) {
+	  VStress.Mz +=
+	    ((Vel[k+1][j][i].x2 + Vel[k+1][j-1][i].x2) -
+	     (Vel[k-1][j][i].x2 + Vel[k-1][j-1][i].x2))/(4.0*pG->dx3);
+	}
 
-        /* Calculate nu, but zero it at shocks */
-        cc_pos(pG, i, j, k, &x1, &x2, &x3);
-        nu = (*NuFun_i)(pG->U[k][j][i].d, Temp[k][j][i], x1, x2, x3);
+	/* Calculate nu, but zero it at shocks */
+	cc_pos(pG, i, j, k, &x1, &x2, &x3);
+	nu = (*NuFun_i)(pG->U[k][j][i].d, Temp[k][j][i], x1, x2, x3);
 
-        /* Calculate the temperature gradient */
-        dTdx = dTdy = dTdz = 0.0;
-                           dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
-        if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
-        if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
+	/* Calculate the temperature gradient */
+	dTdx = dTdy = dTdz = 0.0;
+			   dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+	if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
+	if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
 
-        /* temp should be continuous... */
-        if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
-            (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
-            (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
 
-          /* Calculate the pressure gradient */
-          dPdx = dPdy = dPdz = 0.0;
-                             dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
-          if (pG->Nx[1] > 1) dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
-          if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
+	/* setting the viscosity = 0 at the hot cold interface (comes from plasma physics). */
+	if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
+	    (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
+	    (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
 
-          /* check that pressure is continuous */
-          if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
-              (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
-              (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
+	  nu = 0.0;
+	}
 
-            nu = 0.0;
-          }
-        }
-
-        nud = nu*0.5*(pG->U[k][j][i].d + pG->U[k][j-1][i].d);
-        x2Flux[k][j][i].Mx += nud*VStress.Mx;
-        x2Flux[k][j][i].My += nud*VStress.My;
-        x2Flux[k][j][i].Mz += nud*VStress.Mz;
+	nud = nu*0.5*(pG->U[k][j][i].d + pG->U[k][j-1][i].d);
+	x2Flux[k][j][i].Mx += nud*VStress.Mx;
+	x2Flux[k][j][i].My += nud*VStress.My;
+	x2Flux[k][j][i].Mz += nud*VStress.Mz;
 
 #ifndef BAROTROPIC
-        x2Flux[k][j][i].E  +=
-           0.5*(Vel[k][j-1][i].x1 + Vel[k][j][i].x1)*VStress.Mx +
-           0.5*(Vel[k][j-1][i].x2 + Vel[k][j][i].x2)*VStress.My +
-           0.5*(Vel[k][j-1][i].x3 + Vel[k][j][i].x3)*VStress.Mz;
+	x2Flux[k][j][i].E  +=
+	   0.5*(Vel[k][j-1][i].x1 + Vel[k][j][i].x1)*VStress.Mx +
+	   0.5*(Vel[k][j-1][i].x2 + Vel[k][j][i].x2)*VStress.My +
+	   0.5*(Vel[k][j-1][i].x3 + Vel[k][j][i].x3)*VStress.Mz;
 #endif /* BAROTROPIC */
       }
     }}
@@ -407,57 +382,45 @@ void ViscStress_iso(DomainS *pD)
     for (k=ks; k<=ke+1; k++) {
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
-        VStress.Mx = (Vel[k][j][i].x1 - Vel[k-1][j][i].x1)/pG->dx3
-          + ((Vel[k][j][i+1].x3 + Vel[k-1][j][i+1].x3) -
-             (Vel[k][j][i-1].x3 + Vel[k-1][j][i-1].x3))/(4.0*pG->dx1);
+	VStress.Mx = (Vel[k][j][i].x1 - Vel[k-1][j][i].x1)/pG->dx3
+	  + ((Vel[k][j][i+1].x3 + Vel[k-1][j][i+1].x3) -
+	     (Vel[k][j][i-1].x3 + Vel[k-1][j][i-1].x3))/(4.0*pG->dx1);
 
-        VStress.My = (Vel[k][j][i].x2 - Vel[k-1][j][i].x2)/pG->dx3
-          + ((Vel[k][j+1][i].x3 + Vel[k-1][j+1][i].x3) -
-             (Vel[k][j-1][i].x3 + Vel[k-1][j-1][i].x3))/(4.0*pG->dx2);
+	VStress.My = (Vel[k][j][i].x2 - Vel[k-1][j][i].x2)/pG->dx3
+	  + ((Vel[k][j+1][i].x3 + Vel[k-1][j+1][i].x3) -
+	     (Vel[k][j-1][i].x3 + Vel[k-1][j-1][i].x3))/(4.0*pG->dx2);
 
-        VStress.Mz = 2.0*(Vel[k][j][i].x3 - Vel[k-1][j][i].x3)/pG->dx3
-           - ONE_3RD*(divv[k][j][i] + divv[k-1][j][i]);
+	VStress.Mz = 2.0*(Vel[k][j][i].x3 - Vel[k-1][j][i].x3)/pG->dx3
+	   - ONE_3RD*(divv[k][j][i] + divv[k-1][j][i]);
 
-        /* Calculate nu, but zero it at shocks */
-        cc_pos(pG, i, j, k, &x1, &x2, &x3);
-        nu = (*NuFun_i)(pG->U[k][j][i].d, Temp[k][j][i], x1, x2, x3);
+	/* Calculate nu, but zero it at shocks */
+	cc_pos(pG, i, j, k, &x1, &x2, &x3);
+	nu = (*NuFun_i)(pG->U[k][j][i].d, Temp[k][j][i], x1, x2, x3);
 
-        /* Calculate the temperature gradient */
-        dTdx = dTdy = dTdz = 0.0;
-                           dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
-        if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
-        if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
+	/* Calculate the temperature gradient */
+	dTdx = dTdy = dTdz = 0.0;
+	dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+			   if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
+	if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
 
-        /* temp should be continuous... */
-        if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
-            (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
-            (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+	/* setting the viscosity = 0 at the hot cold interface (comes from plasma physics). */
+	if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
+	    (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
+	    (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
 
-          /* Calculate the pressure gradient */
-          dPdx = dPdy = dPdz = 0.0;
-                             dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
-          if (pG->Nx[1] > 1) dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
-          if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
+	  nu = 0.0;
+	}
 
-          /* check that pressure is continuous */
-          if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
-              (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
-              (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
-
-            nu = 0.0;
-          }
-        }
-
-        nud = nu*0.5*(pG->U[k][j][i].d + pG->U[k-1][j][i].d);
-        x3Flux[k][j][i].Mx += nud*VStress.Mx;
-        x3Flux[k][j][i].My += nud*VStress.My;
-        x3Flux[k][j][i].Mz += nud*VStress.Mz;
+	nud = nu*0.5*(pG->U[k][j][i].d + pG->U[k-1][j][i].d);
+	x3Flux[k][j][i].Mx += nud*VStress.Mx;
+	x3Flux[k][j][i].My += nud*VStress.My;
+	x3Flux[k][j][i].Mz += nud*VStress.Mz;
 
 #ifndef BAROTROPIC
-        x3Flux[k][j][i].E  +=
-           0.5*(Vel[k-1][j][i].x1 + Vel[k][j][i].x1)*VStress.Mx +
-           0.5*(Vel[k-1][j][i].x2 + Vel[k][j][i].x2)*VStress.My +
-           0.5*(Vel[k-1][j][i].x3 + Vel[k][j][i].x3)*VStress.Mz;
+	x3Flux[k][j][i].E  +=
+	   0.5*(Vel[k-1][j][i].x1 + Vel[k][j][i].x1)*VStress.Mx +
+	   0.5*(Vel[k-1][j][i].x2 + Vel[k][j][i].x2)*VStress.My +
+	   0.5*(Vel[k-1][j][i].x3 + Vel[k][j][i].x3)*VStress.Mz;
 #endif /* BAROTROPIC */
       }
     }}
@@ -506,50 +469,50 @@ void ViscStress_aniso(DomainS *pD)
 
       /* Monotonized Velocity gradient dVx/dy */
       dVxdy = limiter4(Vel[k][j+1][i  ].x1 - Vel[k][j  ][i  ].x1,
-                       Vel[k][j  ][i  ].x1 - Vel[k][j-1][i  ].x1,
-                       Vel[k][j+1][i-1].x1 - Vel[k][j  ][i-1].x1,
-                       Vel[k][j  ][i-1].x1 - Vel[k][j-1][i-1].x1);
+		       Vel[k][j  ][i  ].x1 - Vel[k][j-1][i  ].x1,
+		       Vel[k][j+1][i-1].x1 - Vel[k][j  ][i-1].x1,
+		       Vel[k][j  ][i-1].x1 - Vel[k][j-1][i-1].x1);
       dVxdy /= pG->dx2;
 
       /* Monotonized Velocity gradient dVy/dy */
       dVydy = limiter4(Vel[k][j+1][i  ].x2 - Vel[k][j  ][i  ].x2,
-                       Vel[k][j  ][i  ].x2 - Vel[k][j-1][i  ].x2,
-                       Vel[k][j+1][i-1].x2 - Vel[k][j  ][i-1].x2,
-                       Vel[k][j  ][i-1].x2 - Vel[k][j-1][i-1].x2);
+		       Vel[k][j  ][i  ].x2 - Vel[k][j-1][i  ].x2,
+		       Vel[k][j+1][i-1].x2 - Vel[k][j  ][i-1].x2,
+		       Vel[k][j  ][i-1].x2 - Vel[k][j-1][i-1].x2);
       dVydy /= pG->dx2;
 
       /* Monotonized Velocity gradient dVz/dy */
       dVzdy = limiter4(Vel[k][j+1][i  ].x3 - Vel[k][j  ][i  ].x3,
-                       Vel[k][j  ][i  ].x3 - Vel[k][j-1][i  ].x3,
-                       Vel[k][j+1][i-1].x3 - Vel[k][j  ][i-1].x3,
-                       Vel[k][j  ][i-1].x3 - Vel[k][j-1][i-1].x3);
+		       Vel[k][j  ][i  ].x3 - Vel[k][j-1][i  ].x3,
+		       Vel[k][j+1][i-1].x3 - Vel[k][j  ][i-1].x3,
+		       Vel[k][j  ][i-1].x3 - Vel[k][j-1][i-1].x3);
       dVzdy /= pG->dx2;
 
       /* Monotonized Velocity gradient dVx/dz, 3D problem ONLY */
       if (pD->Nx[2] > 1) {
-        dVxdz = limiter4(Vel[k+1][j][i  ].x1 - Vel[k  ][j][i  ].x1,
-                         Vel[k  ][j][i  ].x1 - Vel[k-1][j][i  ].x1,
-                         Vel[k+1][j][i-1].x1 - Vel[k  ][j][i-1].x1,
-                         Vel[k  ][j][i-1].x1 - Vel[k-1][j][i-1].x1);
-        dVxdz /= pG->dx3;
+	dVxdz = limiter4(Vel[k+1][j][i  ].x1 - Vel[k  ][j][i  ].x1,
+			 Vel[k  ][j][i  ].x1 - Vel[k-1][j][i  ].x1,
+			 Vel[k+1][j][i-1].x1 - Vel[k  ][j][i-1].x1,
+			 Vel[k  ][j][i-1].x1 - Vel[k-1][j][i-1].x1);
+	dVxdz /= pG->dx3;
       }
 
       /* Monotonized Velocity gradient dVy/dz */
       if (pD->Nx[2] > 1) {
-        dVydz = limiter4(Vel[k+1][j][i  ].x2 - Vel[k  ][j][i  ].x2,
-                         Vel[k  ][j][i  ].x2 - Vel[k-1][j][i  ].x2,
-                         Vel[k+1][j][i-1].x2 - Vel[k  ][j][i-1].x2,
-                         Vel[k  ][j][i-1].x2 - Vel[k-1][j][i-1].x2);
-        dVydz /= pG->dx3;
+	dVydz = limiter4(Vel[k+1][j][i  ].x2 - Vel[k  ][j][i  ].x2,
+			 Vel[k  ][j][i  ].x2 - Vel[k-1][j][i  ].x2,
+			 Vel[k+1][j][i-1].x2 - Vel[k  ][j][i-1].x2,
+			 Vel[k  ][j][i-1].x2 - Vel[k-1][j][i-1].x2);
+	dVydz /= pG->dx3;
       }
 
       /* Monotonized Velocity gradient dVz/dz */
       if (pD->Nx[2] > 1) {
-        dVzdz = limiter4(Vel[k+1][j][i  ].x3 - Vel[k  ][j][i  ].x3,
-                         Vel[k  ][j][i  ].x3 - Vel[k-1][j][i  ].x3,
-                         Vel[k+1][j][i-1].x3 - Vel[k  ][j][i-1].x3,
-                         Vel[k  ][j][i-1].x3 - Vel[k-1][j][i-1].x3);
-        dVzdz /= pG->dx3;
+	dVzdz = limiter4(Vel[k+1][j][i  ].x3 - Vel[k  ][j][i  ].x3,
+			 Vel[k  ][j][i  ].x3 - Vel[k-1][j][i  ].x3,
+			 Vel[k+1][j][i-1].x3 - Vel[k  ][j][i-1].x3,
+			 Vel[k  ][j][i-1].x3 - Vel[k-1][j][i-1].x3);
+	dVzdz /= pG->dx3;
       }
 
 /* Compute field components at x1-interface */
@@ -563,22 +526,22 @@ void ViscStress_aniso(DomainS *pD)
 /* compute BBdV and div(V) */
 
       if (pD->Nx[2] == 1) {
-        BBdV =
-          Bx*(Bx*(Vel[k][j][i].x1-Vel[k][j][i-1].x1)/pG->dx1 + By*dVxdy) +
-          By*(Bx*(Vel[k][j][i].x2-Vel[k][j][i-1].x2)/pG->dx1 + By*dVydy) +
-          Bz*(Bx*(Vel[k][j][i].x3-Vel[k][j][i-1].x3)/pG->dx1 + By*dVzdy);
-        BBdV /= B02;
+	BBdV =
+	  Bx*(Bx*(Vel[k][j][i].x1-Vel[k][j][i-1].x1)/pG->dx1 + By*dVxdy) +
+	  By*(Bx*(Vel[k][j][i].x2-Vel[k][j][i-1].x2)/pG->dx1 + By*dVydy) +
+	  Bz*(Bx*(Vel[k][j][i].x3-Vel[k][j][i-1].x3)/pG->dx1 + By*dVzdy);
+	BBdV /= B02;
 
-        divV = (Vel[k][j][i].x1-Vel[k][j][i-1].x1)/pG->dx1 + dVydy;
+	divV = (Vel[k][j][i].x1-Vel[k][j][i-1].x1)/pG->dx1 + dVydy;
 
       } else {
-        BBdV =
-          Bx*(Bx*(Vel[k][j][i].x1-Vel[k][j][i-1].x1)/pG->dx1+By*dVxdy+Bz*dVxdz)+
-          By*(Bx*(Vel[k][j][i].x2-Vel[k][j][i-1].x2)/pG->dx1+By*dVydy+Bz*dVydz)+
-          Bz*(Bx*(Vel[k][j][i].x3-Vel[k][j][i-1].x3)/pG->dx1+By*dVzdy+Bz*dVzdz);
-        BBdV /= B02;
+	BBdV =
+	  Bx*(Bx*(Vel[k][j][i].x1-Vel[k][j][i-1].x1)/pG->dx1+By*dVxdy+Bz*dVxdz)+
+	  By*(Bx*(Vel[k][j][i].x2-Vel[k][j][i-1].x2)/pG->dx1+By*dVydy+Bz*dVydz)+
+	  Bz*(Bx*(Vel[k][j][i].x3-Vel[k][j][i-1].x3)/pG->dx1+By*dVzdy+Bz*dVzdz);
+	BBdV /= B02;
 
-        divV = (Vel[k][j][i].x1-Vel[k][j][i-1].x1)/pG->dx1 + dVydy + dVzdz;
+	divV = (Vel[k][j][i].x1-Vel[k][j][i-1].x1)/pG->dx1 + dVydy + dVzdz;
       }
 
 /* Add fluxes */
@@ -590,32 +553,32 @@ void ViscStress_aniso(DomainS *pD)
 
       /* Calculate the temperature gradient */
       dTdx = dTdy = dTdz = 0.0;
-                         dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+			 dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
       if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
       if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
 
       /* temp should be continuous... */
       if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
-          (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
-          (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+	  (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
+	  (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
 
-        /* Calculate the pressure gradient */
-        dPdx = dPdy = dPdz = 0.0;
-                           dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
-        if (pG->Nx[1] > 1) dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
-        if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
+	/* Calculate the pressure gradient */
+	dPdx = dPdy = dPdz = 0.0;
+			   dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
+	if (pG->Nx[1] > 1) dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
+	if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
 
-        /* check that pressure is continuous */
-        if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
-            (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
-            (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
+	/* check that pressure is continuous */
+	if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
+	    (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
+	    (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
 
-          nud = 0.0;
-        }
+	  nud = 0.0;
+	}
       }
 
       /* Calculate the pressure anisotropy and limit according to
-         microinstability bounds */
+	 microinstability bounds */
       delta_P = nud*(BBdV - ONE_3RD*divV);
 
 #ifdef SHARMA_CLOSURE
@@ -645,9 +608,9 @@ void ViscStress_aniso(DomainS *pD)
 
 #ifndef BAROTROPIC
       x1Flux[k][j][i].E =
-         0.5*(Vel[k][j][i-1].x1 + Vel[k][j][i].x1)*VStress.Mx +
-         0.5*(Vel[k][j][i-1].x2 + Vel[k][j][i].x2)*VStress.My +
-         0.5*(Vel[k][j][i-1].x3 + Vel[k][j][i].x3)*VStress.Mz;
+	 0.5*(Vel[k][j][i-1].x1 + Vel[k][j][i].x1)*VStress.Mx +
+	 0.5*(Vel[k][j][i-1].x2 + Vel[k][j][i].x2)*VStress.My +
+	 0.5*(Vel[k][j][i-1].x3 + Vel[k][j][i].x3)*VStress.Mz;
 #endif /* BAROTROPIC */
     }
   }}
@@ -660,50 +623,50 @@ void ViscStress_aniso(DomainS *pD)
 
       /* Monotonized Velocity gradient dVx/dx */
       dVxdx = limiter4(Vel[k][j  ][i+1].x1 - Vel[k][j  ][i  ].x1,
-                       Vel[k][j  ][i  ].x1 - Vel[k][j  ][i-1].x1,
-                       Vel[k][j-1][i+1].x1 - Vel[k][j-1][i  ].x1,
-                       Vel[k][j-1][i  ].x1 - Vel[k][j-1][i-1].x1);
+		       Vel[k][j  ][i  ].x1 - Vel[k][j  ][i-1].x1,
+		       Vel[k][j-1][i+1].x1 - Vel[k][j-1][i  ].x1,
+		       Vel[k][j-1][i  ].x1 - Vel[k][j-1][i-1].x1);
       dVxdx /= pG->dx1;
 
       /* Monotonized Velocity gradient dVy/dx */
       dVydx = limiter4(Vel[k][j  ][i+1].x2 - Vel[k][j  ][i  ].x2,
-                       Vel[k][j  ][i  ].x2 - Vel[k][j  ][i-1].x2,
-                       Vel[k][j-1][i+1].x2 - Vel[k][j-1][i  ].x2,
-                       Vel[k][j-1][i  ].x2 - Vel[k][j-1][i-1].x2);
+		       Vel[k][j  ][i  ].x2 - Vel[k][j  ][i-1].x2,
+		       Vel[k][j-1][i+1].x2 - Vel[k][j-1][i  ].x2,
+		       Vel[k][j-1][i  ].x2 - Vel[k][j-1][i-1].x2);
       dVydx /= pG->dx1;
 
       /* Monotonized Velocity gradient dVz/dx */
       dVzdx = limiter4(Vel[k][j  ][i+1].x3 - Vel[k][j  ][i  ].x3,
-                       Vel[k][j  ][i  ].x3 - Vel[k][j  ][i-1].x3,
-                       Vel[k][j-1][i+1].x3 - Vel[k][j-1][i  ].x3,
-                       Vel[k][j-1][i  ].x3 - Vel[k][j-1][i-1].x3);
+		       Vel[k][j  ][i  ].x3 - Vel[k][j  ][i-1].x3,
+		       Vel[k][j-1][i+1].x3 - Vel[k][j-1][i  ].x3,
+		       Vel[k][j-1][i  ].x3 - Vel[k][j-1][i-1].x3);
       dVzdx /= pG->dx1;
 
       /* Monotonized Velocity gradient dVx/dz */
       if (pD->Nx[2] > 1) {
-        dVxdz = limiter4(Vel[k+1][j  ][i].x1 - Vel[k  ][j  ][i].x1,
-                         Vel[k  ][j  ][i].x1 - Vel[k-1][j  ][i].x1,
-                         Vel[k+1][j-1][i].x1 - Vel[k  ][j-1][i].x1,
-                         Vel[k  ][j-1][i].x1 - Vel[k-1][j-1][i].x1);
-        dVxdz /= pG->dx3;
+	dVxdz = limiter4(Vel[k+1][j  ][i].x1 - Vel[k  ][j  ][i].x1,
+			 Vel[k  ][j  ][i].x1 - Vel[k-1][j  ][i].x1,
+			 Vel[k+1][j-1][i].x1 - Vel[k  ][j-1][i].x1,
+			 Vel[k  ][j-1][i].x1 - Vel[k-1][j-1][i].x1);
+	dVxdz /= pG->dx3;
       }
 
       /* Monotonized Velocity gradient dVy/dz */
       if (pD->Nx[2] > 1) {
-        dVydz =limiter4(Vel[k+1][j  ][i].x2 - Vel[k  ][j  ][i].x2,
-                        Vel[k  ][j  ][i].x2 - Vel[k-1][j  ][i].x2,
-                        Vel[k+1][j-1][i].x2 - Vel[k  ][j-1][i].x2,
-                        Vel[k  ][j-1][i].x2 - Vel[k-1][j-1][i].x2);
-        dVydz /= pG->dx3;
+	dVydz =limiter4(Vel[k+1][j  ][i].x2 - Vel[k  ][j  ][i].x2,
+			Vel[k  ][j  ][i].x2 - Vel[k-1][j  ][i].x2,
+			Vel[k+1][j-1][i].x2 - Vel[k  ][j-1][i].x2,
+			Vel[k  ][j-1][i].x2 - Vel[k-1][j-1][i].x2);
+	dVydz /= pG->dx3;
       }
 
       /* Monotonized Velocity gradient dVz/dz */
       if (pD->Nx[2] > 1) {
-        dVzdz =limiter4(Vel[k+1][j  ][i].x3 - Vel[k  ][j  ][i].x3,
-                        Vel[k  ][j  ][i].x3 - Vel[k-1][j  ][i].x3,
-                        Vel[k+1][j-1][i].x3 - Vel[k  ][j-1][i].x3,
-                        Vel[k  ][j-1][i].x3 - Vel[k-1][j-1][i].x3);
-        dVzdz /= pG->dx3;
+	dVzdz =limiter4(Vel[k+1][j  ][i].x3 - Vel[k  ][j  ][i].x3,
+			Vel[k  ][j  ][i].x3 - Vel[k-1][j  ][i].x3,
+			Vel[k+1][j-1][i].x3 - Vel[k  ][j-1][i].x3,
+			Vel[k  ][j-1][i].x3 - Vel[k-1][j-1][i].x3);
+	dVzdz /= pG->dx3;
       }
 
 /* Compute field components at x2-interface */
@@ -717,22 +680,22 @@ void ViscStress_aniso(DomainS *pD)
 /* compute BBdV and div(V) */
 
       if (pD->Nx[2] == 1) {
-        BBdV =
-          Bx*(Bx*dVxdx + By*(Vel[ks][j][i].x1-Vel[ks][j-1][i].x1)/pG->dx2) +
-          By*(Bx*dVydx + By*(Vel[ks][j][i].x2-Vel[ks][j-1][i].x2)/pG->dx2) +
-          Bz*(Bx*dVzdx + By*(Vel[ks][j][i].x3-Vel[ks][j-1][i].x3)/pG->dx2);
-        BBdV /= B02;
+	BBdV =
+	  Bx*(Bx*dVxdx + By*(Vel[ks][j][i].x1-Vel[ks][j-1][i].x1)/pG->dx2) +
+	  By*(Bx*dVydx + By*(Vel[ks][j][i].x2-Vel[ks][j-1][i].x2)/pG->dx2) +
+	  Bz*(Bx*dVzdx + By*(Vel[ks][j][i].x3-Vel[ks][j-1][i].x3)/pG->dx2);
+	BBdV /= B02;
 
-        divV = dVxdx + (Vel[ks][j][i].x2-Vel[ks][j-1][i].x2)/pG->dx2;
+	divV = dVxdx + (Vel[ks][j][i].x2-Vel[ks][j-1][i].x2)/pG->dx2;
 
       } else {
-        BBdV =
-          Bx*(Bx*dVxdx+By*(Vel[k][j][i].x1-Vel[k][j-1][i].x1)/pG->dx2+Bz*dVxdz)+
-          By*(Bx*dVydx+By*(Vel[k][j][i].x2-Vel[k][j-1][i].x2)/pG->dx2+Bz*dVydz)+
-          Bz*(Bx*dVzdx+By*(Vel[k][j][i].x3-Vel[k][j-1][i].x3)/pG->dx2+Bz*dVzdz);
-        BBdV /= B02;
+	BBdV =
+	  Bx*(Bx*dVxdx+By*(Vel[k][j][i].x1-Vel[k][j-1][i].x1)/pG->dx2+Bz*dVxdz)+
+	  By*(Bx*dVydx+By*(Vel[k][j][i].x2-Vel[k][j-1][i].x2)/pG->dx2+Bz*dVydz)+
+	  Bz*(Bx*dVzdx+By*(Vel[k][j][i].x3-Vel[k][j-1][i].x3)/pG->dx2+Bz*dVzdz);
+	BBdV /= B02;
 
-        divV = dVxdx + (Vel[k][j][i].x2-Vel[k][j-1][i].x2)/pG->dx2 + dVzdz;
+	divV = dVxdx + (Vel[k][j][i].x2-Vel[k][j-1][i].x2)/pG->dx2 + dVzdz;
       }
 
 /* Add fluxes */
@@ -744,32 +707,32 @@ void ViscStress_aniso(DomainS *pD)
 
       /* Calculate the temperature gradient */
       dTdx = dTdy = dTdz = 0.0;
-                         dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+			 dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
       if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
       if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
 
       /* temp should be continuous... */
       if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
-          (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
-          (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+	  (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
+	  (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
 
-        /* Calculate the pressure gradient */
-        dPdx = dPdy = dPdz = 0.0;
-                           dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
-        if (pG->Nx[1] > 1) dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
-        if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
+	/* Calculate the pressure gradient */
+	dPdx = dPdy = dPdz = 0.0;
+			   dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
+	if (pG->Nx[1] > 1) dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
+	if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
 
-        /* check that pressure is continuous */
-        if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
-            (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
-            (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
+	/* check that pressure is continuous */
+	if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
+	    (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
+	    (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
 
-          nud = 0.0;
-        }
+	  nud = 0.0;
+	}
       }
 
       /* Calculate the pressure anisotropy and limit according to
-         microinstability bounds */
+	 microinstability bounds */
       delta_P = nud*(BBdV - ONE_3RD*divV);
 
 #ifdef SHARMA_CLOSURE
@@ -798,10 +761,10 @@ void ViscStress_aniso(DomainS *pD)
       x2Flux[k][j][i].Mz += VStress.Mz;
 
 #ifndef BAROTROPIC
-        x2Flux[k][j][i].E +=
-           0.5*(Vel[k][j-1][i].x1 + Vel[k][j][i].x1)*VStress.Mx +
-           0.5*(Vel[k][j-1][i].x2 + Vel[k][j][i].x2)*VStress.My +
-           0.5*(Vel[k][j-1][i].x3 + Vel[k][j][i].x3)*VStress.Mz;
+	x2Flux[k][j][i].E +=
+	   0.5*(Vel[k][j-1][i].x1 + Vel[k][j][i].x1)*VStress.Mx +
+	   0.5*(Vel[k][j-1][i].x2 + Vel[k][j][i].x2)*VStress.My +
+	   0.5*(Vel[k][j-1][i].x3 + Vel[k][j][i].x3)*VStress.Mz;
 #endif /* BAROTROPIC */
     }
   }}
@@ -813,133 +776,133 @@ void ViscStress_aniso(DomainS *pD)
     for (j=js; j<=je; j++) {
       for (i=is; i<=ie; i++) {
 
-        /* Monotonized Velocity gradient dVx/dx */
-        dVxdx = limiter4(Vel[k  ][j][i+1].x1 - Vel[k  ][j][i  ].x1,
-                         Vel[k  ][j][i  ].x1 - Vel[k  ][j][i-1].x1,
-                         Vel[k-1][j][i+1].x1 - Vel[k-1][j][i  ].x1,
-                         Vel[k-1][j][i  ].x1 - Vel[k-1][j][i-1].x1);
-        dVxdx /= pG->dx1;
+	/* Monotonized Velocity gradient dVx/dx */
+	dVxdx = limiter4(Vel[k  ][j][i+1].x1 - Vel[k  ][j][i  ].x1,
+			 Vel[k  ][j][i  ].x1 - Vel[k  ][j][i-1].x1,
+			 Vel[k-1][j][i+1].x1 - Vel[k-1][j][i  ].x1,
+			 Vel[k-1][j][i  ].x1 - Vel[k-1][j][i-1].x1);
+	dVxdx /= pG->dx1;
 
-        /* Monotonized Velocity gradient dVy/dx */
-        dVydx = limiter4(Vel[k  ][j][i+1].x2 - Vel[k  ][j][i  ].x2,
-                         Vel[k  ][j][i  ].x2 - Vel[k  ][j][i-1].x2,
-                         Vel[k-1][j][i+1].x2 - Vel[k-1][j][i  ].x2,
-                         Vel[k-1][j][i  ].x2 - Vel[k-1][j][i-1].x2);
-        dVydx /= pG->dx1;
+	/* Monotonized Velocity gradient dVy/dx */
+	dVydx = limiter4(Vel[k  ][j][i+1].x2 - Vel[k  ][j][i  ].x2,
+			 Vel[k  ][j][i  ].x2 - Vel[k  ][j][i-1].x2,
+			 Vel[k-1][j][i+1].x2 - Vel[k-1][j][i  ].x2,
+			 Vel[k-1][j][i  ].x2 - Vel[k-1][j][i-1].x2);
+	dVydx /= pG->dx1;
 
-        /* Monotonized Velocity gradient dVz/dx */
-        dVzdx = limiter4(Vel[k  ][j][i+1].x3 - Vel[k  ][j][i  ].x3,
-                         Vel[k  ][j][i  ].x3 - Vel[k  ][j][i-1].x3,
-                         Vel[k-1][j][i+1].x3 - Vel[k-1][j][i  ].x3,
-                         Vel[k-1][j][i  ].x3 - Vel[k-1][j][i-1].x3);
-        dVzdx /= pG->dx1;
+	/* Monotonized Velocity gradient dVz/dx */
+	dVzdx = limiter4(Vel[k  ][j][i+1].x3 - Vel[k  ][j][i  ].x3,
+			 Vel[k  ][j][i  ].x3 - Vel[k  ][j][i-1].x3,
+			 Vel[k-1][j][i+1].x3 - Vel[k-1][j][i  ].x3,
+			 Vel[k-1][j][i  ].x3 - Vel[k-1][j][i-1].x3);
+	dVzdx /= pG->dx1;
 
-        /* Monotonized Velocity gradient dVx/dy */
-        dVxdy = limiter4(Vel[k  ][j+1][i].x1 - Vel[k  ][j  ][i].x1,
-                         Vel[k  ][j  ][i].x1 - Vel[k  ][j-1][i].x1,
-                         Vel[k-1][j+1][i].x1 - Vel[k-1][j  ][i].x1,
-                         Vel[k-1][j  ][i].x1 - Vel[k-1][j-1][i].x1);
-        dVxdy /= pG->dx2;
+	/* Monotonized Velocity gradient dVx/dy */
+	dVxdy = limiter4(Vel[k  ][j+1][i].x1 - Vel[k  ][j  ][i].x1,
+			 Vel[k  ][j  ][i].x1 - Vel[k  ][j-1][i].x1,
+			 Vel[k-1][j+1][i].x1 - Vel[k-1][j  ][i].x1,
+			 Vel[k-1][j  ][i].x1 - Vel[k-1][j-1][i].x1);
+	dVxdy /= pG->dx2;
 
-        /* Monotonized Velocity gradient dVy/dy */
-        dVydy = limiter4(Vel[k  ][j+1][i].x2 - Vel[k  ][j  ][i].x2,
-                         Vel[k  ][j  ][i].x2 - Vel[k  ][j-1][i].x2,
-                         Vel[k-1][j+1][i].x2 - Vel[k-1][j  ][i].x2,
-                         Vel[k-1][j  ][i].x2 - Vel[k-1][j-1][i].x2);
-        dVydy /= pG->dx2;
+	/* Monotonized Velocity gradient dVy/dy */
+	dVydy = limiter4(Vel[k  ][j+1][i].x2 - Vel[k  ][j  ][i].x2,
+			 Vel[k  ][j  ][i].x2 - Vel[k  ][j-1][i].x2,
+			 Vel[k-1][j+1][i].x2 - Vel[k-1][j  ][i].x2,
+			 Vel[k-1][j  ][i].x2 - Vel[k-1][j-1][i].x2);
+	dVydy /= pG->dx2;
 
-        /* Monotonized Velocity gradient dVz/dy */
-        dVzdy = limiter4(Vel[k  ][j+1][i].x3 - Vel[k  ][j  ][i].x3,
-                         Vel[k  ][j  ][i].x3 - Vel[k  ][j-1][i].x3,
-                         Vel[k-1][j+1][i].x3 - Vel[k-1][j  ][i].x3,
-                         Vel[k-1][j  ][i].x3 - Vel[k-1][j-1][i].x3);
-        dVzdy /= pG->dx2;
+	/* Monotonized Velocity gradient dVz/dy */
+	dVzdy = limiter4(Vel[k  ][j+1][i].x3 - Vel[k  ][j  ][i].x3,
+			 Vel[k  ][j  ][i].x3 - Vel[k  ][j-1][i].x3,
+			 Vel[k-1][j+1][i].x3 - Vel[k-1][j  ][i].x3,
+			 Vel[k-1][j  ][i].x3 - Vel[k-1][j-1][i].x3);
+	dVzdy /= pG->dx2;
 
 /* Compute field components at x3-interface */
 
-        Bx = 0.5*(pG->U[k][j][i].B1c + pG->U[k-1][j][i].B1c);
-        By = 0.5*(pG->U[k][j][i].B2c + pG->U[k-1][j][i].B2c);
-        Bz = pG->B3i[k][j][i];
-        B02 = Bx*Bx + By*By + Bz*Bz;
-        B02 = MAX(B02,TINY_NUMBER); /* limit in case B=0 */
+	Bx = 0.5*(pG->U[k][j][i].B1c + pG->U[k-1][j][i].B1c);
+	By = 0.5*(pG->U[k][j][i].B2c + pG->U[k-1][j][i].B2c);
+	Bz = pG->B3i[k][j][i];
+	B02 = Bx*Bx + By*By + Bz*Bz;
+	B02 = MAX(B02,TINY_NUMBER); /* limit in case B=0 */
 
 /* compute BBdV and div(V) */
 
-        BBdV =
-          Bx*(Bx*dVxdx+By*dVxdy+Bz*(Vel[k][j][i].x1-Vel[k-1][j][i].x1)/pG->dx3)+
-          By*(Bx*dVydx+By*dVydy+Bz*(Vel[k][j][i].x2-Vel[k-1][j][i].x2)/pG->dx3)+
-          Bz*(Bx*dVzdx+By*dVzdy+Bz*(Vel[k][j][i].x3-Vel[k-1][j][i].x3)/pG->dx3);
-        BBdV /= B02;
+	BBdV =
+	  Bx*(Bx*dVxdx+By*dVxdy+Bz*(Vel[k][j][i].x1-Vel[k-1][j][i].x1)/pG->dx3)+
+	  By*(Bx*dVydx+By*dVydy+Bz*(Vel[k][j][i].x2-Vel[k-1][j][i].x2)/pG->dx3)+
+	  Bz*(Bx*dVzdx+By*dVzdy+Bz*(Vel[k][j][i].x3-Vel[k-1][j][i].x3)/pG->dx3);
+	BBdV /= B02;
 
-        divV = dVxdx + dVydy + (Vel[k][j][i].x3-Vel[k-1][j][i].x3)/pG->dx3;
+	divV = dVxdx + dVydy + (Vel[k][j][i].x3-Vel[k-1][j][i].x3)/pG->dx3;
 
 /* Add fluxes */
 
-        /* Calculate nu, but zero it at shocks */
-        nudp = nud_aniso[k  ][j][i];
-        nudm = nud_aniso[k-1][j][i];
-        nud  = 2.0*(nudp*nudm)/(nudp+nudm+TINY_NUMBER);
+	/* Calculate nu, but zero it at shocks */
+	nudp = nud_aniso[k  ][j][i];
+	nudm = nud_aniso[k-1][j][i];
+	nud  = 2.0*(nudp*nudm)/(nudp+nudm+TINY_NUMBER);
 
-        /* Calculate the temperature gradient */
-        dTdx = dTdy = dTdz = 0.0;
-                           dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
-        if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
-        if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
+	/* Calculate the temperature gradient */
+	dTdx = dTdy = dTdz = 0.0;
+			   dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+	if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
+	if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
 
-        /* temp should be continuous... */
-        if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
-            (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
-            (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+	/* temp should be continuous... */
+	if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
+	    (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
+	    (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
 
-          /* Calculate the pressure gradient */
-          dPdx = dPdy = dPdz = 0.0;
-                             dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
-          if (pG->Nx[1] > 1) dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
-          if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
+	  /* Calculate the pressure gradient */
+	  dPdx = dPdy = dPdz = 0.0;
+			     dPdx = (Press[k][j][i]-Press[k  ][j  ][i-1])/pG->dx1;
+	  if (pG->Nx[1] > 1) dPdy = (Press[k][j][i]-Press[k  ][j-1][i  ])/pG->dx2;
+	  if (pG->Nx[2] > 1) dPdz = (Press[k][j][i]-Press[k-1][j  ][i  ])/pG->dx3;
 
-          /* check that pressure is continuous */
-          if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
-              (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
-              (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
+	  /* check that pressure is continuous */
+	  if ((fabs(dPdx) > shock_thresh * Press[k][j][i]/pG->dx1) ||
+	      (fabs(dPdy) > shock_thresh * Press[k][j][i]/pG->dx2) ||
+	      (fabs(dPdz) > shock_thresh * Press[k][j][i]/pG->dx3)) {
 
-            nud = 0.0;
-          }
-        }
+	    nud = 0.0;
+	  }
+	}
 
-        /* Calculate the pressure anisotropy and limit according to
-           microinstability bounds */
-        delta_P = nud*(BBdV - ONE_3RD*divV);
+	/* Calculate the pressure anisotropy and limit according to
+	   microinstability bounds */
+	delta_P = nud*(BBdV - ONE_3RD*divV);
 
 #ifdef SHARMA_CLOSURE
-        x_tmp = (2.0/3.0) * xi_prateek * B02 / Press[k][j][i];
-        y_tmp = 0.5 * x_tmp * SQR(s_prateek) / xi_prateek;
+	x_tmp = (2.0/3.0) * xi_prateek * B02 / Press[k][j][i];
+	y_tmp = 0.5 * x_tmp * SQR(s_prateek) / xi_prateek;
 
-        dp_firehose = -0.75 * B02;
+	dp_firehose = -0.75 * B02;
 
-        fact_tmp = sqrt(SQR(1+x_tmp)+2.0*x_tmp) - x_tmp;
-        dp_mirror = 1.5 * Press[k][j][i] * fact_tmp;
+	fact_tmp = sqrt(SQR(1+x_tmp)+2.0*x_tmp) - x_tmp;
+	dp_mirror = 1.5 * Press[k][j][i] * fact_tmp;
 
-        fact_tmp = sqrt(y_tmp*y_tmp + 3.0*y_tmp) - y_tmp;
-        dp_ic = Press[k][j][i] * fact_tmp;
+	fact_tmp = sqrt(y_tmp*y_tmp + 3.0*y_tmp) - y_tmp;
+	dp_ic = Press[k][j][i] * fact_tmp;
 
-        delta_P = MAX(delta_P, dp_firehose);
-        delta_P = MIN(delta_P, dp_mirror);
-        delta_P = MIN(delta_P, dp_ic);
+	delta_P = MAX(delta_P, dp_firehose);
+	delta_P = MIN(delta_P, dp_mirror);
+	delta_P = MIN(delta_P, dp_ic);
 #endif  /* SHARMA_CLOSURE */
 
-        VStress.Mx = delta_P*(3.0*Bx*Bz/B02);
-        VStress.My = delta_P*(3.0*By*Bz/B02);
-        VStress.Mz = delta_P*(3.0*Bz*Bz/B02 - 1.0);
+	VStress.Mx = delta_P*(3.0*Bx*Bz/B02);
+	VStress.My = delta_P*(3.0*By*Bz/B02);
+	VStress.Mz = delta_P*(3.0*Bz*Bz/B02 - 1.0);
 
-        x3Flux[k][j][i].Mx += VStress.Mx;
-        x3Flux[k][j][i].My += VStress.My;
-        x3Flux[k][j][i].Mz += VStress.Mz;
+	x3Flux[k][j][i].Mx += VStress.Mx;
+	x3Flux[k][j][i].My += VStress.My;
+	x3Flux[k][j][i].Mz += VStress.Mz;
 
 #ifndef BAROTROPIC
-        x3Flux[k][j][i].E  +=
-           0.5*(Vel[k-1][j][i].x1 + Vel[k][j][i].x1)*VStress.Mx +
-           0.5*(Vel[k-1][j][i].x2 + Vel[k][j][i].x2)*VStress.My +
-           0.5*(Vel[k-1][j][i].x3 + Vel[k][j][i].x3)*VStress.Mz;
+	x3Flux[k][j][i].E  +=
+	   0.5*(Vel[k-1][j][i].x1 + Vel[k][j][i].x1)*VStress.Mx +
+	   0.5*(Vel[k-1][j][i].x2 + Vel[k][j][i].x2)*VStress.My +
+	   0.5*(Vel[k-1][j][i].x3 + Vel[k][j][i].x3)*VStress.Mz;
 #endif /* BAROTROPIC */
       }
     }}
@@ -1010,15 +973,15 @@ void viscosity_init(MeshS *pM)
   for (nl=0; nl<(pM->NLevels); nl++){
     for (nd=0; nd<(pM->DomainsPerLevel[nl]); nd++){
       if (pM->Domain[nl][nd].Grid != NULL) {
-        if (pM->Domain[nl][nd].Grid->Nx[0] > size1){
-          size1 = pM->Domain[nl][nd].Grid->Nx[0];
-        }
-        if (pM->Domain[nl][nd].Grid->Nx[1] > size2){
-          size2 = pM->Domain[nl][nd].Grid->Nx[1];
-        }
-        if (pM->Domain[nl][nd].Grid->Nx[2] > size3){
-          size3 = pM->Domain[nl][nd].Grid->Nx[2];
-        }
+	if (pM->Domain[nl][nd].Grid->Nx[0] > size1){
+	  size1 = pM->Domain[nl][nd].Grid->Nx[0];
+	}
+	if (pM->Domain[nl][nd].Grid->Nx[1] > size2){
+	  size2 = pM->Domain[nl][nd].Grid->Nx[1];
+	}
+	if (pM->Domain[nl][nd].Grid->Nx[2] > size3){
+	  size3 = pM->Domain[nl][nd].Grid->Nx[2];
+	}
       }
     }
   }
