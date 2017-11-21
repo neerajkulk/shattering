@@ -28,6 +28,11 @@ static int cooling_flag;
 static int heating_flag;
 static Real f, gm;
 
+#ifdef VISCOSITY
+static Real nu_param;
+#endif // VISCOSITY
+
+
 
 
 // tfloor drop times. time spent in each step reduces by a factor of 2
@@ -106,6 +111,7 @@ void problem(DomainS *pDomain)
 #ifdef VISCOSITY
   NuFun_i = nu_fun;
   NuFun_a = NULL;
+  nu_param = par_getd("problem", "nu_iso");
 #endif  /* VISCOSITY */
 
   //gm and f are used in cooling routines
@@ -488,6 +494,6 @@ static Real nu_fun(const Real d, const Real T,
                    const Real x1, const Real x2, const Real x3)
 {				/* simple test of temperature depedant viscosity  */
   
-  return (0.01* pow(T,2.5));
+  return (nu_param * pow(T,2.5));
 }
 #endif  /* VISCOSITY */
