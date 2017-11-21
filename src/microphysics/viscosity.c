@@ -268,7 +268,7 @@ void ViscStress_iso(DomainS *pD)
   Real dTdx, dTdy, dTdz;
   Real dPdx, dPdy, dPdz;
 
-  const Real shock_thresh = 0.15;
+  const Real shock_thresh = 0.15; /* TODO: choose this based on a value that reflects hot-interface */
 
 /* Add viscous fluxes in 1-direction */
 
@@ -290,6 +290,8 @@ void ViscStress_iso(DomainS *pD)
                                       (Vel[k-1][j][i].x1 + Vel[k-1][j][i-1].x1));
       }
 
+      /* TODO: rewrite this part so viscosity is 0 at hot-cold interface (plasma physics) */
+      
       /* Calculate nu, but zero it at shocks */
       cc_pos(pG, i, j, k, &x1, &x2, &x3);
       nu = (*NuFun_i)(pG->U[k][j][i].d, Temp[k][j][i], x1, x2, x3);
