@@ -493,7 +493,7 @@ Real hst_rhosq(const GridS *pG, const int i, const int j, const int k)
 static Real nu_fun(const Real d, const Real T,
                    const Real x1, const Real x2, const Real x3)
 {				/* simple test of temperature depedant viscosity  */
-  
-  return (nu_param * pow(T,2.5));
+  return 0.0;
+  // return (nu_param * pow(T,2.5));
 }
 #endif  /* VISCOSITY */
