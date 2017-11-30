@@ -258,12 +258,48 @@ void Userwork_in_loop(MeshS *pM)
         pGrid = pM->Domain[nl][nd].Grid;
 
 #ifndef BAROTROPIC
-        integrate_cooling(pGrid);
+        //integrate_cooling(pGrid);
 #endif  /* BAROTROPIC */
+
+	/*find nans*/
+
+  int i, j, k;
+  int is, ie, js, je, ks, ke;
+
+  is = pGrid->is;  ie = pGrid->ie;
+  js = pGrid->js;  je = pGrid->je;
+  ks = pGrid->ks;  ke = pGrid->ke;
+  
+  for (k=ks; k<=ke; k++) {
+    for (j=js; j<=je; j++) {
+      for (i=is; i<=ie; i++) {
+	
+	
+	if (isnan(pGrid->U[k][j][i].E)) {
+	  //ath_error("bad energy of %f \n", pGrid->U[k][j][i].E);
+	}
+	
+	if (isnan(pGrid->U[k][j][i].d)) {
+	  //ath_error("bad density %f \n", pGrid->U[k][j][i].d);
+	}
+	
+	
+	if (isnan(pGrid->U[k][j][i].M1)) {
+	  ath_error("bad momentum %f \n", pGrid->U[k][j][i].M1);
+	}
+	
+	
       }
     }
   }
-
+  
+  
+  
+  
+      }
+    }
+  }
+  
   return;
 }
 
