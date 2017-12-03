@@ -32,6 +32,13 @@ static Real f, gm;
 static Real nu_param;
 #endif // VISCOSITY
 
+#ifdef THERMAL_CONDUCTION
+static Real kappa_fun(const Real d, const Real T,
+                      const Real x1, const Real x2, const Real x3);
+
+static Real f_sp;             /* normalization for the conductivity */
+#endif  /* THERMAL_CONDUCTION */
+
 
 
 
@@ -114,6 +121,15 @@ void problem(DomainS *pDomain)
   nu_param = par_getd("problem", "nu_iso");
 #endif  /* VISCOSITY */
 
+#ifdef THERMAL_CONDUCTION
+  KappaFun_i  = kappa_fun;
+  KappaFun_a  = NULL;
+  f_sp        = 0.0;
+#endif  /* THERMAL_CONDUCTION */
+
+
+
+  
   //gm and f are used in cooling routines
   f = pow(gm, 1.5)/(gm-1.0)/(2.0-alpha);
   f = 1.0/f;
@@ -276,11 +292,11 @@ void Userwork_in_loop(MeshS *pM)
 	
 	
 	if (isnan(pGrid->U[k][j][i].E)) {
-	  //ath_error("bad energy of %f \n", pGrid->U[k][j][i].E);
+	  ath_error("bad energy of %f \n", pGrid->U[k][j][i].E);
 	}
 	
 	if (isnan(pGrid->U[k][j][i].d)) {
-	  //ath_error("bad density %f \n", pGrid->U[k][j][i].d);
+	  ath_error("bad density %f \n", pGrid->U[k][j][i].d);
 	}
 	
 	
@@ -533,3 +549,12 @@ static Real nu_fun(const Real d, const Real T,
   // return (nu_param * pow(T,2.5));
 }
 #endif  /* VISCOSITY */
+
+
+#ifdef THERMAL_CONDUCTION
+static Real kappa_fun(const Real d, const Real T,
+                      const Real x1, const Real x2, const Real x3)
+{
+  return 0.0;
+}
+#endif  /* THERMAL_CONDUCTION */
