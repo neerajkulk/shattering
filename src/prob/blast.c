@@ -17,6 +17,26 @@
 #include "globals.h"
 #include "prototypes.h"
 
+
+/*adding in mike's temperature depedant viscosity routine*/
+
+#ifdef VISCOSITY
+/* viscosity won't work without conduction... */
+static Real nu_fun(const Real d, const Real T,
+                   const Real x1, const Real x2, const Real x3);
+#endif  /* VISCOSITY */
+
+
+
+#ifdef THERMAL_CONDUCTION
+static Real kappa_fun(const Real d, const Real T,
+                      const Real x1, const Real x2, const Real x3);
+
+static Real f_sp;             /* normalization for the conductivity */
+#endif  /* THERMAL_CONDUCTION */
+
+
+
 /*----------------------------------------------------------------------------*/
 /* problem:  */
 
@@ -44,6 +64,21 @@ void problem(DomainS *pDomain)
 
 /* setup uniform ambient medium with spherical over-pressured region */
 
+
+#ifdef VISCOSITY
+  NuFun_i = nu_fun;
+  NuFun_a = NULL;
+  nu_param = par_getd("problem", "nu_iso");
+#endif  /* VISCOSITY */
+  
+#ifdef THERMAL_CONDUCTION
+  KappaFun_i  = kappa_fun;
+  KappaFun_a  = NULL;
+  f_sp        = 0.0;
+#endif  /* THERMAL_CONDUCTION */
+  
+
+  
   W.d = da;
   W.Vx = 0.0;
   W.Vy = 0.0;
@@ -150,3 +185,22 @@ void Userwork_in_loop(MeshS *pM)
 void Userwork_after_loop(MeshS *pM)
 {
 }
+
+
+
+
+#ifdef VISCOSITY
+static Real nu_fun(const Real d, const Real T, const Real x1, const Real x2, const Real x3){
+  return 0.0;
+  // return (nu_param * pow(T,2.5));
+}
+#endif  /* VISCOSITY */
+
+
+#ifdef THERMAL_CONDUCTION
+static Real kappa_fun(const Real d, const Real T,
+                      const Real x1, const Real x2, const Real x3){
+  return 0.0;
+}
+#endif  /* THERMAL_CONDUCTION */
+
