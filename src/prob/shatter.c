@@ -346,7 +346,7 @@ void Userwork_in_loop(MeshS *pM)
         pGrid = pM->Domain[nl][nd].Grid;
 
 #ifndef BAROTROPIC
-        //integrate_cooling(pGrid);
+        integrate_cooling(pGrid);
 #endif  /* BAROTROPIC */
 
 	/*find nans*/
