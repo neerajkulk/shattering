@@ -114,9 +114,11 @@ static Real nu_fun(const Real d, const Real T,
 // helper functions to reduce code
 //
 static inline Real window(Real x, Real width, Real a);
+#ifndef BAROTROPIC
 static inline Real get_tfloor(Real cstcool);
 static inline Real get_cstcool(const Real time);
 static void integrate_cooling(GridS *pG);
+#endif
 
 // history outputs
 
@@ -241,7 +243,7 @@ void problem(DomainS *pDomain)
         /* pGrid->U[k][j][i].M2 += amp*(((Real)rand()/RAND_MAX) - 0.5)*pGrid->U[k][j][i].d * vflow; */
       
 
-	
+#ifndef BAROTROPIC	
 	pGrid->U[k][j][i].E = P/Gamma_1 + (SQR(pGrid->U[k][j][i].M1) + SQR(pGrid->U[k][j][i].M2) + SQR(pGrid->U[k][j][i].M3))/(2.0*pGrid->U[k][j][i].d);
 	
 #ifdef MHD
@@ -249,6 +251,7 @@ void problem(DomainS *pDomain)
 				+ SQR(pGrid->U[k][j][i].B2c)
 				+ SQR(pGrid->U[k][j][i].B3c))*0.5;
 #endif
+#endif	/* BAROTROPIC */
       }
     }
   }
@@ -422,6 +425,7 @@ static Real window(Real x, Real width, Real a)
 }
 
 
+#ifndef BAROTROPIC
 static void integrate_cooling(GridS *pG)
 {
   PrimS W;
@@ -501,7 +505,7 @@ static void integrate_cooling(GridS *pG)
   return;
 
 }
-
+#endif	/* BAROTROPIC */
 
 
 /* ========================================================================== */
@@ -528,7 +532,11 @@ Real hst_rho_hot(const GridS *pG, const int i, const int j, const int k)
   ConsS U;
 
   W = Cons_to_Prim(&(pG->U[k][j][i]));
+#ifndef BAROTROPIC
   Real temp = W.P/W.d;
+#else
+  Real temp = SQR(Iso_csound);
+#endif
 
   if (temp >=tcut) {
     ret = W.d;
@@ -549,7 +557,11 @@ Real hst_rho_v_hot(const GridS *pG, const int i, const int j, const int k)
   ConsS U;
 
   W = Cons_to_Prim(&(pG->U[k][j][i]));
+#ifndef BAROTROPIC
   Real temp = W.P/W.d;
+#else
+  Real temp = SQR(Iso_csound);
+#endif
 
   if (temp >=tcut) {
     ret = pG->U[k][j][i].M1;
@@ -569,7 +581,11 @@ Real hst_rho_cold(const GridS *pG, const int i, const int j, const int k)
   ConsS U;
 
   W = Cons_to_Prim(&(pG->U[k][j][i]));
+#ifndef BAROTROPIC
   Real temp = W.P/W.d;
+#else
+  Real temp = SQR(Iso_csound);
+#endif
 
   if (temp <=tcut) {
     ret = W.d;
@@ -590,7 +606,11 @@ Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int k)
   ConsS U;
 
   W = Cons_to_Prim(&(pG->U[k][j][i]));
+#ifndef BAROTROPIC
   Real temp = W.P/W.d;
+#else
+  Real temp = SQR(Iso_csound);
+#endif
 
   if (temp <=tcut) {
     ret = pG->U[k][j][i].M1;
