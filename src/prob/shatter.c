@@ -169,7 +169,7 @@ void problem(DomainS *pDomain)
 #ifdef VISCOSITY
   NuFun_i = nu_fun;
   NuFun_a = NULL;
-  nu_param = par_getd("problem", "nu_iso");
+  nu_param = par_getd("problem", "nu_param");
 #endif  /* VISCOSITY */
 
 #ifdef THERMAL_CONDUCTION
@@ -632,8 +632,7 @@ Real hst_rhosq(const GridS *pG, const int i, const int j, const int k)
 
 #ifdef VISCOSITY
 static Real nu_fun(const Real d, const Real T, const Real x1, const Real x2, const Real x3){
-  return 0.1;
-  // return (nu_param * pow(T,2.5));
+  return (nu_param * pow(T,2.5));
 }
 #endif  /* VISCOSITY */
 
