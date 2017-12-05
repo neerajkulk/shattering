@@ -25,6 +25,7 @@
 #include "prototypes.h"
 #include "../prototypes.h"
 
+
 /* private function */
 Real max_kappa(DomainS *pD);
 Real max_nu(DomainS *pD);
@@ -174,6 +175,7 @@ Real max_kappa(DomainS *pD)
 
         d = pG->U[k][j][i].d;
 
+#ifndef BAROTROPIC
         T = pG->U[k][j][i].E -
             (0.5/d) * (SQR(pG->U[k][j][i].M1)
                        +SQR(pG->U[k][j][i].M2)
@@ -183,8 +185,12 @@ Real max_kappa(DomainS *pD)
         T -= (0.5)*(SQR(pG->U[k][j][i].B1c)
                     +SQR(pG->U[k][j][i].B2c)
                     +SQR(pG->U[k][j][i].B3c));
-#endif
+#endif	/* MHD */
         T *= (Gamma_1/d);
+#else  /* BAROTROPIC */
+	T = sqrt(Iso_csound);
+#endif	/* BAROTROPIC */
+
 
         kappa = 0.0;
         if (KappaFun_i != NULL)
@@ -239,6 +245,7 @@ Real max_nu(DomainS *pD)
 
         d = pG->U[k][j][i].d;
 
+#ifndef BAROTROPIC
         T = pG->U[k][j][i].E -
             (0.5/d) * (SQR(pG->U[k][j][i].M1)
                        +SQR(pG->U[k][j][i].M2)
@@ -250,6 +257,9 @@ Real max_nu(DomainS *pD)
                     +SQR(pG->U[k][j][i].B3c));
 #endif
         T *= (Gamma_1/d);
+#else  /* BAROTROPIC */
+	T = sqrt(Iso_csound);
+#endif /* BAROTROPIC */
 
         nu = 0.0;
         if (NuFun_i != NULL)
