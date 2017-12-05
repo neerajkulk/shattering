@@ -300,16 +300,16 @@ void ViscStress_iso(DomainS *pD)
 
       /* Calculate the temperature gradient */
       dTdx = dTdy = dTdz = 0.0;
-      			 dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+      dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
       if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
       if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
-
+      
       /* setting the viscosity = 0 at the hot cold interface (comes from plasma physics). */
       if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
-      	  (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
-      	  (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+	  (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
+	  (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
 
-      	nu = 0.0;
+	nu = 0.0;
       }
 
       nud = nu*0.5*(pG->U[k][j][i].d + pG->U[k][j][i-1].d);
@@ -352,10 +352,10 @@ void ViscStress_iso(DomainS *pD)
 
 	/* Calculate the temperature gradient */
 	dTdx = dTdy = dTdz = 0.0;
-			   dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
+	dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
 	if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
 	if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
-
+	
 
 	/* setting the viscosity = 0 at the hot cold interface (comes from plasma physics). */
 	if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
@@ -408,7 +408,7 @@ void ViscStress_iso(DomainS *pD)
 	dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
 	if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
 	if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
-	
+
 	/* setting the viscosity = 0 at the hot cold interface (comes from plasma physics). */
 	if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
 	    (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
