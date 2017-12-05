@@ -315,9 +315,9 @@ void ViscStress_iso(DomainS *pD)
 
 #ifndef BAROTROPIC
       x1Flux[k][j][i].E  +=
-	 0.5*(Vel[k][j][i-1].x1 + Vel[k][j][i].x1)*VStress.Mx +
-	 0.5*(Vel[k][j][i-1].x2 + Vel[k][j][i].x2)*VStress.My +
-	 0.5*(Vel[k][j][i-1].x3 + Vel[k][j][i].x3)*VStress.Mz;
+	 0.5*(Vel[k][j][i-1].x1 + Vel[k][j][i].x1)*x1Flux[k][j][i].Mx +
+	 0.5*(Vel[k][j][i-1].x2 + Vel[k][j][i].x2)*x1Flux[k][j][i].My +
+	 0.5*(Vel[k][j][i-1].x3 + Vel[k][j][i].x3)*x1Flux[k][j][i].Mz;
 #endif /* BAROTROPIC */
     }
   }}
@@ -347,31 +347,33 @@ void ViscStress_iso(DomainS *pD)
 	nu = (*NuFun_i)(pG->U[k][j][i].d, Temp[k][j][i], x1, x2, x3);
 
 	/* Calculate the temperature gradient */
-	dTdx = dTdy = dTdz = 0.0;
-			   dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
-	if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
-	if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
+	/* dTdx = dTdy = dTdz = 0.0; */
+	/* 		   dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1; */
+	/* if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2; */
+	/* if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3; */
 
 
-	/* setting the viscosity = 0 at the hot cold interface (comes from plasma physics). */
-	if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
-	    (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
-	    (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+	/* /\* setting the viscosity = 0 at the hot cold interface (comes from plasma physics). *\/ */
+	/* if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) || */
+	/*     (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) || */
+	/*     (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) { */
 
-	  nu = 0.0;
-	}
+	/*   nu = 0.0; */
+	/* } */
 
 	nud = nu*0.5*(pG->U[k][j][i].d + pG->U[k][j-1][i].d);
 	x2Flux[k][j][i].Mx += nud*VStress.Mx;
 	x2Flux[k][j][i].My += nud*VStress.My;
 	x2Flux[k][j][i].Mz += nud*VStress.Mz;
 
+
 #ifndef BAROTROPIC
-	x2Flux[k][j][i].E  +=
-	   0.5*(Vel[k][j-1][i].x1 + Vel[k][j][i].x1)*VStress.Mx +
-	   0.5*(Vel[k][j-1][i].x2 + Vel[k][j][i].x2)*VStress.My +
-	   0.5*(Vel[k][j-1][i].x3 + Vel[k][j][i].x3)*VStress.Mz;
+      x2Flux[k][j][i].E  +=
+	 0.5*(Vel[k][j][i-1].x1 + Vel[k][j][i].x1)*x2Flux[k][j][i].Mx +
+	 0.5*(Vel[k][j][i-1].x2 + Vel[k][j][i].x2)*x2Flux[k][j][i].My +
+	 0.5*(Vel[k][j][i-1].x3 + Vel[k][j][i].x3)*x2Flux[k][j][i].Mz;
 #endif /* BAROTROPIC */
+
       }
     }}
   }
@@ -398,30 +400,33 @@ void ViscStress_iso(DomainS *pD)
 	nu = (*NuFun_i)(pG->U[k][j][i].d, Temp[k][j][i], x1, x2, x3);
 
 	/* Calculate the temperature gradient */
-	dTdx = dTdy = dTdz = 0.0;
-	dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1;
-			   if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2;
-	if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3;
+	/* dTdx = dTdy = dTdz = 0.0; */
+	/* dTdx = (Temp[k][j][i]-Temp[k  ][j  ][i-1])/pG->dx1; */
+	/* 		   if (pG->Nx[1] > 1) dTdy = (Temp[k][j][i]-Temp[k  ][j-1][i  ])/pG->dx2; */
+	/* if (pG->Nx[2] > 1) dTdz = (Temp[k][j][i]-Temp[k-1][j  ][i  ])/pG->dx3; */
 
-	/* setting the viscosity = 0 at the hot cold interface (comes from plasma physics). */
-	if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) ||
-	    (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) ||
-	    (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) {
+	/* /\* setting the viscosity = 0 at the hot cold interface (comes from plasma physics). *\/ */
+	/* if ((fabs(dTdx) > shock_thresh * Temp[k][j][i]/pG->dx1) || */
+	/*     (fabs(dTdy) > shock_thresh * Temp[k][j][i]/pG->dx2) || */
+	/*     (fabs(dTdz) > shock_thresh * Temp[k][j][i]/pG->dx3)) { */
 
-	  nu = 0.0;
-	}
+	/*   nu = 0.0; */
+	/* } */
 
 	nud = nu*0.5*(pG->U[k][j][i].d + pG->U[k-1][j][i].d);
 	x3Flux[k][j][i].Mx += nud*VStress.Mx;
 	x3Flux[k][j][i].My += nud*VStress.My;
 	x3Flux[k][j][i].Mz += nud*VStress.Mz;
 
+
+
 #ifndef BAROTROPIC
-	x3Flux[k][j][i].E  +=
-	   0.5*(Vel[k-1][j][i].x1 + Vel[k][j][i].x1)*VStress.Mx +
-	   0.5*(Vel[k-1][j][i].x2 + Vel[k][j][i].x2)*VStress.My +
-	   0.5*(Vel[k-1][j][i].x3 + Vel[k][j][i].x3)*VStress.Mz;
+      x3Flux[k][j][i].E  +=
+	 0.5*(Vel[k][j][i-1].x1 + Vel[k][j][i].x1)*x3Flux[k][j][i].Mx +
+	 0.5*(Vel[k][j][i-1].x2 + Vel[k][j][i].x2)*x3Flux[k][j][i].My +
+	 0.5*(Vel[k][j][i-1].x3 + Vel[k][j][i].x3)*x3Flux[k][j][i].Mz;
 #endif /* BAROTROPIC */
+
       }
     }}
   }
