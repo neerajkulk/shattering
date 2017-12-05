@@ -632,7 +632,7 @@ Real hst_rhosq(const GridS *pG, const int i, const int j, const int k)
 
 #ifdef VISCOSITY
 static Real nu_fun(const Real d, const Real T, const Real x1, const Real x2, const Real x3){
-  return 0.0;
+  return 0.1;
   // return (nu_param * pow(T,2.5));
 }
 #endif  /* VISCOSITY */
@@ -641,7 +641,7 @@ static Real nu_fun(const Real d, const Real T, const Real x1, const Real x2, con
 #ifdef THERMAL_CONDUCTION
 static Real kappa_fun(const Real d, const Real T,
                       const Real x1, const Real x2, const Real x3){
-  return 0.0;
+  return 0.1;
 }
 #endif  /* THERMAL_CONDUCTION */
 
