@@ -174,6 +174,7 @@ void viscosity(DomainS *pD)
     for (j=jl; j<=ju; j++) {
       for (i=is-2; i<=ie+2; i++) {
 
+#ifndef BAROTROPIC
 	Temp[k][j][i] = pG->U[k][j][i].E - (0.5/pG->U[k][j][i].d)*
 	  (SQR(pG->U[k][j][i].M1) +SQR(pG->U[k][j][i].M2) +SQR(pG->U[k][j][i].M3));
 #ifdef MHD
@@ -181,6 +182,9 @@ void viscosity(DomainS *pD)
 				SQR(pG->U[k][j][i].B2c) + SQR(pG->U[k][j][i].B3c));
 #endif
 	Temp[k][j][i] *= (Gamma_1/pG->U[k][j][i].d);
+#else  /* BAROTROPIC */
+	Temp[k][j][i] = SQR(Iso_csound);
+#endif /* BAROTROPIC */
 
 	/* also compute the pressure so we can detect shocks.  (at a
 	   contact discontinuity, temp can be discontinuous, but pressure
