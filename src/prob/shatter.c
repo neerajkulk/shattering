@@ -136,6 +136,9 @@ static Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int 
 static Real hst_rhosq(const GridS *pG, const int i, const int j, const int k);
 
 
+static Real hst_shear(const GridS *pG, const int i, const int j, const int k);
+
+
 
 static double ran2(long int *idum);
 /*=========================== PUBLIC FUNCTIONS ===============================*/
@@ -284,6 +287,7 @@ void problem(DomainS *pDomain)
   dump_history_enroll(hst_rho_cold, "rho_cold");
   dump_history_enroll(hst_rho_v_cold, "rho_v_cold");
   dump_history_enroll(hst_rhosq, "rho^2");
+  dump_history_enroll(hst_shear, "dv/dl");
 
   
 }
@@ -630,6 +634,26 @@ Real hst_rhosq(const GridS *pG, const int i, const int j, const int k)
 
 
 
+static Real hst_shear(const GridS *pG, const int i, const int j, const int k)
+{
+  Real dVydx;
+  Real dVxdy;
+
+  dVydx = (pG->U[k][j][i+1].M2/pG->U[k][j][i+1].d) - (pG->U[k][j][i].M2/pG->U[k][j][i].d);
+  dVydx /= pG->dx1;
+  
+  dVxdy = (pG->U[k][j+1][i].M1/pG->U[k][j+1][i].d) - (pG->U[k][j][i].M1/pG->U[k][j][i].d);
+  dVxdy /= pG->dx2;
+  
+  return sqrt( SQR(dVxdy) + SQR(dVydx) );
+}
+
+
+
+
+
+
+
 #ifdef VISCOSITY
 static Real nu_fun(const Real d, const Real T, const Real x1, const Real x2, const Real x3){
   return (nu_param * pow(T,2.5));
@@ -643,11 +667,6 @@ static Real kappa_fun(const Real d, const Real T,
   return 0.1;
 }
 #endif  /* THERMAL_CONDUCTION */
-
-
-
-
-
 
 
 
