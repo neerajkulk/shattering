@@ -84,7 +84,7 @@ void problem(DomainS *pDomain)
   
   //gm and f are used in cooling routines
   v = mach * sqrt(gm);
-  tkh = (1.0+drat)/(sqrt(drat)*sqrt(v)); // rho_hot = 1.0 and rho_cold = drat
+  tkh = (1.0+drat)/(sqrt(drat)*v); // rho_hot = 1.0 and rho_cold = drat
   
 
   //tcool = T^(2-alpha) * gm / ((gm-1)*(2-alpha)*lambda0) :linear theory result from mike's TI paper
