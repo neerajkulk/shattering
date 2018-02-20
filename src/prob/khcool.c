@@ -103,7 +103,7 @@ void problem(DomainS *pDomain)
   Real a     = par_getd("problem", "a");
   Real width = par_getd("problem", "width");
   Real P = 1.0;
- 
+  Real r;
   srand(iseed);
   
 #ifdef MPI_PARALLEL
@@ -117,10 +117,11 @@ void problem(DomainS *pDomain)
       for (i=is; i<=ie; i++) {
 	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
 
-
+	r = sqrt(SQR(x1)+SQR(x2));
+	
 	//set up hot cold kh beam
-	pGrid->U[k][j][i].d = 1.0 + (drat - 1.0) * window(x2, width, a);
-	pGrid->U[k][j][i].M1 = (v * (1.0 - window(x2, width, a)))*pGrid->U[k][j][i].d;
+	pGrid->U[k][j][i].d = 1.0 + (drat - 1.0) * window(r, width, a);
+	pGrid->U[k][j][i].M1 = (v * (1.0 - window(r, width, a)))*pGrid->U[k][j][i].d;
         pGrid->U[k][j][i].M2 = 0.0;
         pGrid->U[k][j][i].M3 = 0.0;
 
