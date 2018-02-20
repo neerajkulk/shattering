@@ -1,0 +1,65 @@
+<job>
+problem_id   =  khcool
+maxout       =  5
+num_domains  =  1
+
+<output1>
+out_fmt  =  hst
+dt       =  0.01
+
+<output2>
+out_fmt  = vtk
+dt       = 0.15
+out      = prim
+
+<time>
+cour_no  =  0.4
+nlim     = -1
+tlim     = 15.0
+
+<domain1>
+level     =  0
+Nx1       =  32
+x1min     = -0.5
+x1max     =  0.5
+bc_ix1    =  4
+bc_ox1    =  4
+
+Nx2       =  32
+x2min     = -0.5
+x2max     =  0.5
+bc_ix2    =  4
+bc_ox2    =  4
+
+Nx3       =  32
+x3min     = -0.5
+x3max     =  0.5
+bc_ix3    =  4
+bc_ox3    =  4
+
+
+NGrid_x1  =  16
+NGrid_x2  =  16
+NGrid_x3  =  1
+
+
+<problem>
+gamma  = 1.6666666666666666666666666666666667
+amp    =  0.01
+mach   =  0.5
+a      =  50
+width  =  0.125
+drat   =  10.0
+tkh/tcool = 10.0
+nu_param =  0.1
+f_sp   =  0.0
+noise  =  0.1
+
+<cooling>
+alpha    = -1.0
+floor	 = 0.02
+
+cooling  =  1
+heating  =  1
+
+<par_end>
