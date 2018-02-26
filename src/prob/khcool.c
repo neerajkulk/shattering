@@ -46,6 +46,8 @@ static Real hst_rho_cold(const GridS *pG, const int i, const int j, const int k)
 static Real hst_rho_v_hot(const GridS *pG, const int i, const int j, const int k);
 static Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int k);
 
+static Real hst_min_temp(const GridS *pG, const int i, const int j, const int k);
+
 static Real hst_rhosq(const GridS *pG, const int i, const int j, const int k);
 
 
@@ -154,6 +156,7 @@ void problem(DomainS *pDomain)
 
   
 /* enroll new history variables, only once  */
+  dump_history_enroll(hst_min_temp, "min_temp");
   dump_history_enroll(hst_rho_hot, "rho_hot");
   dump_history_enroll(hst_rho_v_hot, "rho_v_hot");
   dump_history_enroll(hst_rho_cold, "rho_cold");
@@ -419,6 +422,24 @@ Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int k)
   }
 
   return ret;
+}
+
+
+
+Real hst_min_temp(const GridS *pG, const int i, const int j, const int k)
+{
+  Real mintemp = 10.0;
+  PrimS W;
+  ConsS U;
+
+  W = Cons_to_Prim(&(pG->U[k][j][i]));
+  Real temp = W.P/W.d;
+
+  if (temp <= mintemp) {
+    mintemp = temp;
+  }
+
+  return mintemp;
 }
 
 
