@@ -119,7 +119,7 @@ void problem(DomainS *pDomain)
       for (i=is; i<=ie; i++) {
 	cc_pos(pGrid,i,j,k,&x1,&x2,&x3);
 
-	r = sqrt(SQR(x1)+SQR(x2));
+	r = sqrt(SQR(x2)+SQR(x3));
 	
 	//set up hot cold kh beam
 	pGrid->U[k][j][i].d = 1.0 + (drat - 1.0) * window(r, width, a);
