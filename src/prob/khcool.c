@@ -426,26 +426,6 @@ Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int k)
 
 
 
-Real hst_min_temp(const GridS *pG, const int i, const int j, const int k)
-{
-  Real mintemp = 10.0;
-  PrimS W;
-  ConsS U;
-
-  W = Cons_to_Prim(&(pG->U[k][j][i]));
-  Real temp = W.P/W.d;
-
-  if (temp <= mintemp) {
-    mintemp = temp;
-  }
-
-  return mintemp;
-}
-
-
-
-
-
 Real hst_rhosq(const GridS *pG, const int i, const int j, const int k)
 {
   return SQR(pG->U[k][j][i].d);
