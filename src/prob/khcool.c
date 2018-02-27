@@ -154,7 +154,6 @@ void problem(DomainS *pDomain)
 
   
 /* enroll new history variables, only once  */
-  dump_history_enroll(hst_min_temp, "min_temp");
   dump_history_enroll(hst_rho_hot, "rho_hot");
   dump_history_enroll(hst_rho_v_hot, "rho_v_hot");
   dump_history_enroll(hst_rho_cold, "rho_cold");
