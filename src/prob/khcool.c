@@ -389,7 +389,7 @@ Real hst_rho_v_hot(const GridS *pG, const int i, const int j, const int k)
 
 Real hst_rho_cold(const GridS *pG, const int i, const int j, const int k)
 {
-  Real tcut = 1.1;
+  Real tcut = 2.0*tfloor;
   Real ret = 0.0;
   PrimS W;
   ConsS U;
@@ -409,7 +409,7 @@ Real hst_rho_cold(const GridS *pG, const int i, const int j, const int k)
 
 Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int k)
 {
-  Real tcut = 1.1;
+  Real tcut = 2.0*tfloor;
   Real ret = 0.0;
   PrimS W;
   ConsS U;
