@@ -46,8 +46,6 @@ static Real hst_rho_cold(const GridS *pG, const int i, const int j, const int k)
 static Real hst_rho_v_hot(const GridS *pG, const int i, const int j, const int k);
 static Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int k);
 
-static Real hst_min_temp(const GridS *pG, const int i, const int j, const int k);
-
 static Real hst_rhosq(const GridS *pG, const int i, const int j, const int k);
 
 
