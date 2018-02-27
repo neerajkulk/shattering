@@ -41,10 +41,12 @@ static void integrate_cooling(GridS *pG);
 
 static Real hst_rho_hot(const GridS *pG, const int i, const int j, const int k);
 static Real hst_rho_cold(const GridS *pG, const int i, const int j, const int k);
+static Real hst_rho_cool(const GridS *pG, const int i, const int j, const int k);
 
 
 static Real hst_rho_v_hot(const GridS *pG, const int i, const int j, const int k);
 static Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int k);
+static Real hst_rho_v_cool(const GridS *pG, const int i, const int j, const int k);
 
 static Real hst_rhosq(const GridS *pG, const int i, const int j, const int k);
 
@@ -158,6 +160,8 @@ void problem(DomainS *pDomain)
   dump_history_enroll(hst_rho_v_hot, "rho_v_hot");
   dump_history_enroll(hst_rho_cold, "rho_cold");
   dump_history_enroll(hst_rho_v_cold, "rho_v_cold");
+  dump_history_enroll(hst_rho_cool, "rho_cool");
+  dump_history_enroll(hst_rho_v_cool, "rho_v_cool");
   dump_history_enroll(hst_rhosq, "rho^2");
 
   
@@ -383,6 +387,7 @@ Real hst_rho_v_hot(const GridS *pG, const int i, const int j, const int k)
 }
 
 
+/*tracks gas just above the floor temperature*/
 
 Real hst_rho_cold(const GridS *pG, const int i, const int j, const int k)
 {
@@ -407,6 +412,45 @@ Real hst_rho_cold(const GridS *pG, const int i, const int j, const int k)
 Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int k)
 {
   Real tcut = 2.0*tfloor;
+  Real ret = 0.0;
+  PrimS W;
+  ConsS U;
+
+  W = Cons_to_Prim(&(pG->U[k][j][i]));
+  Real temp = W.P/W.d;
+
+  if (temp <=tcut) {
+    ret = pG->U[k][j][i].M1;
+  }
+
+  return ret;
+}
+
+
+/*tracks initial cool gas as it cools further (this gas is not necessarily at the floor temperature)*/
+Real hst_rho_cool(const GridS *pG, const int i, const int j, const int k)
+{
+  Real tcut = (2.0/drat);
+  Real ret = 0.0;
+  PrimS W;
+  ConsS U;
+
+  W = Cons_to_Prim(&(pG->U[k][j][i]));
+  Real temp = W.P/W.d;
+
+  if (temp <=tcut) {
+    ret = W.d;
+  }
+
+  return ret;
+}
+
+
+
+
+Real hst_rho_v_cool(const GridS *pG, const int i, const int j, const int k)
+{
+  Real tcut = (2.0/drat);
   Real ret = 0.0;
   PrimS W;
   ConsS U;
