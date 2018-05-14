@@ -96,7 +96,8 @@ void problem(DomainS *pDomain)
   lambda_0 *= pow(drat,alpha-2.0);
   lambda_0 *= gm/(gm-1.0);
   lambda_0 *= 1.0/(2.0 - alpha);
-  
+
+  ath_pout(0,"lambda_0 = %.10lf/n",lambda_0);
 
   
   /*write initial conditions*/
@@ -111,7 +112,8 @@ void problem(DomainS *pDomain)
 #ifdef MPI_PARALLEL
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  srand(iseed-rank);
+  ath_error("base rank is %i/n", rank);
+  
 #endif
     /* set hot cold kh beam with random noise in velocity */
   for (k=ks; k<=ke; k++) {
@@ -347,7 +349,7 @@ static void integrate_cooling(GridS *pG)
 
 Real hst_rho_hot(const GridS *pG, const int i, const int j, const int k)
 {
-  Real tcut = 1.1;
+  Real tcut = 0.9;
   Real ret = 0.0;
 
   PrimS W;
@@ -364,13 +366,9 @@ Real hst_rho_hot(const GridS *pG, const int i, const int j, const int k)
 }
 
 
-/* TODO: DECIDE ON A PROPER VALUE FOR TCUT */
-
-
-
 Real hst_rho_v_hot(const GridS *pG, const int i, const int j, const int k)
 {
-  Real tcut = 1.1;
+  Real tcut = 0.9;
   Real ret = 0.0;
 
   PrimS W;
@@ -471,5 +469,3 @@ Real hst_rhosq(const GridS *pG, const int i, const int j, const int k)
 {
   return SQR(pG->U[k][j][i].d);
 }
-
-
