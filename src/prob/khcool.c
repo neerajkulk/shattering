@@ -96,7 +96,6 @@ void problem(DomainS *pDomain)
   lambda_0 *= pow(drat,alpha-2.0);
   lambda_0 *= gm/(gm-1.0);
   lambda_0 *= 1.0/(2.0 - alpha);
-
   ath_pout(0,"lambda_0 = %.10lf/n",lambda_0);
 
   
@@ -112,9 +111,9 @@ void problem(DomainS *pDomain)
 #ifdef MPI_PARALLEL
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  ath_error("base rank is %i/n", rank);
-  
+  srand(iseed-rank);
 #endif
+  
     /* set hot cold kh beam with random noise in velocity */
   for (k=ks; k<=ke; k++) {
     for (j=js; j<=je; j++) {
