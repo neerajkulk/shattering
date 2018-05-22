@@ -1,3 +1,4 @@
+ls
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
@@ -124,7 +125,7 @@ void problem(DomainS *pDomain)
 	
 	//set up hot cold kh beam
 	pGrid->U[k][j][i].d = 1.0 + (drat - 1.0) * window(r, width, a);
-	pGrid->U[k][j][i].M1 = (v * (1.0 - window(r, width, a)))*pGrid->U[k][j][i].d;
+	pGrid->U[k][j][i].M1 = (1.0 - window(r, width, a))*v; // rho in hot gas is 1.0
         pGrid->U[k][j][i].M2 = 0.0;
         pGrid->U[k][j][i].M3 = 0.0;
 
