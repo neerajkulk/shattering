@@ -124,7 +124,7 @@ void problem(DomainS *pDomain)
 	
 	//set up hot cold kh beam
 	pGrid->U[k][j][i].d = 1.0 + (drat - 1.0) * window(r, width, a);
-	pGrid->U[k][j][i].M1 = (1.0 - window(r, width, a))*v; // rho in hot gas is 1.0
+	pGrid->U[k][j][i].M1 = drat*v*window(r, width, a); // rho in hot gas is 1.0
         pGrid->U[k][j][i].M2 = 0.0;
         pGrid->U[k][j][i].M3 = 0.0;
 
