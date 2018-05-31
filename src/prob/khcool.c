@@ -329,7 +329,7 @@ static void integrate_cooling(GridS *pG)
     for (k=ks; k<=ke; k++) {
       for (j=js; j<=je; j++) {
         for (i=is; i<=ie; i++) {
-          pG->U[k][j][i].E += deltaE[0];
+          pG->U[k][j][i].E += 0.5*deltaE[0];
         }
       }
     }
