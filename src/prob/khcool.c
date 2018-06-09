@@ -37,8 +37,6 @@ static void integrate_cooling(GridS *pG);
 
 // history outputs
 
-
-
 static Real hst_rho_hot(const GridS *pG, const int i, const int j, const int k);
 static Real hst_rho_cold(const GridS *pG, const int i, const int j, const int k);
 static Real hst_rho_cool(const GridS *pG, const int i, const int j, const int k);
@@ -49,6 +47,8 @@ static Real hst_rho_v_cold(const GridS *pG, const int i, const int j, const int 
 static Real hst_rho_v_cool(const GridS *pG, const int i, const int j, const int k);
 
 static Real hst_rhosq(const GridS *pG, const int i, const int j, const int k);
+
+
 
 
 
@@ -81,15 +81,16 @@ void problem(DomainS *pDomain)
   heating_flag = par_geti("cooling", "heating");
 
 
-  //define velocity and the kh timescale
+  //now we define the kh timescale to initialize simulation paramters
 
   
   //gm and f are used in cooling routines
   v = mach * sqrt(gm);
-  tkh = (1.0+drat)/(sqrt(drat)*v); // rho_hot = 1.0 and rho_cold = drat
+  tkh = (1.0+drat)/(sqrt(drat)*v); // assuming rho_hot = 1.0 and rho_cold = drat
   
 
-  //tcool = T^(2-alpha) * gm / ((gm-1)*(2-alpha)*lambda0) :linear theory result from mike's TI paper
+  //tcool = T^(2-alpha) * gm / ((gm-1)*(2-alpha)*lambda0) :linear theory result from mike's TI paper (https://arxiv.org/pdf/1105.2563.pdf)
+
   // Use tkh/tcool (set in athinput) to solve for lambda0...
 
   lambda_0 = tkhtcool/tkh;
@@ -122,7 +123,7 @@ void problem(DomainS *pDomain)
 
 	r = sqrt(SQR(x2)+SQR(x3));
 	
-	//set up hot cold kh beam
+	//set up cold beam at rest and hot gas moving 
 	pGrid->U[k][j][i].d = 1.0 + (drat - 1.0) * window(r, width, a);
 	pGrid->U[k][j][i].M1 = (1.0 - window(r, width, a))*v; // rho in hot gas is 1.0
         pGrid->U[k][j][i].M2 = 0.0;
@@ -225,7 +226,7 @@ void Userwork_in_loop(MeshS *pM)
       if (pM->Domain[nl][nd].Grid != NULL) {
         pGrid = pM->Domain[nl][nd].Grid;
 
-#ifndef BAROTROPIC
+#ifndef BAROTROPIC //cooling is implimented here
         integrate_cooling(pGrid);
 #endif  /* BAROTROPIC */
       }
@@ -312,8 +313,8 @@ static void integrate_cooling(GridS *pG)
       }
     }
   }
-
-
+  
+  // heating adds back energy lost through cooling uniformly in domain
   if (heating_flag){
 #ifdef MPI_PARALLEL
     ierr = MPI_Allreduce(&deltaE, &deltaE_global, 2, MPI_RL, MPI_SUM, MPI_COMM_WORLD);
